@@ -28,15 +28,19 @@
 #include <Windows.h>
 #pragma comment(lib,"ws2_32.lib")
 
-#define ID_LOOKUP_HOSTNAME				101
-#define ID_LOOKUP_SERVICENAME			102
-#define ID_LOOKUP_PORTNUMBER			103
-#define ID_ENTER_BTN					104
+#define ID_CONNECT						103
+#define ID_UPLOAD						104
 #define ID_EXIT							105
+#define ID_ENTER_BTN					106
+#define ID_SERVER_BTN					107
+#define ID_CLIENT_BTN					108
+#define ID_TCP_BTN						109
+#define ID_UDP_BTN						110
 
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void upload_file(HWND hwnd);
 
 
 typedef struct

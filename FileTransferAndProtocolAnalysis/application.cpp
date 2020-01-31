@@ -35,12 +35,14 @@ HWND textHwndRx;
 //Handlers for the tables for send and receive
 HWND hWndListView;
 HWND hWndListViewRx;
-HWND hInput1;
 HWND hInput2;
-HWND hRadioBtn[3];
 HWND hwndButton;
+HWND radioBtnClient;
+HWND radioBtnServer;
+HWND radioBtnTCP;
+HWND radioBtnUDP;
+
 HWND textHwndLabel;
-HWND textHwndLabel1;
 HWND textHwndLabel2;
 
 PORTPARMA portparma;
@@ -83,7 +85,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	// Define a Window class
 	Wcl.cbSize = sizeof(WNDCLASSEX);
 	Wcl.style = 0; // default style
-	Wcl.hIcon = LoadIcon(NULL, (LPCWSTR)IDI_APPLICATION); // large icon 
+	Wcl.hIcon = LoadIcon(NULL, (LPCSTR)IDI_APPLICATION); // large icon 
 	Wcl.hIconSm = NULL; // use small version of large icon
 	Wcl.hCursor = LoadCursor(NULL, IDC_ARROW);  // cursor style
 
@@ -147,72 +149,74 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	switch (Message)
 	{
 	case WM_CREATE: //creates the labels, text fields and buttons
-		hwndButton = CreateWindow(L"BUTTON", L"Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-			455, 115, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
-
-		textHwndLabel = CreateWindow(L"STATIC", L"host name -> IP OR IP -> host name",
+		textHwndLabel = CreateWindow("STATIC", "<<< Client TCP >>>",
 			WS_CHILD | WS_VISIBLE | SS_CENTER,
 			30, 10, 525, 20, hwnd, NULL, NULL, NULL);
 
-		textHwndLabel1 = CreateWindow(L"STATIC", L"Host name or IP",
+		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ",
+			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 45, 150, 20, hwnd, NULL, NULL, NULL);
+		
+		radioBtnServer = CreateWindow(TEXT("BUTTON"), TEXT("Server"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			205, 45, 100, 20, hwnd, (HMENU)ID_SERVER_BTN, NULL, NULL);
+		
+		radioBtnClient = CreateWindow(TEXT("BUTTON"), TEXT("Client"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			350, 45, 100, 20, hwnd, (HMENU)ID_CLIENT_BTN, NULL, NULL);
+
+		textHwndLabel2 = CreateWindow("STATIC", "Select Protocol: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 45, 150, 20, hwnd, NULL, NULL, NULL);
 
-		textHwnd = CreateWindow(L"EDIT", L"",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_MULTILINE | ES_WANTRETURN | WS_VSCROLL | ES_READONLY | WS_BORDER,
-			30, 150, 525, 175, hwnd, NULL, NULL, NULL);
+		radioBtnTCP = CreateWindow(TEXT("BUTTON"), TEXT("TCP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			205, 65, 100, 20, hwnd, (HMENU)ID_TCP_BTN, NULL, NULL);
 
-		hInput1 = CreateWindow(L"edit", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 45, 350, 20, hwnd, NULL, NULL, NULL);
+		radioBtnUDP = CreateWindow(TEXT("BUTTON"), TEXT("UDP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			350, 65, 100, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow(L"STATIC", L"Protocol: ",
+		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 80, 150, 20, hwnd, NULL, NULL, NULL);
+			30, 120, 150, 20, hwnd, NULL, NULL, NULL);
 
-		hInput2 = CreateWindow(L"edit", L"", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 80, 350, 20, hwnd, NULL, NULL, NULL);
+		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+			205, 120, 350, 20, hwnd, NULL, NULL, NULL);
+
+		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+			455, 215, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
+
+		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
+		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
 		ShowWindow(hInput2, SW_HIDE);
 		ShowWindow(textHwndLabel2, SW_HIDE);
 
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case ID_LOOKUP_HOSTNAME:
-			portparma.selection = 0;
-			ShowWindow(hInput2, SW_HIDE);
-			ShowWindow(textHwndLabel2, SW_HIDE);
-			SetWindowText(textHwndLabel1, L"Host name or IP");
-			SetWindowText(textHwndLabel, L"host name -> IP OR IP -> host name");
+		case ID_CONNECT:
+			//portparma.selection = 0;
+			//ShowWindow(hInput2, SW_HIDE);
+			//ShowWindow(textHwndLabel2, SW_HIDE);
+			//SetWindowText(textHwndLabel, "host name -> IP OR IP -> host name");
 
 			break;
-		case ID_LOOKUP_SERVICENAME:
-			portparma.selection = 1;
-			ShowWindow(textHwndLabel2, SW_RESTORE);
-			ShowWindow(hInput2, SW_RESTORE);
-			SetWindowText(textHwndLabel1, L"Service: ");
-			SetWindowText(textHwndLabel, L"service name/protocol -> port number");
-
+		case ID_UPLOAD:
+			upload_file(hwnd);
+			//portparma.selection = 1;
+			//ShowWindow(textHwndLabel2, SW_RESTORE);
+			//ShowWindow(hInput2, SW_RESTORE);
+			//SetWindowText(textHwndLabel, "service name/protocol -> port number");
 			break;
-		case ID_LOOKUP_PORTNUMBER:
-			portparma.selection = 2;
-			ShowWindow(textHwndLabel2, SW_RESTORE);
-			ShowWindow(hInput2, SW_RESTORE);
-			SetWindowText(textHwndLabel1, L"Port: ");
-			SetWindowText(textHwndLabel, L"port number/protocol -> service name");
 
-			break;
 		case ID_EXIT:
 			PostQuitMessage(0); //terminates the program
 			break;
 
 		case ID_ENTER_BTN: //execute functions when button is clicked
-			GetWindowText(hInput1, str, 256);
-			if (GetWindowTextLengthA(hInput1) != 0) {
+			GetWindowText(hInput2, str, 256);
+			if (GetWindowTextLengthA(hInput2) != 0) {
 				switch (portparma.selection) {
 					case 1:
 						lengthInput2= GetWindowTextLengthA(hInput2);
 						GetWindowText(hInput2, input2Text, 256); //get the HInput's text
-						
 						break;
 					case 2:
 						lengthInput2 = GetWindowTextLengthA(hInput2);
@@ -225,10 +229,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 				}
 			}
 			else {
-				SetWindowText(textHwnd, L"Invalid input");
+				SetWindowText(textHwnd, "Invalid input");
 			}
 			break;
+		case ID_SERVER_BTN:
+			//OutputDebugString("server");
+			SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
+			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
+			break;
+
+		case ID_CLIENT_BTN:
+			SendMessage(radioBtnServer, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
+			break;
+
+		case ID_TCP_BTN:
+			SendMessage(radioBtnUDP, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
+			break;
+
+		case ID_UDP_BTN:
+			SendMessage(radioBtnUDP, BM_SETCHECK, BST_CHECKED, 0);
+			SendMessage(radioBtnTCP, BM_SETCHECK, BST_UNCHECKED, 0);
+			break;
+
 		}
+
+
 		break;
 	case WM_CTLCOLORSTATIC:
 		hdc = (HDC)wParam;
@@ -241,5 +268,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		return DefWindowProc(hwnd, Message, wParam, lParam);
 	}
 	return 0;
+}
+
+void upload_file(HWND hwnd) {
+	OPENFILENAME ofn;
+	char file_name[100];
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = file_name;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 100;
+	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+
+	GetOpenFileNameA(&ofn);
+
 }
 
