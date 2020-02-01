@@ -13,6 +13,8 @@ typedef struct _SOCKET_INFORMATION {
 
 LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
 LPSOCKET_INFORMATION SocketInfoList;
+
+
 void serverMain(HWND hwnd)
 {
 	MSG msg;
@@ -78,12 +80,16 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	LPSOCKET_INFORMATION SocketInfo;
 	DWORD RecvBytes, SendBytes;
 	DWORD Flags;
+	char buff[100];
 
 	if (uMsg == WM_SOCKET)
 	{
 		if (WSAGETSELECTERROR(lParam))
 		{
-			printf("Socket failed with error %d\n", WSAGETSELECTERROR(lParam));
+			
+			sprintf_s(buff, "Socket failed with error %d\n", WSAGETSELECTERROR(lParam));
+
+			MessageBox(hwnd, buff, TEXT(""), MB_OK);
 			FreeSocketInformation(wParam);
 		}
 		else
@@ -94,7 +100,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				if ((Accept = accept(wParam, NULL, NULL)) == INVALID_SOCKET)
 				{
-					printf("accept() failed with error %d\n", WSAGetLastError());
+					sprintf_s(buff, "accept() failed with error %d\n", WSAGetLastError());
+
+					MessageBox(hwnd, buff, TEXT(""), MB_OK);
 					break;
 				}
 
@@ -103,8 +111,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				CreateSocketInformation(Accept);
 
-				printf("Socket number %d connected\n", Accept);
-				MessageBox(hwnd, (LPCSTR)Accept, TEXT(""), MB_OK);
+				sprintf_s(buff, ("Socket number %d connected\n"), Accept);
+
+				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 
 				WSAAsyncSelect(Accept, hwnd, WM_SOCKET, FD_READ | FD_WRITE | FD_CLOSE);
 

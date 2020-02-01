@@ -15,6 +15,7 @@
 #define DATA_BUFSIZE 8192
 
 #define WM_SOCKET (WM_USER + 1)
+
 void serverMain(HWND hwnd);
 void CreateSocketInformation(SOCKET s);
 

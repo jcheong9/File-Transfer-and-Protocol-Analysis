@@ -1,6 +1,6 @@
 #pragma once
 
-#define SERVER_TCP_PORT			7000	// Default port
+#define SERVER_TCP_PORT			5150	// Default port
 #define BUFSIZE					1024	
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include <windows.h>

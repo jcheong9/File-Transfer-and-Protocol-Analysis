@@ -204,6 +204,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_EXIT:
+			FreeSocketInformation(wParam); //clear socket
 			PostQuitMessage(0); //terminates the program
 			break;
 
@@ -261,6 +262,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		SetBkColor(hdc, RGB(255, 255, 255));
 		return (INT_PTR)startBackGroundColor;
 	case WM_DESTROY:		// message to terminate the program
+		FreeSocketInformation(wParam);
 		PostQuitMessage(0);
 		break;
 	default: // Let Win32 process all other messages
