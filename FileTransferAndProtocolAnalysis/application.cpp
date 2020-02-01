@@ -94,7 +94,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	Wcl.hbrBackground = startBackGroundColor;
 	Wcl.lpszClassName = Name; // window class name
 
-	Wcl.lpszMenuName = TEXT("MYMENU");
+	Wcl.lpszMenuName = TEXT("File Transfer And Protocol Analysis");
 	Wcl.cbClsExtra = 0;      // no extra memory needed
 	Wcl.cbWndExtra = 0;
 
@@ -105,7 +105,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 		return 0;
 
 	portparma.hwnd = CreateWindow(Name, Name, WS_OVERLAPPEDWINDOW, 10, 10,
-		600, 400, NULL, NULL, hInst, NULL);
+		500, 400, NULL, NULL, hInst, NULL);
 
 	ShowWindow(portparma.hwnd, nCmdShow);
 	UpdateWindow(portparma.hwnd);
@@ -151,37 +151,37 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	case WM_CREATE: //creates the labels, text fields and buttons
 		textHwndLabel = CreateWindow("STATIC", "<<< Client TCP >>>",
 			WS_CHILD | WS_VISIBLE | SS_CENTER,
-			30, 10, 525, 20, hwnd, NULL, NULL, NULL);
+			30, 10, 425, 20, hwnd, NULL, NULL, NULL);
 
 		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 45, 150, 20, hwnd, NULL, NULL, NULL);
+			30, 45, 190, 20, hwnd, NULL, NULL, NULL);
 		
 		radioBtnServer = CreateWindow(TEXT("BUTTON"), TEXT("Server"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			205, 45, 100, 20, hwnd, (HMENU)ID_SERVER_BTN, NULL, NULL);
+			245, 45, 80, 20, hwnd, (HMENU)ID_SERVER_BTN, NULL, NULL);
 		
 		radioBtnClient = CreateWindow(TEXT("BUTTON"), TEXT("Client"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			350, 45, 100, 20, hwnd, (HMENU)ID_CLIENT_BTN, NULL, NULL);
+			350, 45, 60, 20, hwnd, (HMENU)ID_CLIENT_BTN, NULL, NULL);
 
 		textHwndLabel2 = CreateWindow("STATIC", "Select Protocol: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 45, 150, 20, hwnd, NULL, NULL, NULL);
+			30, 65, 130, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnTCP = CreateWindow(TEXT("BUTTON"), TEXT("TCP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			205, 65, 100, 20, hwnd, (HMENU)ID_TCP_BTN, NULL, NULL);
+			245, 65, 60, 20, hwnd, (HMENU)ID_TCP_BTN, NULL, NULL);
 
 		radioBtnUDP = CreateWindow(TEXT("BUTTON"), TEXT("UDP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			350, 65, 100, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
+			350, 65, 60, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
 
 		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 120, 150, 20, hwnd, NULL, NULL, NULL);
+			30, 120, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 120, 350, 20, hwnd, NULL, NULL, NULL);
+			205, 120, 250, 20, hwnd, NULL, NULL, NULL);
 
 		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-			455, 215, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
+			350, 215, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
 
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
@@ -236,11 +236,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			//OutputDebugString("server");
 			SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
+			ShowWindow(hInput2, SW_HIDE);
+			ShowWindow(textHwndLabel2, SW_HIDE);
 			break;
 
 		case ID_CLIENT_BTN:
 			SendMessage(radioBtnServer, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
+			ShowWindow(textHwndLabel2, SW_RESTORE);
+			ShowWindow(hInput2, SW_RESTORE);
 			break;
 
 		case ID_TCP_BTN:
@@ -254,8 +258,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		}
-
-
 		break;
 	case WM_CTLCOLORSTATIC:
 		hdc = (HDC)wParam;
@@ -280,10 +282,10 @@ void upload_file(HWND hwnd) {
 	ofn.lpstrFile = file_name;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 100;
-	ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+	ofn.lpstrFilter = "All files\0*.*\0Text\0*.TXT\0";
 	ofn.nFilterIndex = 1;
 
 	GetOpenFileNameA(&ofn);
-
+	MessageBox(NULL, ofn.lpstrFile, "", MB_OK);
 }
 
