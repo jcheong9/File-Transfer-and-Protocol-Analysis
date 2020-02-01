@@ -26,6 +26,7 @@
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="tcp_client.h" />
+    <ClInclude Include="tcp_server.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
