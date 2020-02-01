@@ -1,4 +1,6 @@
-#include "application.h"
+#include "tcp_server.h"
+
+
 typedef struct _SOCKET_INFORMATION {
 	BOOL RecvPosted;
 	CHAR Buffer[DATA_BUFSIZE];

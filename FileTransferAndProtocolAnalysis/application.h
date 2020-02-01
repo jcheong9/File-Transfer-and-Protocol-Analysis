@@ -30,9 +30,9 @@
 #include <stdio.h>
 #include <conio.h>
 #pragma comment(lib, "Ws2_32.lib")
+#include "tcp_client.h"
+#include "tcp_server.h"
 
-#define SERVER_TCP_PORT			7000	// Default port
-#define BUFSIZE					1024	
 #define ID_DISCONNECT					102
 #define ID_CONNECT						103
 #define ID_UPLOAD						104
@@ -42,8 +42,7 @@
 #define ID_CLIENT_BTN					108
 #define ID_TCP_BTN						109
 #define ID_UDP_BTN						110
-#define PORT 5150
-#define DATA_BUFSIZE 8192
+
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -51,18 +50,7 @@ void upload_file(HWND hwnd);
 LRESULT tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
-void tcp_client(HWND hwnd);
 
-
-
-#define WM_SOCKET (WM_USER + 1)
-void serverMain(HWND hwnd);
-void CreateSocketInformation(SOCKET s);
-
-void FreeSocketInformation(SOCKET s);
-
-HWND MakeWorkerWindow(void);
-LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 typedef struct
