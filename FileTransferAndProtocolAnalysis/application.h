@@ -25,8 +25,8 @@
 
 #include <stdio.h>
 #include <string>
-
 #include <Windows.h>
+#pragma comment(lib, "Ws2_32.lib")
 
 
 #define ID_DISCONNECT					102
@@ -43,7 +43,6 @@
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void upload_file(HWND hwnd);
-void tcp_client();
 LRESULT tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
