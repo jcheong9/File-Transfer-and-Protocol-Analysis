@@ -1,7 +1,7 @@
-#include "tcp_client.h"
+#include "application.h"
 
 
-void tcp_client() {
+void tcp_client(HWND hwnd) {
 	int n, ns, bytes_to_read;
 	int port, err;
 	SOCKET sd;
@@ -74,6 +74,7 @@ void tcp_client() {
 			break;
 	}
 	printf("%s\n", rbuf);
+	MessageBox(hwnd, TEXT("Connect"), TEXT(""), MB_OK);
 	closesocket(sd);
 	WSACleanup();
 	exit(0);

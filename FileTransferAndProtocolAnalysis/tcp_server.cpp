@@ -1,6 +1,17 @@
-#include "tcp_server.h"
+#include "application.h"
+typedef struct _SOCKET_INFORMATION {
+	BOOL RecvPosted;
+	CHAR Buffer[DATA_BUFSIZE];
+	WSABUF DataBuf;
+	SOCKET Socket;
+	DWORD BytesSEND;
+	DWORD BytesRECV;
+	_SOCKET_INFORMATION* Next;
+} SOCKET_INFORMATION, * LPSOCKET_INFORMATION;
 
-void serverMain()
+LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
+LPSOCKET_INFORMATION SocketInfoList;
+void serverMain(HWND hwnd)
 {
 	MSG msg;
 	DWORD Ret;
@@ -91,6 +102,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				CreateSocketInformation(Accept);
 
 				printf("Socket number %d connected\n", Accept);
+				MessageBox(hwnd, (LPCSTR)Accept, TEXT(""), MB_OK);
 
 				WSAAsyncSelect(Accept, hwnd, WM_SOCKET, FD_READ | FD_WRITE | FD_CLOSE);
 

@@ -194,11 +194,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		switch (LOWORD(wParam))
 		{
 		case ID_CONNECT:
-
+			serverMain(hwnd);
 
 			break;
 		case ID_UPLOAD:
-			upload_file(hwnd);
+			//upload_file(hwnd);
+			tcp_client(hwnd);
 
 			break;
 
