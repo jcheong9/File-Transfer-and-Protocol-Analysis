@@ -94,7 +94,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	Wcl.hbrBackground = startBackGroundColor;
 	Wcl.lpszClassName = Name; // window class name
 
-	Wcl.lpszMenuName = TEXT("File Transfer And Protocol Analysis");
+	Wcl.lpszMenuName = TEXT("MYMENU");
 	Wcl.cbClsExtra = 0;      // no extra memory needed
 	Wcl.cbWndExtra = 0;
 
@@ -146,11 +146,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	TCHAR str[256];
 	TCHAR input2Text[256];
 	int lengthInput2;
+
+	//tcpCallBack( hwnd, Message, wParam, lParam);
+
 	switch (Message)
 	{
 	case WM_CREATE: //creates the labels, text fields and buttons
-		textHwndLabel = CreateWindow("STATIC", "<<< Client TCP >>>",
-			WS_CHILD | WS_VISIBLE | SS_CENTER,
+		textHwndLabel = CreateWindow("STATIC", "<<-- RUNNING TCP SERVER -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
 			30, 10, 425, 20, hwnd, NULL, NULL, NULL);
 
 		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ",
@@ -192,18 +194,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		switch (LOWORD(wParam))
 		{
 		case ID_CONNECT:
-			//portparma.selection = 0;
-			//ShowWindow(hInput2, SW_HIDE);
-			//ShowWindow(textHwndLabel2, SW_HIDE);
-			//SetWindowText(textHwndLabel, "host name -> IP OR IP -> host name");
+
 
 			break;
 		case ID_UPLOAD:
 			upload_file(hwnd);
-			//portparma.selection = 1;
-			//ShowWindow(textHwndLabel2, SW_RESTORE);
-			//ShowWindow(hInput2, SW_RESTORE);
-			//SetWindowText(textHwndLabel, "service name/protocol -> port number");
+
 			break;
 
 		case ID_EXIT:

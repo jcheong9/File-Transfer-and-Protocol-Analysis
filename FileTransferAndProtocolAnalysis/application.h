@@ -25,9 +25,11 @@
 
 #include <stdio.h>
 #include <string>
-#include <Windows.h>
-#pragma comment(lib,"ws2_32.lib")
 
+#include <Windows.h>
+
+
+#define ID_DISCONNECT					102
 #define ID_CONNECT						103
 #define ID_UPLOAD						104
 #define ID_EXIT							105
@@ -41,6 +43,8 @@
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void upload_file(HWND hwnd);
+void tcp_client();
+LRESULT tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
 typedef struct
