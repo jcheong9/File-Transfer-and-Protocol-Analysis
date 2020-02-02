@@ -67,7 +67,7 @@ void serverMain(HWND hwnd)
 			printf("GetMessage() failed with error %d\n", GetLastError());
 			return;
 		}
-
+		
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}

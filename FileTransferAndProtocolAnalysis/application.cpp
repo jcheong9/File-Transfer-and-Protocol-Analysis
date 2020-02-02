@@ -41,9 +41,14 @@ HWND radioBtnClient;
 HWND radioBtnServer;
 HWND radioBtnTCP;
 HWND radioBtnUDP;
+HWND radioBtnTenTimes;
+HWND radioBtnHundredTimes;
 
 HWND textHwndLabel;
 HWND textHwndLabel2;
+HWND textHwndLabel3;
+HWND textHwndLabel4;
+HWND textHwndLabel5;
 
 PORTPARMA portparma;
 HDC hdc;
@@ -152,7 +157,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	switch (Message)
 	{
 	case WM_CREATE: //creates the labels, text fields and buttons
-		textHwndLabel = CreateWindow("STATIC", "<<-- RUNNING TCP SERVER -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
+		textHwndLabel = CreateWindow("STATIC", "<<-- File Transfer and Protocal Analysis -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
 			30, 10, 425, 20, hwnd, NULL, NULL, NULL);
 
 		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ",
@@ -175,43 +180,62 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnUDP = CreateWindow(TEXT("BUTTON"), TEXT("UDP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 65, 60, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
 
+		textHwndLabel3 = CreateWindow("STATIC", "Select Packet Times: ",
+			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 85, 150, 20, hwnd, NULL, NULL, NULL);
+
+		radioBtnTenTimes = CreateWindow(TEXT("BUTTON"), TEXT("10"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			245, 85, 60, 20, hwnd, (HMENU)ID_PACKET_TEN_TIMES_BTN, NULL, NULL);
+
+		radioBtnHundredTimes = CreateWindow(TEXT("BUTTON"), TEXT("100"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			350, 85, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
+
 		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ",
 			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 120, 100, 20, hwnd, NULL, NULL, NULL);
+			30, 115, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 120, 250, 20, hwnd, NULL, NULL, NULL);
+			205, 115, 250, 20, hwnd, NULL, NULL, NULL);
+
+		textHwndLabel4 = CreateWindow("STATIC", "Status: ",
+			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 145, 100, 20, hwnd, NULL, NULL, NULL);
+
+		textHwndLabel5 = CreateWindow("STATIC", "Not Connected ",
+			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			205, 145, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 			350, 215, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
 
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
+		SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 		ShowWindow(hInput2, SW_HIDE);
 		ShowWindow(textHwndLabel2, SW_HIDE);
+		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case ID_CONNECT:
-			serverMain(hwnd);
-
+			//serverMain(hwnd);
+			connect();
 			break;
 		case ID_UPLOAD:
 			//upload_file(hwnd);
-			tcp_client(hwnd);
 
 			break;
 
 		case ID_EXIT:
-			FreeSocketInformation(wParam); //clear socket
+			SendMessage(NULL, NULL, FD_CLOSE, NULL);
 			PostQuitMessage(0); //terminates the program
 			break;
 
 		case ID_ENTER_BTN: //execute functions when button is clicked
 			GetWindowText(hInput2, str, 256);
 			if (GetWindowTextLengthA(hInput2) != 0) {
-				switch (portparma.selection) {
+				switch (portparma.selectedProtocal) {
 					case 1:
 						lengthInput2= GetWindowTextLengthA(hInput2);
 						GetWindowText(hInput2, input2Text, 256); //get the HInput's text
@@ -236,6 +260,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
 			ShowWindow(hInput2, SW_HIDE);
 			ShowWindow(textHwndLabel2, SW_HIDE);
+			portparma.selectServerClient = 0;
 			break;
 
 		case ID_CLIENT_BTN:
@@ -243,16 +268,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
 			ShowWindow(textHwndLabel2, SW_RESTORE);
 			ShowWindow(hInput2, SW_RESTORE);
+			portparma.selectServerClient = 1;
 			break;
 
 		case ID_TCP_BTN:
 			SendMessage(radioBtnUDP, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
+			portparma.selectedProtocal = 0;
 			break;
 
 		case ID_UDP_BTN:
 			SendMessage(radioBtnUDP, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnTCP, BM_SETCHECK, BST_UNCHECKED, 0);
+			portparma.selectedProtocal = 1;
+			break;
+
+		case ID_PACKET_TEN_TIMES_BTN:
+			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
+			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_UNCHECKED, 0);
+			break;
+
+		case ID_PACKETS_HUNDRED_TIMES_BTN:
+			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
 			break;
 
 		}
@@ -262,7 +300,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		SetBkColor(hdc, RGB(255, 255, 255));
 		return (INT_PTR)startBackGroundColor;
 	case WM_DESTROY:		// message to terminate the program
-		FreeSocketInformation(wParam);
+		SendMessage(NULL, NULL, FD_CLOSE, NULL);
 		PostQuitMessage(0);
 		break;
 	default: // Let Win32 process all other messages
@@ -271,20 +309,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	return 0;
 }
 
-void upload_file(HWND hwnd) {
-	OPENFILENAME ofn;
-	char file_name[100];
-	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+void connect() {
+	int inputIPLength;
+	TCHAR inputIP[255];
 
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hwnd;
-	ofn.lpstrFile = file_name;
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = 100;
-	ofn.lpstrFilter = "All files\0*.*\0Text\0*.TXT\0";
-	ofn.nFilterIndex = 1;
-
-	GetOpenFileNameA(&ofn);
-	MessageBox(NULL, ofn.lpstrFile, "", MB_OK);
+	if (portparma.selectServerClient) {
+		GetWindowText(hInput2, str, 255);
+		if (GetWindowTextLengthA(hInput2) != 0) {
+			inputIPLength = GetWindowTextLengthA(hInput2);
+			GetWindowText(hInput2, inputIP, 255);
+			if (portparma.selectedProtocal) {
+				//udp client
+			}
+			else {
+				tcp_client(portparma.hwnd, inputIP);
+			}
+		}
+	}
+	else {
+		if (portparma.selectedProtocal) {
+			//udp server
+		}
+		else {
+			serverMain(portparma.hwnd);
+		}
+	}
 }
+
+
 

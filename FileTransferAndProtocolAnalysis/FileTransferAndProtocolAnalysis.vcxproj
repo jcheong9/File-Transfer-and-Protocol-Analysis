@@ -22,11 +22,13 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="tcp_client.cpp" />
     <ClCompile Include="tcp_server.cpp" />
+    <ClCompile Include="upload_file.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="tcp_client.h" />
     <ClInclude Include="tcp_server.h" />
+    <ClInclude Include="upload_file.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

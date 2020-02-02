@@ -1,7 +1,7 @@
 #include "tcp_client.h"
 
 
-void tcp_client(HWND hwnd) {
+void tcp_client(HWND hwnd, TCHAR * ipAddress) {
 	int n, ns, bytes_to_read;
 	int port, err;
 	SOCKET sd;
@@ -13,7 +13,7 @@ void tcp_client(HWND hwnd) {
 	char sbuf[BUFSIZE] = "orem Ipsum ssages, andoftware liore";
 
 
-	host = (TCHAR *)"127.0.0.1";	// Host name local host
+	host = ipAddress;	// Host name local host
 	port = SERVER_TCP_PORT;
 
 

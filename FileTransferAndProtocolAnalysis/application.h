@@ -42,20 +42,19 @@
 #define ID_CLIENT_BTN					108
 #define ID_TCP_BTN						109
 #define ID_UDP_BTN						110
+#define ID_PACKET_TEN_TIMES_BTN			111
+#define ID_PACKETS_HUNDRED_TIMES_BTN	112
+
 
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-void upload_file(HWND hwnd);
-LRESULT tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-
-
+void connect();
 
 
 typedef struct
 {
 	HWND hwnd;
-
-	int selection = 0;
+	int selectedProtocal = 0;
+	int selectServerClient = 0;
 } PORTPARMA;

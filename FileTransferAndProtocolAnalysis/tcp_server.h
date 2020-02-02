@@ -24,3 +24,4 @@ void FreeSocketInformation(SOCKET s);
 HWND MakeWorkerWindow(void);
 LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+
