@@ -141,7 +141,11 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						if (WSAGetLastError() != WSAEWOULDBLOCK)
 						{
-							printf("WSARecv() failed with error %d\n", WSAGetLastError());
+							//printf("WSARecv() failed with error %d\n", WSAGetLastError());
+							sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
+
+							MessageBox(hwnd, buff, TEXT(""), MB_OK);
+							
 							FreeSocketInformation(wParam);
 							return 0;
 						}
@@ -169,7 +173,10 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						if (WSAGetLastError() != WSAEWOULDBLOCK)
 						{
-							printf("WSASend() failed with error %d\n", WSAGetLastError());
+							//printf("WSASend() failed with error %d\n", WSAGetLastError());
+							sprintf_s(buff, "WSASend() failed with error %d\n", WSAGetLastError());
+
+							MessageBox(hwnd, buff, TEXT(""), MB_OK);
 							FreeSocketInformation(wParam);
 							return 0;
 						}
@@ -200,6 +207,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case FD_CLOSE:
 
 				//printf("Closing socket %d\n", wParam);
+				sprintf_s(buff, "Closing socket %d\n", wParam);
+
+				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 				FreeSocketInformation(wParam);
 
 				break;
