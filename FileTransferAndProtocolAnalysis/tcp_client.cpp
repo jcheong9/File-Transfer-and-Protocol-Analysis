@@ -12,13 +12,12 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	WSADATA WSAData;
 	WORD wVersionRequested;
 	//char* sbuf[BUFSIZE];
-	LPCSTR sbuf;
+	LPCSTR sbuf = "";
 	char buff[100];
 	
 
 	host = ipAddress;	// Host name local host
 	port = SERVER_TCP_PORT;
-	sbuf = fileData;
 
 
 	wVersionRequested = MAKEWORD(2, 2);
@@ -60,17 +59,19 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	pptr = hp->h_addr_list;
 	//printf("\t\tIP Address: %s\n", inet_ntoa(server.sin_addr));
 	//printf("Transmiting:\n");
-	memset((char*)sbuf, 0, sizeof(sbuf));
+	//memset((char*)sbuf, 0, sizeof(sbuf));
 	//getline(sbuf); // get user's text
+	//sbuf = fileData;
+
 
 	// Transmit data through the socket
-	ns = send(sd, sbuf, BUFSIZE, 0);
+	ns = send(sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");
 	bp = rbuf;
-	bytes_to_read = BUFSIZE;
+	bytes_to_read = strlen(fileData);
 
 	// client makes repeated calls to recv until no more data is expected to arrive.
-	while ((n = recv(sd, bp, bytes_to_read, 0)) < BUFSIZE)
+	while ((n = recv(sd, bp, bytes_to_read, 0)) < strlen(fileData))
 	{
 		bp += n;
 		bytes_to_read -= n;
@@ -79,7 +80,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	}
 	//OutputDebugString(rbuf);
 
-	MessageBox(hwnd, sbuf, TEXT("client"), MB_OK);
+	MessageBox(hwnd, bp, TEXT("client"), MB_OK);
 	closesocket(sd);
 	WSACleanup();
 	//exit(0);
