@@ -223,7 +223,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		{
 		case ID_CONNECT:
 			//serverMain(hwnd);
-			if (portparma.uploaded)
+			//if (portparma.uploaded)
 				connect(hwnd, uploadData.data);
 			break;
 		case ID_UPLOAD:

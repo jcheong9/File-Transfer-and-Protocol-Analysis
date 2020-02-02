@@ -153,6 +153,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = RecvBytes;
+						//MessageBox(hwnd, TEXT(SocketInfo->DataBuf.buf), TEXT(""), MB_OK);
 					}
 				}
 
@@ -205,8 +206,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case FD_CLOSE:
-
-				//printf("Closing socket %d\n", wParam);
+				SocketInfo = GetSocketInformation(wParam);
+				MessageBox(hwnd, SocketInfo->Buffer, TEXT("Server"), MB_OK);
+				//printf("Buffer rev %s\n", SocketInfo->Buffer);
 				sprintf_s(buff, "Closing socket %d\n", wParam);
 
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);

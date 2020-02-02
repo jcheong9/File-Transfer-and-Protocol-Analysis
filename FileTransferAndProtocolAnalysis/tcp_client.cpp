@@ -11,12 +11,14 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	char* host, * bp, rbuf[BUFSIZE], ** pptr;
 	WSADATA WSAData;
 	WORD wVersionRequested;
+	//char* sbuf[BUFSIZE];
 	LPCSTR sbuf;
 	char buff[100];
+	
 
-	sbuf = fileData;
 	host = ipAddress;	// Host name local host
 	port = SERVER_TCP_PORT;
+	sbuf = fileData;
 
 
 	wVersionRequested = MAKEWORD(2, 2);
