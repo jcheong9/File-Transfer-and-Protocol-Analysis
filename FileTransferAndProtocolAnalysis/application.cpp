@@ -357,7 +357,7 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 
 	GetOpenFileNameA(&ofn);
 	uploadData->filePath = ofn.lpstrFile;
-	strcpy(uploadData->filePath, ofn.lpstrFile);
+
 	MessageBox(NULL, uploadData->filePath, "", MB_OK);
 	ifstream infile(ofn.lpstrFile);
 	string line;
@@ -372,20 +372,15 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 		}
 	}
 	sti = (LPSTR)line.c_str();
-	uploadData->data = sti;
-	MessageBox(NULL, uploadData->data, "", MB_OK);
-	//OutputDebugString(indexTxt);
+	//uploadData->data = sti;
+	//MessageBox(NULL, uploadData->data, "", MB_OK);
 
-	//int n = line.length();
-	//n = n + 1;
-	//// declaring character array 
-	//char char_array[255];
-
-	//// copying the contents of the 
-	//// string to char array 
-	//strcpy(uploadData->data, line.c_str());
-	//uploadData->data = char_array;
-	//OutputDebugString(TEXT(uploadData->data));
-
+	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	DWORD fileSize = GetFileSize(file, NULL);
+	LPWSTR buffer = (LPWSTR)GlobalAlloc(GPTR, fileSize + 1);
+	DWORD read;
+	ReadFile(file, buffer, fileSize, &read, NULL);
+	uploadData->data = (LPCSTR)buffer;
+	MessageBox(NULL, (LPCSTR)buffer, "", MB_OK);
 	return 1;
 }

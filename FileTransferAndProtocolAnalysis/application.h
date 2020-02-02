@@ -60,8 +60,8 @@ typedef struct
 
 typedef struct
 {
-	char* data;
-	char* filePath;
+	LPCSTR data;
+	LPCSTR filePath;
 } UPLOADFILE;
 
 //Declaration Functions application
