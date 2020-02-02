@@ -35,6 +35,15 @@ void upload_file(HWND hwnd, UPLOADFILE * uploadData) {
 	uploadData->data = sti;
 	MessageBox(NULL, uploadData->data, "", MB_OK);
 	//OutputDebugString(indexTxt);
-	//return data;
+
+	int n = line.length();
+	n = n + 1;
+	// declaring character array 
+	char char_array[255];
+
+	// copying the contents of the 
+	// string to char array 
+	strcpy(char_array, line.c_str());
+	uploadData->data = char_array;
 }
 
