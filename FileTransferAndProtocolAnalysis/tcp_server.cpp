@@ -111,7 +111,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				CreateSocketInformation(Accept);
 
-				sprintf_s(buff, ("Socket number %d connected\n"), Accept);
+				sprintf_s(buff, "Socket number %d connected\n", Accept);
 
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 
@@ -199,7 +199,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			case FD_CLOSE:
 
-				printf("Closing socket %d\n", wParam);
+				//printf("Closing socket %d\n", wParam);
 				FreeSocketInformation(wParam);
 
 				break;

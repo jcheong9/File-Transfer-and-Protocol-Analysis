@@ -1,5 +1,16 @@
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
 #include <windows.h>
 
-void upload_file(HWND hwnd);
+typedef struct
+{
+	LPSTR data;
+	char * filePath;
+} UPLOADFILE;
+
+void upload_file(HWND hwnd, UPLOADFILE * data);

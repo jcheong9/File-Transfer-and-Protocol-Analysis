@@ -32,6 +32,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 #include "tcp_client.h"
 #include "tcp_server.h"
+#include "upload_file.h"
 
 #define ID_DISCONNECT					102
 #define ID_CONNECT						103
@@ -49,12 +50,15 @@
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-void connect();
+void connect(HWND hwnd, LPCSTR fileData);
 
 
 typedef struct
 {
-	HWND hwnd;
+	HWND hwnd = NULL;
 	int selectedProtocal = 0;
 	int selectServerClient = 0;
+
 } PORTPARMA;
+
+

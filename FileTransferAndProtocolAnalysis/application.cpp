@@ -27,6 +27,7 @@
 #pragma once
 
 #include "application.h"
+using namespace std;
 
 //Textbox handlers for send and receive
 HWND textHwnd;
@@ -51,6 +52,7 @@ HWND textHwndLabel4;
 HWND textHwndLabel5;
 
 PORTPARMA portparma;
+UPLOADFILE uploadData;
 HDC hdc;
 
 static unsigned k = 0;
@@ -114,7 +116,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 
 	ShowWindow(portparma.hwnd, nCmdShow);
 	UpdateWindow(portparma.hwnd);
-	void WINAPI ThreadFuc(HWND hwnd, LPVOID n); //second thread
+	//void WINAPI ThreadFuc(HWND hwnd, LPVOID n); //second thread
 	// Create the message loop
 	while (GetMessage(&Msg, NULL, 0, 0))
 	{
@@ -151,6 +153,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	TCHAR str[256];
 	TCHAR input2Text[256];
 	int lengthInput2;
+	//TCHAR * str1;
 
 	//tcpCallBack( hwnd, Message, wParam, lParam);
 
@@ -220,15 +223,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		{
 		case ID_CONNECT:
 			//serverMain(hwnd);
-			connect();
+			connect(hwnd, uploadData.data);
 			break;
 		case ID_UPLOAD:
-			//upload_file(hwnd);
 
+			upload_file(hwnd, &uploadData);
+			OutputDebugString(TEXT(uploadData.filePath));
 			break;
 
 		case ID_EXIT:
-			SendMessage(NULL, NULL, FD_CLOSE, NULL);
+			SendMessage(0, NULL, FD_CLOSE, NULL);
 			PostQuitMessage(0); //terminates the program
 			break;
 
@@ -309,7 +313,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	return 0;
 }
 
-void connect() {
+void connect(HWND hwnd, LPCSTR fileData) {
 	int inputIPLength;
 	TCHAR inputIP[255];
 
@@ -322,7 +326,7 @@ void connect() {
 				//udp client
 			}
 			else {
-				tcp_client(portparma.hwnd, inputIP);
+				tcp_client(portparma.hwnd, inputIP, fileData);
 			}
 		}
 	}
@@ -331,7 +335,7 @@ void connect() {
 			//udp server
 		}
 		else {
-			serverMain(portparma.hwnd);
+			serverMain(hwnd);
 		}
 	}
 }

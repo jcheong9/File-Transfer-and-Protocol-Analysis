@@ -8,4 +8,4 @@
 #include <string>
 #pragma comment(lib, "Ws2_32.lib")
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress);
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData);

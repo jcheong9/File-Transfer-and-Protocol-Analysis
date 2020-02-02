@@ -1,7 +1,8 @@
 #include "tcp_client.h"
 
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress) {
+
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	int n, ns, bytes_to_read;
 	int port, err;
 	SOCKET sd;
@@ -10,9 +11,10 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress) {
 	char* host, * bp, rbuf[BUFSIZE], ** pptr;
 	WSADATA WSAData;
 	WORD wVersionRequested;
-	char sbuf[BUFSIZE] = "orem Ipsum ssages, andoftware liore";
+	LPCSTR sbuf;
+	char buff[100];
 
-
+	sbuf = fileData;
 	host = ipAddress;	// Host name local host
 	port = SERVER_TCP_PORT;
 
@@ -48,20 +50,20 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress) {
 	// Connecting to the server
 	if (connect(sd, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
-		fprintf(stderr, "Can't connect to server\n");
-		perror("connect");
-		exit(1);
+		sprintf_s(buff, "Can't connect to server\n");
+		MessageBox(hwnd, buff, TEXT(""), MB_OK);
+
 	}
-	printf("Connected:    Server Name: %s\n", hp->h_name);
+	//printf("Connected:    Server Name: %s\n", hp->h_name);
 	pptr = hp->h_addr_list;
-	printf("\t\tIP Address: %s\n", inet_ntoa(server.sin_addr));
-	printf("Transmiting:\n");
+	//printf("\t\tIP Address: %s\n", inet_ntoa(server.sin_addr));
+	//printf("Transmiting:\n");
 	memset((char*)sbuf, 0, sizeof(sbuf));
 	//getline(sbuf); // get user's text
 
 	// Transmit data through the socket
 	ns = send(sd, sbuf, BUFSIZE, 0);
-	printf("Receive:\n");
+	//printf("Receive:\n");
 	bp = rbuf;
 	bytes_to_read = BUFSIZE;
 
@@ -73,9 +75,10 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress) {
 		if (n == 0)
 			break;
 	}
-	printf("%s\n", rbuf);
-	MessageBox(hwnd, rbuf, TEXT(""), MB_OK);
+	//OutputDebugString(rbuf);
+
+	MessageBox(hwnd, sbuf, TEXT("client"), MB_OK);
 	closesocket(sd);
 	WSACleanup();
-	exit(0);
+	//exit(0);
 }
