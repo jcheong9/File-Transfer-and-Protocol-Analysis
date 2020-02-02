@@ -223,12 +223,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		{
 		case ID_CONNECT:
 			//serverMain(hwnd);
-			connect(hwnd, uploadData.data);
+			if (portparma.uploaded)
+				connect(hwnd, uploadData.data);
 			break;
 		case ID_UPLOAD:
-
-			upload_file(hwnd, &uploadData);
+			portparma.uploaded = upload_file(hwnd, &uploadData);
 			OutputDebugString(TEXT(uploadData.filePath));
+			OutputDebugString(TEXT(uploadData.data));
 			break;
 
 		case ID_EXIT:
@@ -341,4 +342,50 @@ void connect(HWND hwnd, LPCSTR fileData) {
 }
 
 
+int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
+	OPENFILENAME ofn;
+	char file_name[100];
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = file_name;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 100;
+	ofn.lpstrFilter = "All files\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+
+	GetOpenFileNameA(&ofn);
+	uploadData->filePath = ofn.lpstrFile;
+	strcpy(uploadData->filePath, ofn.lpstrFile);
+	MessageBox(NULL, uploadData->filePath, "", MB_OK);
+	ifstream infile(ofn.lpstrFile);
+	string line;
+	stringstream stream;
+	string indexTxt;
+	LPSTR sti;
+
+	if (infile.is_open()) {
+		while (!infile.eof()) {
+			stream.clear();
+			getline(infile, line);
+		}
+	}
+	sti = (LPSTR)line.c_str();
+	uploadData->data = sti;
+	MessageBox(NULL, uploadData->data, "", MB_OK);
+	//OutputDebugString(indexTxt);
+
+	//int n = line.length();
+	//n = n + 1;
+	//// declaring character array 
+	//char char_array[255];
+
+	//// copying the contents of the 
+	//// string to char array 
+	//strcpy(uploadData->data, line.c_str());
+	//uploadData->data = char_array;
+	//OutputDebugString(TEXT(uploadData->data));
+
+	return 1;
+}

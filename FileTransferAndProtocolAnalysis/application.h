@@ -29,10 +29,13 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include <conio.h>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
 #pragma comment(lib, "Ws2_32.lib")
 #include "tcp_client.h"
 #include "tcp_server.h"
-#include "upload_file.h"
 
 #define ID_DISCONNECT					102
 #define ID_CONNECT						103
@@ -46,19 +49,26 @@
 #define ID_PACKET_TEN_TIMES_BTN			111
 #define ID_PACKETS_HUNDRED_TIMES_BTN	112
 
-
-
-//Declaration Functions application
-LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-void connect(HWND hwnd, LPCSTR fileData);
-
-
 typedef struct
 {
 	HWND hwnd = NULL;
 	int selectedProtocal = 0;
 	int selectServerClient = 0;
+	int uploaded = 0;
 
 } PORTPARMA;
+
+typedef struct
+{
+	char* data;
+	char* filePath;
+} UPLOADFILE;
+
+//Declaration Functions application
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void connect(HWND hwnd, LPCSTR fileData);
+int upload_file(HWND hwnd, UPLOADFILE* data);
+
+
 
 

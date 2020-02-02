@@ -7,10 +7,10 @@
 #include <iomanip>
 #include <windows.h>
 
-typedef struct
-{
-	LPSTR data;
-	char * filePath;
-} UPLOADFILE;
-
-void upload_file(HWND hwnd, UPLOADFILE * data);
+//typedef struct
+//{
+//	LPSTR data;
+//	char * filePath;
+//} UPLOADFILE;
+//
+//int upload_file(HWND hwnd, UPLOADFILE * data);
