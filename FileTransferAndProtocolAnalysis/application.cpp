@@ -124,7 +124,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 		DispatchMessage(&Msg); // dispatch message and return control to windows
 	}
 
-	return Msg.wParam;
+	return (int)Msg.wParam;
 }
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WndProc
@@ -223,7 +223,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		{
 		case ID_CONNECT:
 			//serverMain(hwnd);
-			//if (portparma.uploaded)
 				connect(hwnd, uploadData.data);
 			break;
 		case ID_UPLOAD:
@@ -233,7 +232,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_EXIT:
-			SendMessage(0, NULL, FD_CLOSE, NULL);
+			SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 			PostQuitMessage(0); //terminates the program
 			break;
 
@@ -305,7 +304,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		SetBkColor(hdc, RGB(255, 255, 255));
 		return (INT_PTR)startBackGroundColor;
 	case WM_DESTROY:		// message to terminate the program
-		SendMessage(NULL, NULL, FD_CLOSE, NULL);
+		SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 		PostQuitMessage(0);
 		break;
 	default: // Let Win32 process all other messages
@@ -363,7 +362,6 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 	string line;
 	stringstream stream;
 	string indexTxt;
-	LPSTR sti;
 
 	if (infile.is_open()) {
 		while (!infile.eof()) {
@@ -371,16 +369,24 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 			getline(infile, line);
 		}
 	}
-	sti = (LPSTR)line.c_str();
-	//uploadData->data = sti;
-	//MessageBox(NULL, uploadData->data, "", MB_OK);
 
 	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	DWORD fileSize = GetFileSize(file, NULL);
 	LPWSTR buffer = (LPWSTR)GlobalAlloc(GPTR, fileSize + 1);
 	DWORD read;
-	ReadFile(file, buffer, fileSize, &read, NULL);
+	if (ReadFile(file, buffer, fileSize, &read, NULL)) {
+		MessageBox(NULL, TEXT("Failed to red the file"), "", MB_OK);
+	}
 	uploadData->data = (LPCSTR)buffer;
-	MessageBox(NULL, (LPCSTR)buffer, "", MB_OK);
+
 	return 1;
+}
+
+void sentFile() {
+	if (portparma.uploaded) {
+	
+	}
+	else {
+		MessageBox(NULL, TEXT("Please Upload file"), "", MB_OK);
+	}
 }

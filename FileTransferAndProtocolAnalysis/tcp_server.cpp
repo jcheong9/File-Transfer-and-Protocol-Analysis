@@ -111,7 +111,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				CreateSocketInformation(Accept);
 
-				sprintf_s(buff, "Socket number %d connected\n", Accept);
+				sprintf_s(buff, "Socket number %d connected\n", (int)Accept);
 
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 
@@ -209,7 +209,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				SocketInfo = GetSocketInformation(wParam);
 				MessageBox(hwnd, SocketInfo->Buffer, TEXT("Server"), MB_OK);
 				//printf("Buffer rev %s\n", SocketInfo->Buffer);
-				sprintf_s(buff, "Closing socket %d\n", wParam);
+				sprintf_s(buff, "Closing socket %d\n", (int)wParam);
 
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 				FreeSocketInformation(wParam);

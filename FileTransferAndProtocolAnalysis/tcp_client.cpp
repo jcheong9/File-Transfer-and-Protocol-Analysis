@@ -55,20 +55,15 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 		MessageBox(hwnd, buff, TEXT(""), MB_OK);
 
 	}
-	//printf("Connected:    Server Name: %s\n", hp->h_name);
+
 	pptr = hp->h_addr_list;
-	//printf("\t\tIP Address: %s\n", inet_ntoa(server.sin_addr));
-	//printf("Transmiting:\n");
-	//memset((char*)sbuf, 0, sizeof(sbuf));
-	//getline(sbuf); // get user's text
-	//sbuf = fileData;
 
 
 	// Transmit data through the socket
 	ns = send(sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");
 	bp = rbuf;
-	bytes_to_read = strlen(fileData);
+	bytes_to_read = (int)strlen(fileData);
 
 	// client makes repeated calls to recv until no more data is expected to arrive.
 	while ((n = recv(sd, bp, bytes_to_read, 0)) < strlen(fileData))
@@ -83,5 +78,4 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	MessageBox(hwnd, bp, TEXT("client"), MB_OK);
 	closesocket(sd);
 	WSACleanup();
-	//exit(0);
 }
