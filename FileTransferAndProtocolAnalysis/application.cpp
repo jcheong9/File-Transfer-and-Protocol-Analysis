@@ -372,7 +372,7 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 
 	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	DWORD fileSize = GetFileSize(file, NULL);
-	LPWSTR buffer = (LPWSTR)GlobalAlloc(GPTR, fileSize + 1);
+	LPWSTR buffer = (LPWSTR)GlobalAlloc(GPTR, fileSize + 1.0);
 	DWORD read;
 	if (ReadFile(file, buffer, fileSize, &read, NULL)) {
 		MessageBox(NULL, TEXT("Failed to red the file"), "", MB_OK);
@@ -384,7 +384,7 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 
 void sentFile() {
 	if (portparma.uploaded) {
-	
+		
 	}
 	else {
 		MessageBox(NULL, TEXT("Please Upload file"), "", MB_OK);
