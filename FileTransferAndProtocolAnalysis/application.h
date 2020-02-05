@@ -56,7 +56,7 @@ typedef struct
 	int selectServerClient = 0; //0 is server, 1 is client
 	int uploaded = 0;
 	int connected = 1; //0 is disconnect, 1 is connect
-	int numPackets = 100;
+	int numPackets = 10;
 } PORTPARMA;
 
 typedef struct

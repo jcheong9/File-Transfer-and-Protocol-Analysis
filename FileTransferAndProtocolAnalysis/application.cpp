@@ -241,6 +241,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 		case ID_EXIT:
 			SendMessage(hwnd, NULL, FD_CLOSE, NULL);
+			disconnect(hwnd);
 			PostQuitMessage(0); //terminates the program
 			break;
 
@@ -279,11 +280,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_PACKET_TEN_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_UNCHECKED, 0);
+			portparma.numPackets = 10;
 			break;
 
 		case ID_PACKETS_HUNDRED_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
+			portparma.numPackets = 100;
 			break;
 
 		}
@@ -293,6 +296,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		SetBkColor(hdc, RGB(255, 255, 255));
 		return (INT_PTR)startBackGroundColor;
 	case WM_DESTROY:		// message to terminate the program
+		disconnect(hwnd);
 		SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 		PostQuitMessage(0);
 		break;

@@ -10,7 +10,7 @@ typedef struct _SOCKET_INFORMATION {
 	DWORD BytesRECV;
 	_SOCKET_INFORMATION* Next;
 } SOCKET_INFORMATION, * LPSOCKET_INFORMATION;
-
+int count = 0;
 LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
 LPSOCKET_INFORMATION SocketInfoList;
 
@@ -120,7 +120,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case FD_READ:
-
+				count++;
 				SocketInfo = GetSocketInformation(wParam);
 
 				// Read data only if the receive buffer is empty.
@@ -153,57 +153,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = RecvBytes;
-						MessageBox(hwnd, TEXT(SocketInfo->DataBuf.buf), TEXT(""), MB_OK);
+						MessageBox(hwnd, (LPCSTR)count, TEXT(""), MB_OK);
 					}
 				}
-
-				// DO NOT BREAK HERE SINCE WE GOT A SUCCESSFUL RECV. Go ahead
-				// and begin writing data to the client.
-
-			case FD_WRITE:
-				/*
-				SocketInfo = GetSocketInformation(wParam);
-
-				if (SocketInfo->BytesRECV > SocketInfo->BytesSEND)
-				{
-					SocketInfo->DataBuf.buf = SocketInfo->Buffer + SocketInfo->BytesSEND;
-					SocketInfo->DataBuf.len = SocketInfo->BytesRECV - SocketInfo->BytesSEND;
-
-					if (WSASend(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &SendBytes, 0,
-						NULL, NULL) == SOCKET_ERROR)
-					{
-						if (WSAGetLastError() != WSAEWOULDBLOCK)
-						{
-							//printf("WSASend() failed with error %d\n", WSAGetLastError());
-							sprintf_s(buff, "WSASend() failed with error %d\n", WSAGetLastError());
-
-							MessageBox(hwnd, buff, TEXT(""), MB_OK);
-							FreeSocketInformation(wParam);
-							return 0;
-						}
-					}
-					else // No error so update the byte count
-					{
-						SocketInfo->BytesSEND += SendBytes;
-					}
-				}
-
-				if (SocketInfo->BytesSEND == SocketInfo->BytesRECV)
-				{
-					SocketInfo->BytesSEND = 0;
-					SocketInfo->BytesRECV = 0;
-
-					// If a RECV occurred during our SENDs then we need to post an FD_READ
-					// notification on the socket.
-
-					if (SocketInfo->RecvPosted == TRUE)
-					{
-						SocketInfo->RecvPosted = FALSE;
-						PostMessage(hwnd, WM_SOCKET, wParam, FD_READ);
-					}
-				}
-				*/
-				OutputDebugString("WRITE");
 				break;
 
 			case FD_CLOSE:
