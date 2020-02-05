@@ -34,8 +34,8 @@
 #include <iostream>
 #include <iomanip>
 #pragma comment(lib, "Ws2_32.lib")
-#include "tcp_client.h"
-#include "tcp_server.h"
+#include "client.h"
+#include "server.h"
 
 #define ID_DISCONNECT					102
 #define ID_CONNECT						103
@@ -48,6 +48,10 @@
 #define ID_UDP_BTN						110
 #define ID_PACKET_TEN_TIMES_BTN			111
 #define ID_PACKETS_HUNDRED_TIMES_BTN	112
+#define ID_PACKETSIZE_1024B				113
+#define ID_PACKETSIZE_4096B				113
+#define ID_PACKETSIZE_20B				113
+#define ID_PACKETSIZE_60B				113
 
 typedef struct
 {

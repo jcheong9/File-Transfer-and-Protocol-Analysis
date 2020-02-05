@@ -1,7 +1,7 @@
-#include "tcp_client.h"
+#include "client.h"
 
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network) {
+int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network) {
 	int port, err;
 	//SOCKET sd;
 	struct hostent* hp;
@@ -39,8 +39,8 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network
 	server.sin_port = htons(port);
 	if ((hp = gethostbyname(host)) == NULL)
 	{
-		fprintf(stderr, "Unknown server address\n");
-		exit(1);
+		//fprintf(stderr, "Unknown server address\n");
+		MessageBox(hwnd, "Unknown server address\n", TEXT(""), MB_OK);
 	}
 
 	// Copy the server address
@@ -51,12 +51,10 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(hwnd, buff, TEXT(""), MB_OK);
-
+		return 0;
 	}
 
-	pptr = hp->h_addr_list;
-
-
+	return 1;
 	// Transmit data through the socket
 	//send(*sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");

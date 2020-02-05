@@ -55,6 +55,7 @@ PORTPARMA portparma;
 UPLOADFILE uploadFile;
 NETWORK network;
 HDC hdc;
+HANDLE serverThread = NULL;
 
 static unsigned k = 0;
 static TCHAR Name[] = TEXT("Basic Window Socket");
@@ -151,12 +152,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam)
 {
 	hdc = GetDC(hwnd);
-	TCHAR str[256];
-	TCHAR input2Text[256];
-	int lengthInput2;
-	//TCHAR * str1;
-
-	//tcpCallBack( hwnd, Message, wParam, lParam);
 
 	switch (Message)
 	{
@@ -229,9 +224,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
 			break;
 		case ID_CONNECT:
-			connect(hwnd, uploadFile.data);
-			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_DISABLED | MF_GRAYED);
-			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_ENABLED );
+			if (connect(hwnd, uploadFile.data)) {
+				EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_DISABLED | MF_GRAYED);
+				EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_ENABLED );
+
+			}
 			break;
 		case ID_UPLOAD:
 			portparma.uploaded = upload_file(hwnd, &uploadFile);
@@ -319,7 +316,9 @@ int connect(HWND hwnd, LPCSTR fileData) {
 				//udp client
 			}
 			else {
-				tcp_client(portparma.hwnd, inputIP, fileData, &network);
+				if (tcp_client(portparma.hwnd, inputIP, fileData, &network)) {
+					return 1;
+				}
 			}
 		}
 	}
@@ -329,9 +328,11 @@ int connect(HWND hwnd, LPCSTR fileData) {
 		}
 		else {
 			serverMain(hwnd);
+			
 		}
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 

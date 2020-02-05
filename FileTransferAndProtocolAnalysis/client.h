@@ -14,6 +14,6 @@ typedef struct
 	SOCKET sd;
 } NETWORK;
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK* network);
+int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK* network);
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData);
 void disconnectSocket(SOCKET* sd);

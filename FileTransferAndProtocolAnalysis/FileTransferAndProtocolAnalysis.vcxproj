@@ -20,15 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
-    <ClCompile Include="tcp_client.cpp" />
-    <ClCompile Include="tcp_server.cpp" />
-    <ClCompile Include="upload_file.cpp" />
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
-    <ClInclude Include="tcp_client.h" />
-    <ClInclude Include="tcp_server.h" />
-    <ClInclude Include="upload_file.h" />
+    <ClInclude Include="client.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="server.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

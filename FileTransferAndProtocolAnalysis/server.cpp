@@ -1,4 +1,4 @@
-#include "tcp_server.h"
+#include "server.h"
 #include <ctime>
 
 
@@ -79,7 +79,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	SOCKET Accept;
 	LPSOCKET_INFORMATION SocketInfo;
-	DWORD RecvBytes, SendBytes;
+	DWORD RecvBytes;
 	DWORD Flags;
 	char buff[100];
 	SYSTEMTIME st;
