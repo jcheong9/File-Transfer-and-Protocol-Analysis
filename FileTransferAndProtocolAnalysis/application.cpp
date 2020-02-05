@@ -248,8 +248,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_SEND_BTN: //execute functions when button is clicked
 			sentFile();
 			break;
+
 		case ID_SERVER_BTN:
-			//OutputDebugString("server");
 			SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
 			ShowWindow(hInput2, SW_HIDE);
