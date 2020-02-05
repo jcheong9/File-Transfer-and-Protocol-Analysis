@@ -165,12 +165,12 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case FD_CLOSE:
+				float ii = float(clock() - begin_time); //mill sec
 				SocketInfo = GetSocketInformation(wParam);
 				MessageBox(hwnd, SocketInfo->Buffer, TEXT("Server"), MB_OK);
 				//printf("Buffer rev %s\n", SocketInfo->Buffer);
 				sprintf_s(buff, "Closing socket %d\n", (int)wParam);
 
-				float ii = float(clock() - begin_time); //mill sec
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 				FreeSocketInformation(wParam);
 				break;
