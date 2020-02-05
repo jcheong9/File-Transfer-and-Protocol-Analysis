@@ -1,4 +1,5 @@
 #include "tcp_server.h"
+#include <ctime>
 
 
 typedef struct _SOCKET_INFORMATION {
@@ -10,10 +11,10 @@ typedef struct _SOCKET_INFORMATION {
 	DWORD BytesRECV;
 	_SOCKET_INFORMATION* Next;
 } SOCKET_INFORMATION, * LPSOCKET_INFORMATION;
-int count = 0;
+
 LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
 LPSOCKET_INFORMATION SocketInfoList;
-
+clock_t begin_time = NULL;
 
 void serverMain(HWND hwnd)
 {
@@ -81,7 +82,10 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	DWORD RecvBytes, SendBytes;
 	DWORD Flags;
 	char buff[100];
+	SYSTEMTIME st;
+	GetSystemTime(&st);
 
+	
 	if (uMsg == WM_SOCKET)
 	{
 		if (WSAGETSELECTERROR(lParam))
@@ -120,7 +124,8 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case FD_READ:
-				count++;
+				if(begin_time == NULL)
+					begin_time = clock();
 				SocketInfo = GetSocketInformation(wParam);
 
 				// Read data only if the receive buffer is empty.
@@ -152,10 +157,11 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					else // No error so update the byte count
 					{
-						SocketInfo->BytesRECV = RecvBytes;
-						MessageBox(hwnd, (LPCSTR)count, TEXT(""), MB_OK);
+						SocketInfo->BytesRECV = 0;
+						//MessageBox(hwnd, (LPCSTR)count, TEXT(""), MB_OK);
 					}
 				}
+
 				break;
 
 			case FD_CLOSE:
@@ -164,9 +170,9 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				//printf("Buffer rev %s\n", SocketInfo->Buffer);
 				sprintf_s(buff, "Closing socket %d\n", (int)wParam);
 
+				float ii = float(clock() - begin_time); //mill sec
 				MessageBox(hwnd, buff, TEXT(""), MB_OK);
 				FreeSocketInformation(wParam);
-
 				break;
 			}
 		}

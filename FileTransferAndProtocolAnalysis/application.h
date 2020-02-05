@@ -65,10 +65,7 @@ typedef struct
 	LPCSTR filePath;
 } UPLOADFILE;
 
-typedef struct
-{
-	SOCKET sd;
-} NETWORK;
+
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);

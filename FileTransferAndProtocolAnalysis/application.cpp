@@ -319,7 +319,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 				//udp client
 			}
 			else {
-				tcp_client(portparma.hwnd, inputIP, fileData, &network.sd);
+				tcp_client(portparma.hwnd, inputIP, fileData, &network);
 			}
 		}
 	}

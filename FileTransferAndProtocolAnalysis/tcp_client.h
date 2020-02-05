@@ -8,6 +8,12 @@
 #include <string>
 #pragma comment(lib, "Ws2_32.lib")
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET* sd);
+typedef struct
+{
+	struct sockaddr_in server;
+	SOCKET sd;
+} NETWORK;
+
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK* network);
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData);
 void disconnectSocket(SOCKET* sd);

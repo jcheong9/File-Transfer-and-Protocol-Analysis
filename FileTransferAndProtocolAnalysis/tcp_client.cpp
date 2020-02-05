@@ -1,6 +1,7 @@
 #include "tcp_client.h"
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET * sd) {
+
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network) {
 	int port, err;
 	//SOCKET sd;
 	struct hostent* hp;
@@ -26,7 +27,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET * sd) {
 	}
 
 	// Create the socket
-	if ((*sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((network->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
 		exit(1);
@@ -46,7 +47,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET * sd) {
 	memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
 
 	// Connecting to the server
-	if (connect(*sd, (struct sockaddr*) & server, sizeof(server)) == -1)
+	if (connect(network->sd, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(hwnd, buff, TEXT(""), MB_OK);
@@ -79,7 +80,9 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET * sd) {
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
-	return send(*sd, fileData, strlen(fileData), 0);
+	int n = send(*sd, fileData, strlen(fileData), 0);
+	disconnectSocket(sd);
+	return n;
 }
 
 void disconnectSocket(SOCKET* sd) {

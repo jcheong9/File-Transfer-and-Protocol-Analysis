@@ -12,8 +12,8 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define PORT 5150
-#define DATA_BUFSIZE 8192
-
+#define DATA_BUFSIZE 100
+//8192
 #define WM_SOCKET (WM_USER + 1)
 
 void serverMain(HWND hwnd);
