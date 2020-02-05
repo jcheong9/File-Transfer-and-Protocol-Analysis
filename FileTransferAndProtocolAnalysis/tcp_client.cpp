@@ -1,7 +1,5 @@
 #include "tcp_client.h"
 
-
-
 void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	int n, ns, bytes_to_read;
 	int port, err;
@@ -60,7 +58,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 
 
 	// Transmit data through the socket
-	ns = send(sd, fileData, strlen(fileData), 0);
+	//ns = send(sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");
 	bp = rbuf;
 	bytes_to_read = (int)strlen(fileData);
@@ -78,4 +76,8 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	MessageBox(hwnd, bp, TEXT("client"), MB_OK);
 	closesocket(sd);
 	WSACleanup();
+}
+
+int tcpSentPacket(SOCKET sd, LPCSTR fileData) {
+	return send(sd, fileData, strlen(fileData), 0);
 }

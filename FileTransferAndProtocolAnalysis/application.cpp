@@ -372,12 +372,13 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 
 	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	DWORD fileSize = GetFileSize(file, NULL);
-	LPWSTR buffer = (LPWSTR)GlobalAlloc(GPTR, fileSize + 1.0);
+	LPSTR buffer = (LPSTR)GlobalAlloc(GPTR, fileSize + 1);
 	DWORD read;
-	if (ReadFile(file, buffer, fileSize, &read, NULL)) {
-		MessageBox(NULL, TEXT("Failed to red the file"), "", MB_OK);
+	if (!ReadFile(file, buffer, fileSize, &read, NULL)) {
+		MessageBox(NULL, TEXT("Failed to read the file"), "", MB_OK);
 	}
 	uploadData->data = (LPCSTR)buffer;
+	MessageBox(NULL, TEXT(buffer), "", MB_OK);
 
 	return 1;
 }
