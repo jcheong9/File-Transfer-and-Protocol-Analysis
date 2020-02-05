@@ -41,7 +41,7 @@
 #define ID_CONNECT						103
 #define ID_UPLOAD						104
 #define ID_EXIT							105
-#define ID_ENTER_BTN					106
+#define ID_SEND_BTN						106
 #define ID_SERVER_BTN					107
 #define ID_CLIENT_BTN					108
 #define ID_TCP_BTN						109
@@ -52,10 +52,11 @@
 typedef struct
 {
 	HWND hwnd = NULL;
-	int selectedProtocal = 0;
-	int selectServerClient = 0;
+	int selectedProtocal = 0;   //0 is tcp, 1 is udp
+	int selectServerClient = 0; //0 is server, 1 is client
 	int uploaded = 0;
-
+	int connected = 1; //0 is disconnect, 1 is connect
+	int numPackets = 100;
 } PORTPARMA;
 
 typedef struct
@@ -64,10 +65,17 @@ typedef struct
 	LPCSTR filePath;
 } UPLOADFILE;
 
+typedef struct
+{
+	SOCKET sd;
+} NETWORK;
+
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-void connect(HWND hwnd, LPCSTR fileData);
+int connect(HWND hwnd, LPCSTR fileData);
 int upload_file(HWND hwnd, UPLOADFILE* data);
+void sentFile();
+void disconnect(HWND hwnd);
 
 
 

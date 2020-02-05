@@ -8,4 +8,6 @@
 #include <string>
 #pragma comment(lib, "Ws2_32.lib")
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData);
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET* sd);
+int tcpSentPacket(SOCKET* sd, LPCSTR fileData);
+void disconnectSocket(SOCKET* sd);

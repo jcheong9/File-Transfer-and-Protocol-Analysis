@@ -52,7 +52,8 @@ HWND textHwndLabel4;
 HWND textHwndLabel5;
 
 PORTPARMA portparma;
-UPLOADFILE uploadData;
+UPLOADFILE uploadFile;
+NETWORK network;
 HDC hdc;
 
 static unsigned k = 0;
@@ -209,7 +210,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			205, 145, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-			350, 215, 100, 20, hwnd, (HMENU)ID_ENTER_BTN, NULL, NULL);
+			350, 215, 100, 20, hwnd, (HMENU)ID_SEND_BTN, NULL, NULL);
 
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
@@ -221,14 +222,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
+		case ID_DISCONNECT:
+			if(portparma.connected)
+				disconnect(hwnd);
+			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
+			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
+			break;
 		case ID_CONNECT:
-			//serverMain(hwnd);
-				connect(hwnd, uploadData.data);
+			connect(hwnd, uploadFile.data);
+			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_DISABLED | MF_GRAYED);
+			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_ENABLED );
 			break;
 		case ID_UPLOAD:
-			portparma.uploaded = upload_file(hwnd, &uploadData);
-			OutputDebugString(TEXT(uploadData.filePath));
-			OutputDebugString(TEXT(uploadData.data));
+			portparma.uploaded = upload_file(hwnd, &uploadFile);
+			OutputDebugString(TEXT(uploadFile.filePath));
+			OutputDebugString(TEXT(uploadFile.data));
 			break;
 
 		case ID_EXIT:
@@ -236,27 +244,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			PostQuitMessage(0); //terminates the program
 			break;
 
-		case ID_ENTER_BTN: //execute functions when button is clicked
-			GetWindowText(hInput2, str, 256);
-			if (GetWindowTextLengthA(hInput2) != 0) {
-				switch (portparma.selectedProtocal) {
-					case 1:
-						lengthInput2= GetWindowTextLengthA(hInput2);
-						GetWindowText(hInput2, input2Text, 256); //get the HInput's text
-						break;
-					case 2:
-						lengthInput2 = GetWindowTextLengthA(hInput2);
-						GetWindowText(hInput2, input2Text, 256);
-						
-						break;
-					default:
-
-						break;
-				}
-			}
-			else {
-				SetWindowText(textHwnd, "Invalid input");
-			}
+		case ID_SEND_BTN: //execute functions when button is clicked
+			sentFile();
 			break;
 		case ID_SERVER_BTN:
 			//OutputDebugString("server");
@@ -313,7 +302,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	return 0;
 }
 
-void connect(HWND hwnd, LPCSTR fileData) {
+int connect(HWND hwnd, LPCSTR fileData) {
 	int inputIPLength;
 	TCHAR inputIP[255];
 
@@ -322,11 +311,11 @@ void connect(HWND hwnd, LPCSTR fileData) {
 		if (GetWindowTextLengthA(hInput2) != 0) {
 			inputIPLength = GetWindowTextLengthA(hInput2);
 			GetWindowText(hInput2, inputIP, 255);
-			if (portparma.selectedProtocal) {
+			if (portparma.selectedProtocal) { // 0 is tcp, 1 is UDP
 				//udp client
 			}
 			else {
-				tcp_client(portparma.hwnd, inputIP, fileData);
+				tcp_client(portparma.hwnd, inputIP, fileData, &network.sd);
 			}
 		}
 	}
@@ -338,6 +327,7 @@ void connect(HWND hwnd, LPCSTR fileData) {
 			serverMain(hwnd);
 		}
 	}
+	return 1;
 }
 
 
@@ -384,10 +374,26 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 }
 
 void sentFile() {
+	int n;
 	if (portparma.uploaded) {
-		
+		for (int i = 0; i < portparma.numPackets;i++) {
+			if (portparma.selectedProtocal) {
+			}
+			else {
+				n = tcpSentPacket(&network.sd, uploadFile.data);
+			}
+		}
 	}
 	else {
 		MessageBox(NULL, TEXT("Please Upload file"), "", MB_OK);
+	}
+}
+
+void disconnect(HWND hwnd) {
+	if (portparma.selectServerClient) {
+		disconnectSocket(&network.sd);	//disconnect client
+	}
+	else {
+		SendMessage(hwnd, NULL, FD_CLOSE, NULL); //
 	}
 }

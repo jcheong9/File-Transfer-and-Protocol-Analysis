@@ -153,7 +153,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = RecvBytes;
-						//MessageBox(hwnd, TEXT(SocketInfo->DataBuf.buf), TEXT(""), MB_OK);
+						MessageBox(hwnd, TEXT(SocketInfo->DataBuf.buf), TEXT(""), MB_OK);
 					}
 				}
 
@@ -161,7 +161,7 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				// and begin writing data to the client.
 
 			case FD_WRITE:
-
+				/*
 				SocketInfo = GetSocketInformation(wParam);
 
 				if (SocketInfo->BytesRECV > SocketInfo->BytesSEND)
@@ -202,7 +202,8 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						PostMessage(hwnd, WM_SOCKET, wParam, FD_READ);
 					}
 				}
-
+				*/
+				OutputDebugString("WRITE");
 				break;
 
 			case FD_CLOSE:

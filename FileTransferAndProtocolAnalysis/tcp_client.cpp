@@ -1,12 +1,11 @@
 #include "tcp_client.h"
 
-void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
-	int n, ns, bytes_to_read;
+void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, SOCKET * sd) {
 	int port, err;
-	SOCKET sd;
+	//SOCKET sd;
 	struct hostent* hp;
 	struct sockaddr_in server;
-	char* host, * bp, rbuf[BUFSIZE], ** pptr;
+	char* host, ** pptr;
 	WSADATA WSAData;
 	WORD wVersionRequested;
 	//char* sbuf[BUFSIZE];
@@ -27,7 +26,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	}
 
 	// Create the socket
-	if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((*sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
 		exit(1);
@@ -47,7 +46,7 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 	memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
 
 	// Connecting to the server
-	if (connect(sd, (struct sockaddr*) & server, sizeof(server)) == -1)
+	if (connect(*sd, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(hwnd, buff, TEXT(""), MB_OK);
@@ -58,8 +57,9 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 
 
 	// Transmit data through the socket
-	//ns = send(sd, fileData, strlen(fileData), 0);
+	//send(*sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");
+	/*
 	bp = rbuf;
 	bytes_to_read = (int)strlen(fileData);
 
@@ -72,12 +72,17 @@ void tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData) {
 			break;
 	}
 	//OutputDebugString(rbuf);
-
 	MessageBox(hwnd, bp, TEXT("client"), MB_OK);
 	closesocket(sd);
 	WSACleanup();
+	*/
 }
 
-int tcpSentPacket(SOCKET sd, LPCSTR fileData) {
-	return send(sd, fileData, strlen(fileData), 0);
+int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
+	return send(*sd, fileData, strlen(fileData), 0);
+}
+
+void disconnectSocket(SOCKET* sd) {
+	closesocket(*sd);
+	WSACleanup();
 }
