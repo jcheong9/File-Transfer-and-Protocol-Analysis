@@ -28,6 +28,7 @@
 
 #include "application.h"
 using namespace std;
+#include <winsock2.h>
 
 //Textbox handlers for send and receive
 HWND textHwnd;
@@ -37,6 +38,7 @@ HWND textHwndRx;
 HWND hWndListView;
 HWND hWndListViewRx;
 HWND hInput2;
+HWND inputPacketSizeLabel;
 HWND hwndButton;
 HWND radioBtnClient;
 HWND radioBtnServer;
@@ -50,9 +52,10 @@ HWND textHwndLabel2;
 HWND textHwndLabel3;
 HWND textHwndLabel4;
 HWND textHwndLabel5;
+HWND packetSizeLabel;
 
 PORTPARMA portparma;
-UPLOADFILE uploadFile;
+DATASENT dataSent;
 NETWORK network;
 HDC hdc;
 HANDLE serverThread = NULL;
@@ -107,8 +110,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	Wcl.cbClsExtra = 0;      // no extra memory needed
 	Wcl.cbWndExtra = 0;
 
-
-
 	// Register the class
 	if (!RegisterClassEx(&Wcl))
 		return 0;
@@ -159,8 +160,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		textHwndLabel = CreateWindow("STATIC", "<<-- File Transfer and Protocal Analysis -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
 			30, 10, 425, 20, hwnd, NULL, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 45, 190, 20, hwnd, NULL, NULL, NULL);
 		
 		radioBtnServer = CreateWindow(TEXT("BUTTON"), TEXT("Server"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -169,8 +169,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnClient = CreateWindow(TEXT("BUTTON"), TEXT("Client"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 45, 60, 20, hwnd, (HMENU)ID_CLIENT_BTN, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow("STATIC", "Select Protocol: ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		textHwndLabel2 = CreateWindow("STATIC", "Select Protocol: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 65, 130, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnTCP = CreateWindow(TEXT("BUTTON"), TEXT("TCP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -179,8 +178,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnUDP = CreateWindow(TEXT("BUTTON"), TEXT("UDP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 65, 60, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
 
-		textHwndLabel3 = CreateWindow("STATIC", "Select Packet Times: ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		textHwndLabel3 = CreateWindow("STATIC", "Select Packet Times: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 85, 150, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnTenTimes = CreateWindow(TEXT("BUTTON"), TEXT("10"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -189,31 +187,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnHundredTimes = CreateWindow(TEXT("BUTTON"), TEXT("100"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 85, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 115, 100, 20, hwnd, NULL, NULL, NULL);
+		packetSizeLabel = CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 115, 150, 20, hwnd, NULL, NULL, NULL);
 
-		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+		inputPacketSizeLabel = CreateWindow("edit", "1024", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 			205, 115, 250, 20, hwnd, NULL, NULL, NULL);
-
-		textHwndLabel4 = CreateWindow("STATIC", "Status: ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		
+		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 145, 100, 20, hwnd, NULL, NULL, NULL);
 
-		textHwndLabel5 = CreateWindow("STATIC", "Not Connected ",
-			WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			205, 145, 100, 20, hwnd, NULL, NULL, NULL);
+		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+			205, 145, 250, 20, hwnd, NULL, NULL, NULL);
+
+		textHwndLabel4 = CreateWindow("STATIC", "Status: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 175, 100, 20, hwnd, NULL, NULL, NULL);
+
+		textHwndLabel5 = CreateWindow("STATIC", "Not Connected ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			205, 175, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 			350, 215, 100, 20, hwnd, (HMENU)ID_SEND_BTN, NULL, NULL);
 
+		GetWindowText(hInput2, dataSent.packSize, 255);
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 		ShowWindow(hInput2, SW_HIDE);
 		ShowWindow(textHwndLabel2, SW_HIDE);
 		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
-
+		
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
@@ -223,17 +225,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
 			break;
+			
 		case ID_CONNECT:
-			if (connect(hwnd, uploadFile.data)) {
+			if (connect(hwnd, dataSent.data)) {
 				EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_DISABLED | MF_GRAYED);
 				EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_ENABLED );
-
 			}
 			break;
 		case ID_UPLOAD:
-			portparma.uploaded = upload_file(hwnd, &uploadFile);
-			OutputDebugString(TEXT(uploadFile.filePath));
-			OutputDebugString(TEXT(uploadFile.data));
+			portparma.uploaded = upload_file(hwnd, &dataSent);
 			break;
 
 		case ID_EXIT:
@@ -285,18 +285,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
 			portparma.numPackets = 100;
 			break;
-
+			
 		}
 		break;
+
 	case WM_CTLCOLORSTATIC:
 		hdc = (HDC)wParam;
 		SetBkColor(hdc, RGB(255, 255, 255));
 		return (INT_PTR)startBackGroundColor;
+
 	case WM_DESTROY:		// message to terminate the program
 		disconnect(hwnd);
 		SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 		PostQuitMessage(0);
 		break;
+
 	default: // Let Win32 process all other messages
 		return DefWindowProc(hwnd, Message, wParam, lParam);
 	}
@@ -327,7 +330,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 			//udp server
 		}
 		else {
-			serverMain(hwnd);
+			_beginthread(serverMain, 1, &dataSent);
 			
 		}
 		return 1;
@@ -336,7 +339,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 }
 
 
-int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
+int upload_file(HWND hwnd, DATASENT* uploadData) {
 	OPENFILENAME ofn;
 	char file_name[100];
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -380,17 +383,19 @@ int upload_file(HWND hwnd, UPLOADFILE* uploadData) {
 
 void sentFile() {
 	int n;
-	if (portparma.uploaded) {
-		for (int i = 0; i < portparma.numPackets;i++) {
-			if (portparma.selectedProtocal) {
-			}
-			else {
-				n = tcpSentPacket(&network.sd, uploadFile.data);
-			}
+	if (portparma.uploaded) {	
+		if (portparma.selectedProtocal) {
+			//udp
 		}
+		else {
+			n = tcpSentPacket(&network.sd, dataSent.data);
+		}
+
 	}
 	else {
-		MessageBox(NULL, TEXT("Please Upload file"), "", MB_OK);
+		for (int i = 0; i < portparma.numPackets;i++) {
+
+		}
 	}
 }
 
@@ -401,4 +406,8 @@ void disconnect(HWND hwnd) {
 	else {
 		SendMessage(hwnd, NULL, FD_CLOSE, NULL); //
 	}
+}
+
+void packetizeSize() {
+
 }

@@ -1,5 +1,5 @@
-#include "server.h"
-#include <ctime>
+#include "tcp_server.h"
+
 
 
 typedef struct _SOCKET_INFORMATION {
@@ -16,29 +16,31 @@ LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
 LPSOCKET_INFORMATION SocketInfoList;
 clock_t begin_time = NULL;
 
-void serverMain(HWND hwnd)
+void serverMain(PVOID portParma)
 {
+	PORTPARMA* pp = (PORTPARMA*)portParma;
 	MSG msg;
 	DWORD Ret;
 	SOCKET Listen;
 	SOCKADDR_IN InternetAddr;
 	HWND Window;
 	WSADATA wsaData;
-
+	
 	if ((Window = MakeWorkerWindow()) == NULL)
 		return;
+	
 
 	// Prepare echo server
 	if ((Ret = WSAStartup(0x0202, &wsaData)) != 0)
 	{
 		printf("WSAStartup failed with error %d\n", Ret);
-		return;
+
 	}
 
 	if ((Listen = socket(PF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
 	{
 		printf("socket() failed with error %d\n", WSAGetLastError());
-		return;
+
 	}
 
 	WSAAsyncSelect(Listen, Window, WM_SOCKET, FD_ACCEPT | FD_CLOSE);
@@ -50,13 +52,13 @@ void serverMain(HWND hwnd)
 	if (bind(Listen, (PSOCKADDR)&InternetAddr, sizeof(InternetAddr)) == SOCKET_ERROR)
 	{
 		printf("bind() failed with error %d\n", WSAGetLastError());
-		return;
+
 	}
 
 	if (listen(Listen, 5))
 	{
 		printf("listen() failed with error %d\n", WSAGetLastError());
-		return;
+
 	}
 
 	// Translate and dispatch window messages for the application thread
@@ -66,12 +68,13 @@ void serverMain(HWND hwnd)
 		if (Ret == -1)
 		{
 			printf("GetMessage() failed with error %d\n", GetLastError());
-			return;
+
 		}
 		
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
 }
 
 

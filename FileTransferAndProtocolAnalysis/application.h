@@ -19,23 +19,9 @@
 -- This is a header file contains declaration functions and libraries.
 ----------------------------------------------------------------------------------------------------------------------*/
 #pragma once
-
-#define _CRT_SECURE_NO_WARNINGS
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include <winsock2.h>
-#include <stdio.h>
-#include <string>
-#include <windows.h>
-#include <windowsx.h>
-#include <stdio.h>
-#include <conio.h>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#pragma comment(lib, "Ws2_32.lib")
-#include "client.h"
-#include "server.h"
+#include "tcp_client.h"
+#include "tcp_server.h"
+#include "common.h"
 
 #define ID_DISCONNECT					102
 #define ID_CONNECT						103
@@ -50,33 +36,16 @@
 #define ID_PACKETS_HUNDRED_TIMES_BTN	112
 #define ID_PACKETSIZE_1024B				113
 #define ID_PACKETSIZE_4096B				113
-#define ID_PACKETSIZE_20B				113
-#define ID_PACKETSIZE_60B				113
-
-typedef struct
-{
-	HWND hwnd = NULL;
-	int selectedProtocal = 0;   //0 is tcp, 1 is udp
-	int selectServerClient = 0; //0 is server, 1 is client
-	int uploaded = 0;
-	int connected = 1; //0 is disconnect, 1 is connect
-	int numPackets = 10;
-} PORTPARMA;
-
-typedef struct
-{
-	LPCSTR data;
-	LPCSTR filePath;
-} UPLOADFILE;
-
-
+#define ID_PACKETSIZE_20KB				113
+#define ID_PACKETSIZE_60KB				113
 
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 int connect(HWND hwnd, LPCSTR fileData);
-int upload_file(HWND hwnd, UPLOADFILE* data);
+int upload_file(HWND hwnd, DATASENT* data);
 void sentFile();
 void disconnect(HWND hwnd);
+void packetizeSize();
 
 
 

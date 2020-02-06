@@ -1,4 +1,4 @@
-#include "client.h"
+#include "tcp_client.h"
 
 
 int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network) {
