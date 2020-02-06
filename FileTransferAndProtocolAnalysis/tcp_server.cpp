@@ -1,7 +1,5 @@
 #include "tcp_server.h"
 
-
-
 typedef struct _SOCKET_INFORMATION {
 	BOOL RecvPosted;
 	CHAR Buffer[DATA_BUFSIZE];
@@ -294,9 +292,23 @@ HWND MakeWorkerWindow(void)
 }
 
 int writeToFile(NETWORK* uploadData) {
-	string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+	//string filepath = convert(uploadData->filePath); // convert LPCST to std::string
 
-	HANDLE hFile = CreateFile(TEXT("C:\\Users\\SmallYellowFace\\Desktop\\NewFile.txt"),                // name of the write
+	OPENFILENAME ofn;
+	char file_name[100];
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = uploadData->hwnd;
+	ofn.lpstrFile = file_name;
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = 100;
+	ofn.lpstrFilter = "All files\0*.*\0Text\0*.TXT\0";
+	ofn.nFilterIndex = 1;
+
+	GetSaveFileName(&ofn);
+
+	HANDLE hFile = CreateFile(TEXT(ofn.lpstrFile),                // name of the write
 								GENERIC_WRITE,          // open for writing
 								0,                      // do not share
 								NULL,                   // default security
@@ -325,6 +337,6 @@ int writeToFile(NETWORK* uploadData) {
 	return 1;
 }
 
-std::string convert(LPCSTR str) {
+string convert(LPCSTR str) {
 	return std::string(str);
 }

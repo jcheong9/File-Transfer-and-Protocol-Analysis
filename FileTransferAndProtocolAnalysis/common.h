@@ -28,7 +28,7 @@ typedef struct
 typedef struct
 {
 	HWND hwnd = NULL;
-	TCHAR* ip;
+	TCHAR* ip = NULL;
 	LPSTR packSize;
 	LPCSTR data;
 	LPCSTR filePath;

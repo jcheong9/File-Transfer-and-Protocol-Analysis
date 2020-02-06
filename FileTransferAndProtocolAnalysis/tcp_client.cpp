@@ -2,12 +2,12 @@
 
 
 void tcp_client(PVOID network) {
-	NETWORK* pp = (NETWORK*)network;
+	NETWORK* networkStruct = (NETWORK*)network;
 	int port, err;
 	//SOCKET sd;
 	struct hostent* hp;
 	struct sockaddr_in server;
-	char* host, ** pptr;
+	char* host;
 	WSADATA WSAData;
 	WORD wVersionRequested;
 	//char* sbuf[BUFSIZE];
@@ -15,7 +15,7 @@ void tcp_client(PVOID network) {
 	char buff[100];
 	
 
-	host = pp->ip;	// Host name local host
+	host = networkStruct->ip;	// Host name local host
 	port = SERVER_TCP_PORT;
 
 
@@ -28,7 +28,7 @@ void tcp_client(PVOID network) {
 	}
 
 	// Create the socket
-	if ((pp->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((networkStruct->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
 		exit(1);
@@ -41,7 +41,7 @@ void tcp_client(PVOID network) {
 	if ((hp = gethostbyname(host)) == NULL)
 	{
 		//fprintf(stderr, "Unknown server address\n");
-		MessageBox(pp->hwnd, "Unknown server address\n", TEXT(""), MB_OK);
+		MessageBox(networkStruct->hwnd, "Unknown server address\n", TEXT(""), MB_OK);
 
 	}
 	else {
@@ -50,10 +50,10 @@ void tcp_client(PVOID network) {
 		memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
 	}
 	// Connecting to the server
-	if (connect(pp->sd, (struct sockaddr*) & server, sizeof(server)) == -1)
+	if (connect(networkStruct->sd, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
 		sprintf_s(buff, "Can't connect to server\n");
-		MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
+		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 	}
 }
 
