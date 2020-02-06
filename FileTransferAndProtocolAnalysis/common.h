@@ -17,7 +17,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 typedef struct
 {
-	HWND hwnd = NULL;
+
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int selectServerClient = 0; //0 is server, 1 is client
 	int uploaded = 0;
@@ -27,7 +27,12 @@ typedef struct
 
 typedef struct
 {
+	HWND hwnd = NULL;
+	TCHAR* ip;
 	LPSTR packSize;
 	LPCSTR data;
 	LPCSTR filePath;
-} DATASENT;
+	struct sockaddr_in server;
+	SOCKET sd;
+} NETWORK;
+

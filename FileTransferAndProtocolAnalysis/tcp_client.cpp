@@ -1,7 +1,8 @@
 #include "tcp_client.h"
 
 
-int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network) {
+void tcp_client(PVOID network) {
+	NETWORK* pp = (NETWORK*)network;
 	int port, err;
 	//SOCKET sd;
 	struct hostent* hp;
@@ -14,7 +15,7 @@ int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network)
 	char buff[100];
 	
 
-	host = ipAddress;	// Host name local host
+	host = pp->ip;	// Host name local host
 	port = SERVER_TCP_PORT;
 
 
@@ -27,7 +28,7 @@ int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network)
 	}
 
 	// Create the socket
-	if ((network->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((pp->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
 		exit(1);
@@ -40,21 +41,22 @@ int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network)
 	if ((hp = gethostbyname(host)) == NULL)
 	{
 		//fprintf(stderr, "Unknown server address\n");
-		MessageBox(hwnd, "Unknown server address\n", TEXT(""), MB_OK);
+		MessageBox(pp->hwnd, "Unknown server address\n", TEXT(""), MB_OK);
+
 	}
+	else {
 
-	// Copy the server address
-	memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
-
+		// Copy the server address
+		memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
+	}
 	// Connecting to the server
-	if (connect(network->sd, (struct sockaddr*) & server, sizeof(server)) == -1)
+	if (connect(pp->sd, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
 		sprintf_s(buff, "Can't connect to server\n");
-		MessageBox(hwnd, buff, TEXT(""), MB_OK);
-		return 0;
+		MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
+		
 	}
 
-	return 1;
 	// Transmit data through the socket
 	//send(*sd, fileData, strlen(fileData), 0);
 	//printf("Receive:\n");
@@ -79,11 +81,11 @@ int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK * network)
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
 	int n = send(*sd, fileData, strlen(fileData), 0);
-	disconnectSocket(sd);
 	return n;
 }
 
 void disconnectSocket(SOCKET* sd) {
+	setsockopt(*sd, SOL_SOCKET, SO_LINGER, NULL, NULL);
 	closesocket(*sd);
 	WSACleanup();
 }

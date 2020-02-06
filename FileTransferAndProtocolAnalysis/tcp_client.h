@@ -4,12 +4,8 @@
 #define BUFSIZE					1024	
 #include "common.h"
 
-typedef struct
-{
-	struct sockaddr_in server;
-	SOCKET sd;
-} NETWORK;
 
-int tcp_client(HWND hwnd, TCHAR * ipAddress, LPCSTR fileData, NETWORK* network);
+
+void tcp_client(PVOID network);
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData);
 void disconnectSocket(SOCKET* sd);

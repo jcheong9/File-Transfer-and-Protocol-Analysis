@@ -42,10 +42,10 @@
 //Declaration Functions application
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 int connect(HWND hwnd, LPCSTR fileData);
-int upload_file(HWND hwnd, DATASENT* data);
+int upload_file(HWND hwnd, NETWORK* data);
 void sentFile();
 void disconnect(HWND hwnd);
-void packetizeSize();
+LPCSTR packetizeSize();
 
 
 
