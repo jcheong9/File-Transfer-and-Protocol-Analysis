@@ -15,9 +15,9 @@
 #include <ctime>
 #include <process.h>
 #pragma comment(lib, "Ws2_32.lib")
+using namespace std;
 typedef struct
 {
-
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int selectServerClient = 0; //0 is server, 1 is client
 	int uploaded = 0;

@@ -292,3 +292,39 @@ HWND MakeWorkerWindow(void)
 
 	return Window;
 }
+
+int writeToFile(NETWORK* uploadData) {
+	string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+
+	HANDLE hFile = CreateFile(TEXT("C:\\Users\\SmallYellowFace\\Desktop\\NewFile.txt"),                // name of the write
+								GENERIC_WRITE,          // open for writing
+								0,                      // do not share
+								NULL,                   // default security
+								CREATE_ALWAYS,          // overwrite existing
+								FILE_ATTRIBUTE_NORMAL,  // normal file
+								NULL);                  // no attr. template
+
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		// Failed to open/create file
+		return 2;
+	}
+
+	// Write data to the file
+	std::string strText = "Hello World!bye"; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	DWORD bytesWritten;
+	WriteFile(
+		hFile,            // Handle to the file
+		strText.c_str(),  // Buffer to write
+		strText.size(),   // Buffer size
+		&bytesWritten,    // Bytes written
+		nullptr);         // Overlapped
+
+	 // Close the handle once we don't need it.
+	CloseHandle(hFile);
+	return 1;
+}
+
+std::string convert(LPCSTR str) {
+	return std::string(str);
+}

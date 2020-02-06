@@ -54,29 +54,7 @@ void tcp_client(PVOID network) {
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
-		
 	}
-
-	// Transmit data through the socket
-	//send(*sd, fileData, strlen(fileData), 0);
-	//printf("Receive:\n");
-	/*
-	bp = rbuf;
-	bytes_to_read = (int)strlen(fileData);
-
-	// client makes repeated calls to recv until no more data is expected to arrive.
-	while ((n = recv(sd, bp, bytes_to_read, 0)) < strlen(fileData))
-	{
-		bp += n;
-		bytes_to_read -= n;
-		if (n == 0)
-			break;
-	}
-	//OutputDebugString(rbuf);
-	MessageBox(hwnd, bp, TEXT("client"), MB_OK);
-	closesocket(sd);
-	WSACleanup();
-	*/
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
