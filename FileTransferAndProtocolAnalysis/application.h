@@ -43,7 +43,7 @@
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 int connect(HWND hwnd, LPCSTR fileData);
 int upload_file(HWND hwnd, NETWORK* data);
-void sentFile();
+void sentFile(PVOID network);
 void disconnect(HWND hwnd);
 LPCSTR packetizeSize();
 

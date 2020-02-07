@@ -243,7 +243,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_SEND_BTN: //execute functions when button is clicked
-			sentFile();
+			_beginthread(sentFile, 1, &network);
 			break;
 
 		case ID_SERVER_BTN:
@@ -385,31 +385,32 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	return 1;
 }
 
-void sentFile() {
+void sentFile(PVOID network) {
+	NETWORK* networkStruct = (NETWORK*)network;
 	int n;
 	if (portparma.uploaded) {	
 		if (portparma.selectedProtocal) {
 			//udp
 		}
 		else {
-			n = tcpSentPacket(&network.sd, network.data);
+			n = tcpSentPacket(&(networkStruct->sd), networkStruct->data);
 		}
-		//disconnectSocket(&network.sd);
-		//WSACleanup();
+		disconnectSocket(&(networkStruct->sd));
+
 
 	}
 	else {
-		network.data = packetizeSize();
+		networkStruct->data = packetizeSize();
 		for (int i = 0; i < portparma.numPackets;i++) {
 			if (portparma.selectedProtocal) {
 				//udp
 			}
 			else {
-				n = tcpSentPacket(&network.sd, network.data);
+				n = tcpSentPacket(&(networkStruct->sd), networkStruct->data);
 			}
 		}
-		//disconnectSocket(&network.sd);
-		//WSACleanup();
+		disconnectSocket(&(networkStruct->sd));
+
 	}
 }
 
@@ -428,10 +429,6 @@ LPCSTR packetizeSize() {
 	GetWindowText(inputPacketSizeLabel, inputPacket, 255);
 	int packSize = atoi(inputPacket);
 	LPSTR message = new TCHAR[0];
-	LPCSTR a = "a";
-	while (count != packSize) {
-		lstrcat(message,a);
-		count++;
-	}
+	memset(message, 'a', packSize);
 	 return (LPCSTR)message;
-}
+} 

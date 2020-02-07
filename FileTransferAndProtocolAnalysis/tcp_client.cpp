@@ -25,7 +25,7 @@ void tcp_client(PVOID network) {
 	{
 		printf("DLL not found!\n");
 		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
-		//exit(1);
+		_endthread();
 	}
 
 	// Create the socket
@@ -33,7 +33,7 @@ void tcp_client(PVOID network) {
 	{
 		perror("Cannot create socket");
 		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
-		//exit(1);
+		_endthread();
 	}
 
 	// Initialize and set up the address structure
@@ -44,7 +44,7 @@ void tcp_client(PVOID network) {
 	{
 		//fprintf(stderr, "Unknown server address\n");
 		MessageBox(networkStruct->hwnd, "Unknown server address\n", TEXT(""), MB_OK);
-
+		_endthread();
 	}
 	else {
 
@@ -56,23 +56,33 @@ void tcp_client(PVOID network) {
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+		_endthread();
 	}
+	LPSTR message = new TCHAR[1025];
+	memset(message, 'a', 1024);
+	//testt
+	
+	for (int i = 0; i < 10; i++) {
+		if (send(networkStruct->sd, message, strlen(message), 0)== SOCKET_ERROR) {
+			MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+			send(networkStruct->sd, "end", strlen("end"), 0);
+			_endthread();
+		}
+	}
+	
+	send(networkStruct->sd, "end", strlen("end"), 0);
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
 	int n = send(*sd, fileData, strlen(fileData), 0);
 	return n;
 }
-/*
-int tcpSentMultiplePacket() {
-	tcpSentPacket(SOCKET * sd, LPCSTR fileData)
-}
 
-*/
 
 void disconnectSocket(SOCKET* sd) {
 	setsockopt(*sd, SOL_SOCKET, SO_LINGER, NULL, NULL);
 	closesocket(*sd);
-
+	WSACleanup();
+	_endthread();
 }
 
