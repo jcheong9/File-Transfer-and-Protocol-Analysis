@@ -25,7 +25,7 @@ void tcp_client(PVOID network) {
 	{
 		printf("DLL not found!\n");
 		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
-		//exit(1);
+		_endthread();
 	}
 
 	// Create the socket
@@ -33,7 +33,7 @@ void tcp_client(PVOID network) {
 	{
 		perror("Cannot create socket");
 		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
-		//exit(1);
+		_endthread();
 	}
 
 	// Initialize and set up the address structure
@@ -44,7 +44,7 @@ void tcp_client(PVOID network) {
 	{
 		//fprintf(stderr, "Unknown server address\n");
 		MessageBox(networkStruct->hwnd, "Unknown server address\n", TEXT(""), MB_OK);
-
+		_endthread();
 	}
 	else {
 
@@ -57,9 +57,10 @@ void tcp_client(PVOID network) {
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 	}
-	for (int i = 0; i < networkStruct->numPackets; i++) {
-		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0)) {
-			OutputDebugString("Error sock send");
+	for (int i = 0; i < 5; i++) {
+		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0))
+		{
+			MessageBox(networkStruct->hwnd, "Socket sent error", TEXT(""), MB_OK);
 		}
 	}
 
