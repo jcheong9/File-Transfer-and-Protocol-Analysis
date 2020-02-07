@@ -57,6 +57,16 @@ void tcp_client(PVOID network) {
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 	}
+	for (int i = 0; i < networkStruct->numPackets; i++) {
+		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0)) {
+			OutputDebugString("Error sock send");
+		}
+	}
+
+
+	closesocket(networkStruct->sd);
+	WSACleanup();
+	_endthread();
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
@@ -75,4 +85,7 @@ void disconnectSocket(SOCKET* sd) {
 	closesocket(*sd);
 
 }
+
+
+
 
