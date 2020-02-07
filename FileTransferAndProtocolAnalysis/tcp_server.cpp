@@ -323,7 +323,7 @@ int writeToFile(NETWORK* uploadData) {
 	}
 
 	// Write data to the file
-	std::string strText = "Hello World!bye"; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	std::string strText = convert(uploadData->data); // For C use LPSTR (char*) or LPWSTR (wchar_t*)
 	DWORD bytesWritten;
 	WriteFile(
 		hFile,            // Handle to the file

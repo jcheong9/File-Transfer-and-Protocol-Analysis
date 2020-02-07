@@ -232,8 +232,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			}
 			break;
 		case ID_UPLOAD:
-			//portparma.uploaded = upload_file(hwnd, &network);
-			writeToFile(&network);
+			portparma.uploaded = upload_file(hwnd, &network);
+			//writeToFile(&network);
 			break;
 
 		case ID_EXIT:
