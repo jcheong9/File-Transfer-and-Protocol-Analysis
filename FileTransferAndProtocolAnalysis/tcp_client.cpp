@@ -63,9 +63,16 @@ int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
 	int n = send(*sd, fileData, strlen(fileData), 0);
 	return n;
 }
+/*
+int tcpSentMultiplePacket() {
+	tcpSentPacket(SOCKET * sd, LPCSTR fileData)
+}
+
+*/
 
 void disconnectSocket(SOCKET* sd) {
 	setsockopt(*sd, SOL_SOCKET, SO_LINGER, NULL, NULL);
 	closesocket(*sd);
-	WSACleanup();
+
 }
+

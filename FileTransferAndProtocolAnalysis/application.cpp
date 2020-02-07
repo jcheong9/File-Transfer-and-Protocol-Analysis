@@ -394,7 +394,8 @@ void sentFile() {
 		else {
 			n = tcpSentPacket(&network.sd, network.data);
 		}
-		disconnectSocket(&network.sd);
+		//disconnectSocket(&network.sd);
+		//WSACleanup();
 
 	}
 	else {
@@ -407,7 +408,8 @@ void sentFile() {
 				n = tcpSentPacket(&network.sd, network.data);
 			}
 		}
-		disconnectSocket(&network.sd);
+		//disconnectSocket(&network.sd);
+		//WSACleanup();
 	}
 }
 
