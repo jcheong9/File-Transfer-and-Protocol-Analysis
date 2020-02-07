@@ -24,14 +24,16 @@ void tcp_client(PVOID network) {
 	if (err != 0) //No usable DLL
 	{
 		printf("DLL not found!\n");
-		exit(1);
+		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
+		//exit(1);
 	}
 
 	// Create the socket
 	if ((networkStruct->sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
-		exit(1);
+		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT(""), MB_OK);
+		//exit(1);
 	}
 
 	// Initialize and set up the address structure

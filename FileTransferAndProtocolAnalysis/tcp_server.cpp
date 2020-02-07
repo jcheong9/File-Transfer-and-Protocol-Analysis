@@ -12,11 +12,12 @@ typedef struct _SOCKET_INFORMATION {
 
 LPSOCKET_INFORMATION GetSocketInformation(SOCKET s);
 LPSOCKET_INFORMATION SocketInfoList;
-clock_t begin_time = NULL;
 
-void serverMain(PVOID portParma)
+NETWORK* pp;
+
+void serverMain(PVOID network)
 {
-	PORTPARMA* pp = (PORTPARMA*)portParma;
+	pp = (NETWORK*)network;
 	MSG msg;
 	DWORD Ret;
 	SOCKET Listen;
@@ -125,8 +126,8 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case FD_READ:
-				if(begin_time == NULL)
-					begin_time = clock();
+				if(pp->beginTime == NULL)
+					pp->beginTime = clock();
 				SocketInfo = GetSocketInformation(wParam);
 
 				// Read data only if the receive buffer is empty.
@@ -159,20 +160,22 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = 0;
-						//MessageBox(hwnd, (LPCSTR)count, TEXT(""), MB_OK);
+						processReceiveData(SocketInfo->DataBuf.buf);
+						//writeToFile(SocketInfo->DataBuf.buf);
+						pp->endTime = float(clock() - pp->beginTime);	 //mill sec
 					}
 				}
 
 				break;
 
 			case FD_CLOSE:
-				float ii = float(clock() - begin_time); //mill sec
+
 				SocketInfo = GetSocketInformation(wParam);
-				MessageBox(hwnd, SocketInfo->Buffer, TEXT("Server"), MB_OK);
+				//MessageBox(hwnd, SocketInfo->Buffer, TEXT("Server"), MB_OK);
 				//printf("Buffer rev %s\n", SocketInfo->Buffer);
 				sprintf_s(buff, "Closing socket %d\n", (int)wParam);
-
-				MessageBox(hwnd, buff, TEXT(""), MB_OK);
+				writeToFile();
+				//MessageBox(hwnd, buff, TEXT(""), MB_OK);
 				FreeSocketInformation(wParam);
 				break;
 			}
@@ -291,7 +294,7 @@ HWND MakeWorkerWindow(void)
 	return Window;
 }
 
-int writeToFile(NETWORK* uploadData) {
+int writeToFile() {
 	//string filepath = convert(uploadData->filePath); // convert LPCST to std::string
 
 	OPENFILENAME ofn;
@@ -299,17 +302,18 @@ int writeToFile(NETWORK* uploadData) {
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
 	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = uploadData->hwnd;
+	ofn.hwndOwner = pp->hwnd;
 	ofn.lpstrFile = file_name;
 	ofn.lpstrFile[0] = '\0';
 	ofn.nMaxFile = 100;
-	ofn.lpstrFilter = "All files\0*.*\0Text\0*.TXT\0";
+	ofn.lpstrFilter = "*.txt\0";
 	ofn.nFilterIndex = 1;
 
+	//open save dialog box
 	GetSaveFileName(&ofn);
 
-	HANDLE hFile = CreateFile(TEXT(ofn.lpstrFile),                // name of the write
-								GENERIC_WRITE,          // open for writing
+	HANDLE hFile = CreateFile(TEXT(ofn.lpstrFile),      // name of the write
+								FILE_APPEND_DATA,       // open for appending
 								0,                      // do not share
 								NULL,                   // default security
 								CREATE_ALWAYS,          // overwrite existing
@@ -323,7 +327,7 @@ int writeToFile(NETWORK* uploadData) {
 	}
 
 	// Write data to the file
-	std::string strText = convert(uploadData->data); // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	std::string strText = convert(pp->data); // For C use LPSTR (char*) or LPWSTR (wchar_t*)
 	DWORD bytesWritten;
 	WriteFile(
 		hFile,            // Handle to the file
@@ -335,6 +339,13 @@ int writeToFile(NETWORK* uploadData) {
 	 // Close the handle once we don't need it.
 	CloseHandle(hFile);
 	return 1;
+}
+
+void processReceiveData(LPSTR data) {
+	if (pp->data == NULL)
+		pp->data = data;
+	LPCSTR str1 = "";
+	std::string(pp->data).append(data);
 }
 
 string convert(LPCSTR str) {

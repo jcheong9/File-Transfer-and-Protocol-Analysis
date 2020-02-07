@@ -29,6 +29,8 @@ typedef struct
 {
 	HWND hwnd = NULL;
 	TCHAR* ip = NULL;
+	clock_t beginTime = NULL;
+	float endTime;
 	LPSTR packSize;
 	LPCSTR data;
 	LPCSTR filePath;
