@@ -58,9 +58,9 @@ void tcp_client(PVOID network) {
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 	}
 	for (int i = 0; i < 5; i++) {
-		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0))
+		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0) == SOCKET_ERROR)
 		{
-			MessageBox(networkStruct->hwnd, "Socket sent error", TEXT(""), MB_OK);
+			MessageBox(networkStruct->hwnd, "Socket error sent", TEXT(""), MB_OK);
 		}
 	}
 

@@ -160,7 +160,8 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = 0;
-						processReceiveData(SocketInfo->DataBuf.buf);
+						//processReceiveData(SocketInfo->DataBuf.buf);
+						pp->data = SocketInfo->DataBuf.buf;
 						//writeToFile(SocketInfo->DataBuf.buf);
 						pp->endTime = float(clock() - pp->beginTime);	 //mill sec
 					}
@@ -327,7 +328,7 @@ int writeToFile() {
 	}
 
 	// Write data to the file
-	std::string strText = convert(pp->data); // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	std::string strText = pp->data; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
 	DWORD bytesWritten;
 	WriteFile(
 		hFile,            // Handle to the file
@@ -346,8 +347,4 @@ void processReceiveData(LPSTR data) {
 		pp->data = data;
 	LPCSTR str1 = "";
 	std::string(pp->data).append(data);
-}
-
-string convert(LPCSTR str) {
-	return std::string(str);
 }

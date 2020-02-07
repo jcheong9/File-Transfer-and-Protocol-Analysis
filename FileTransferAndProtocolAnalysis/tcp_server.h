@@ -12,6 +12,5 @@ void FreeSocketInformation(SOCKET s);
 HWND MakeWorkerWindow(void);
 LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int writeToFile();
-string convert(LPCSTR str); //convert LPCSTR to string helper function
 void processReceiveData(LPSTR data);
 
