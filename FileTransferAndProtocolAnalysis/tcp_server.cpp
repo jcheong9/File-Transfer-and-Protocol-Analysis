@@ -82,7 +82,7 @@ void serverMain(PVOID network)
     }
 
 
-    while (TRUE)
+    while (networkStruct->connected)
     {
         AcceptSocket = accept(ListenSocket, NULL, NULL);
 
@@ -163,22 +163,24 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             }
         }
         else {
-            
-            //printf("Socket %d connected\n", AcceptSocket);
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
-            //memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
-            networkStruct->data = SocketInfo->Buffer;
-            networkStruct->beginTime = atof(networkStruct->data);
-            networkStruct->endTime = float(clock() - networkStruct->beginTime);	 //mill sec
-
 
             char buffer[64];
-            int ret = snprintf(buffer, sizeof buffer, "%f", networkStruct->endTime);
+            memset(buffer, 0, 64);
+            sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
+            LPSTR messageHeader = buffer;
+            writeToFile(messageHeader);
+            writeToFile((LPSTR)("\r\nReceived Data from:\r\n"));
+            writeToFile(SocketInfo->DataBuf.buf);
+            writeToFile((LPSTR)("\r\n----------------\r\n"));
 
-            string str = convert(buffer).c_str();
-            writeToFile((LPSTR)str.c_str());
-            writeToFile((LPSTR)("\r\nReceiving Header:\r\n"));
-            writeToFile(SocketInfo->Buffer);
+            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"));
+            writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()));
+
+            memset(buffer, 0, 64);
+            sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
+            LPSTR messageHeader2 = buffer;
+            writeToFile(messageHeader2);
 
             //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }
@@ -280,12 +282,15 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
+            //networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
 
-
-            networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
-            networkStruct->endTime = float(clock() - networkStruct->beginTime);	 //mill sec
-            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"));
-            writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()));
+            //writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"));
+            //writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()));
+            //char buffer[64];
+            //memset(buffer, 0, 64);
+            //sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
+            //LPSTR messageHeader = buffer;
+            //writeToFile(messageHeader);
 
 
             //string str = convert(networkStruct->data).c_str();

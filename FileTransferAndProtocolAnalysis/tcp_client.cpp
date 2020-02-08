@@ -66,15 +66,28 @@ void tcp_client(PVOID network) {
 
 	LPSTR message = new TCHAR[networkStruct->packSize + 1];
 
-	int n;
-	networkStruct->beginTime = clock();
 	char buffer[64];
 	memset(buffer, 0, 64);
-	sprintf_s(buffer, "\r\nBegining Time %d\r\n", clock());
+	sprintf_s(buffer, "\r\nBegining Time From Client %d\r\n", clock());
 	LPSTR messageHeader = buffer;
 	send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
 
-	send(networkStruct->sdClient, "end", strlen("end"), 0);
+	//sent packets
+	memset(message, 0, networkStruct->packSize);
+	memset(message, 'a', networkStruct->packSize);
+	if (networkStruct->uploaded) {
+		send(networkStruct->sdClient, networkStruct->data, strlen(networkStruct->data), 0);
+	}
+	else {
+		for (int i = 0; i < 5; i++) {
+			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
+				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+				send(networkStruct->sdClient, "end", strlen("end"), 0);
+				_endthread();
+			}
+		}
+	}
+	//---------------------
 	/*
 	if (networkStruct->uploaded) {
 		if (networkStruct->selectedProtocal) {
@@ -110,7 +123,7 @@ void tcp_client(PVOID network) {
 	
 	*/
 
-	MessageBox(networkStruct->hwnd, "Disconnect", TEXT("Client"), MB_OK);
+	MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
 	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	closesocket(networkStruct->sdClient);
 	WSACleanup();

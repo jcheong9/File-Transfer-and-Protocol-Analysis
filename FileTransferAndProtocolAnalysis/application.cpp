@@ -45,13 +45,14 @@ HWND radioBtnTCP;
 HWND radioBtnUDP;
 HWND radioBtnTenTimes;
 HWND radioBtnHundredTimes;
+HWND radioBtnPacketTrue;
+HWND radioBtnPacketFalse;
 
-HWND textHwndLabel;
-HWND textHwndLabel2;
-HWND textHwndLabel3;
+
 HWND textHwndLabel4;
 HWND textHwndLabel5;
-HWND packetSizeLabel;
+HWND textHwndLabel2;
+
 
 PORTPARMA portparma;
 NETWORK network;
@@ -157,10 +158,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	switch (Message)
 	{
 	case WM_CREATE: //creates the labels, text fields and buttons
-		textHwndLabel = CreateWindow("STATIC", "<<-- File Transfer and Protocal Analysis -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
+		CreateWindow("STATIC", "<<-- File Transfer and Protocal Analysis -->>", WS_CHILD | WS_VISIBLE | SS_CENTER,
 			30, 10, 425, 20, hwnd, NULL, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow("STATIC", "Select Server or Client Mode: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		CreateWindow("STATIC", "Select Server or Client Mode: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 45, 190, 20, hwnd, NULL, NULL, NULL);
 		
 		radioBtnServer = CreateWindow(TEXT("BUTTON"), TEXT("Server"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -169,7 +170,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnClient = CreateWindow(TEXT("BUTTON"), TEXT("Client"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 45, 60, 20, hwnd, (HMENU)ID_CLIENT_BTN, NULL, NULL);
 
-		textHwndLabel2 = CreateWindow("STATIC", "Select Protocol: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		CreateWindow("STATIC", "Select Protocol: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 65, 130, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnTCP = CreateWindow(TEXT("BUTTON"), TEXT("TCP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -178,7 +179,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnUDP = CreateWindow(TEXT("BUTTON"), TEXT("UDP"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 65, 60, 20, hwnd, (HMENU)ID_UDP_BTN, NULL, NULL);
 
-		textHwndLabel3 = CreateWindow("STATIC", "Select Packet Times: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		CreateWindow("STATIC", "Select Packet Times: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 85, 150, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnTenTimes = CreateWindow(TEXT("BUTTON"), TEXT("10"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
@@ -187,31 +188,43 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		radioBtnHundredTimes = CreateWindow(TEXT("BUTTON"), TEXT("100"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 85, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
 
-		packetSizeLabel = CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 115, 150, 20, hwnd, NULL, NULL, NULL);
+		CreateWindow("STATIC", "Packetize Message: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 105, 150, 20, hwnd, NULL, NULL, NULL);
+
+		radioBtnPacketFalse = CreateWindow(TEXT("BUTTON"), TEXT("False"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			245, 105, 60, 20, hwnd, (HMENU)ID_PACKET_TEN_TIMES_BTN, NULL, NULL);
+
+		radioBtnPacketTrue = CreateWindow(TEXT("BUTTON"), TEXT("True"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
+			350, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
+
+		CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 135, 150, 20, hwnd, NULL, NULL, NULL);
 
 		inputPacketSizeLabel = CreateWindow("edit", "1024", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 115, 250, 20, hwnd, NULL, NULL, NULL);
+			205, 135, 250, 20, hwnd, NULL, NULL, NULL);
 		
-		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 145, 100, 20, hwnd, NULL, NULL, NULL);
+		CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+			30, 165, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-			205, 145, 250, 20, hwnd, NULL, NULL, NULL);
+			205, 165, 250, 20, hwnd, NULL, NULL, NULL);
 
+/*
 		textHwndLabel4 = CreateWindow("STATIC", "Status: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 175, 100, 20, hwnd, NULL, NULL, NULL);
+			30, 195, 100, 20, hwnd, NULL, NULL, NULL);
 
 		textHwndLabel5 = CreateWindow("STATIC", "Not Connected ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			205, 175, 100, 20, hwnd, NULL, NULL, NULL);
-
+			205, 195, 100, 20, hwnd, NULL, NULL, NULL);
 		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 			350, 215, 100, 20, hwnd, (HMENU)ID_SEND_BTN, NULL, NULL);
+
+*/
 
 		
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
+		SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
 		ShowWindow(hInput2, SW_HIDE);
 		ShowWindow(textHwndLabel2, SW_HIDE);
 		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
