@@ -236,7 +236,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			}
 			break;
 		case ID_UPLOAD:
-			portparma.uploaded = upload_file(hwnd, &network);
+			network.uploaded = upload_file(hwnd, &network);
 			//writeToFile(&network);
 			break;
 
@@ -247,7 +247,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_SEND_BTN: //execute functions when button is clicked
-			_beginthread(sentFile, 1, &network);
+			if (network.connected) {
+				_beginthread(sentFile, 1, &network);
+			}
 			break;
 
 		case ID_SERVER_BTN:
@@ -269,13 +271,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_TCP_BTN:
 			SendMessage(radioBtnUDP, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
-			portparma.selectedProtocal = 0;
+			network.selectedProtocal = 0;
 			break;
 
 		case ID_UDP_BTN:
 			SendMessage(radioBtnUDP, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnTCP, BM_SETCHECK, BST_UNCHECKED, 0);
-			portparma.selectedProtocal = 1;
+			network.selectedProtocal = 1;
 			break;
 
 		case ID_PACKET_TEN_TIMES_BTN:
@@ -319,7 +321,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 	if (checkPackInput()) {
 		if (portparma.selectServerClient) {
 			if (checkIpInput) {
-				if (portparma.selectedProtocal) { // 0 is tcp, 1 is UDP
+				if (network.selectedProtocal) { // 0 is tcp, 1 is UDP
 					//udp client
 				}
 				else {
@@ -338,7 +340,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 		}
 		else {
 			if (checkPackInput) {
-				if (portparma.selectedProtocal) {
+				if (network.selectedProtocal) {
 					//udp server
 				}
 				else {
@@ -397,7 +399,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 
 	return 1;
 }
-
+//delete
 void sentFile(PVOID network) {
 	NETWORK* networkStruct = (NETWORK*)network;
 	LPSTR message = new TCHAR[networkStruct->packSize+1];
@@ -405,12 +407,13 @@ void sentFile(PVOID network) {
 	int n;
 	networkStruct->beginTime = clock();
 	char buffer[64];
-	sprintf_s(buffer, "Begining Time % f\n", clock());
+	sprintf_s(buffer, "\r\nBegining Time %d\r\n", clock());
+	LPSTR messageHeader = buffer;
 
-	send(networkStruct->sdClient, buffer, strlen(buffer), 0);
+	
 
-	if (portparma.uploaded) {	
-		if (portparma.selectedProtocal) {
+	if (networkStruct->uploaded) {
+		if (networkStruct->selectedProtocal) {
 			//udp
 		}
 		else {
@@ -421,9 +424,11 @@ void sentFile(PVOID network) {
 
 	}
 	else {
+		//send(networkStruct->sdClient, buffer, strlen(buffer), 0);
 		memset(message, 0, networkStruct->packSize);
 		memset(message, 'a', networkStruct->packSize);
 		//testt
+		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
 
 		for (int i = 0; i < networkStruct->numPackets; i++) {
 			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
@@ -435,8 +440,9 @@ void sentFile(PVOID network) {
 		send(networkStruct->sdClient, "end", strlen("end"), 0);
 
 	}
-	_endthread();
+	memset(message, 0, networkStruct->packSize);
 	delete[] message;
+	_endthread();
 }
 
 
@@ -445,7 +451,7 @@ void disconnect(HWND hwnd) {
 		disconnectSocketClient(&network.sdClient);	//disconnect client
 	}
 	else {
-		disconnectSocketServer(network.siServer); //
+		//disconnectSocketServer(network.siServer); //disconnect server
 	}
 }
 

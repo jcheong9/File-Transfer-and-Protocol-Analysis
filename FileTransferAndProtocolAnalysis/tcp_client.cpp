@@ -63,9 +63,53 @@ void tcp_client(PVOID network) {
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 		_endthread();
 	}
-	while (networkStruct->connected) {
-		;;
+
+	LPSTR message = new TCHAR[networkStruct->packSize + 1];
+
+	int n;
+	networkStruct->beginTime = clock();
+	char buffer[64];
+	memset(buffer, 0, 64);
+	sprintf_s(buffer, "\r\nBegining Time %d\r\n", clock());
+	LPSTR messageHeader = buffer;
+	send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
+
+	send(networkStruct->sdClient, "end", strlen("end"), 0);
+	/*
+	if (networkStruct->uploaded) {
+		if (networkStruct->selectedProtocal) {
+			//udp
+		}
+		else {
+			n = tcpSentPacket(&(networkStruct->sdClient), networkStruct->data);
+		}
+		//disconnectSocket(&(networkStruct->sdClient));
+
+
 	}
+	else {
+		//send(networkStruct->sdClient, buffer, strlen(buffer), 0);
+		memset(message, 0, networkStruct->packSize);
+		memset(message, 'a', networkStruct->packSize);
+		//testt
+		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
+
+		for (int i = 0; i < networkStruct->numPackets; i++) {
+			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
+				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+				send(networkStruct->sdClient, "end", strlen("end"), 0);
+				_endthread();
+			}
+		}
+		send(networkStruct->sdClient, "end", strlen("end"), 0);
+
+	}
+	
+	memset(message, 0, networkStruct->packSize);
+	delete[] message;
+	
+	*/
+
 	MessageBox(networkStruct->hwnd, "Disconnect", TEXT("Client"), MB_OK);
 	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	closesocket(networkStruct->sdClient);

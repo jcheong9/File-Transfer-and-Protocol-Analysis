@@ -6,6 +6,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
 DWORD WINAPI WorkerThread(LPVOID lpParameter);
+int firstMessage = 1;
 
 SOCKET AcceptSocket;
 NETWORK* networkStruct;
@@ -175,8 +176,11 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             int ret = snprintf(buffer, sizeof buffer, "%f", networkStruct->endTime);
 
             string str = convert(buffer).c_str();
-            MessageBox(networkStruct->hwnd, networkStruct->data, TEXT("Server"), MB_OK);
             writeToFile((LPSTR)str.c_str());
+            writeToFile((LPSTR)("\r\nReceiving Header:\r\n"));
+            writeToFile(SocketInfo->Buffer);
+
+            //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }
         sprintf_s(buff, "Socket %d connected\n", AcceptSocket);
         MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
@@ -276,11 +280,17 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
+
+
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
             networkStruct->endTime = float(clock() - networkStruct->beginTime);	 //mill sec
-            //writeToFile(LPSTR(to_string(pp->numByteRead).c_str()));
-            string str = convert(networkStruct->data).c_str();
-            writeToFile((LPSTR)str.c_str());
+            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"));
+            writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()));
+
+
+            //string str = convert(networkStruct->data).c_str();
+            //writeToFile((LPSTR)str.c_str());
+            //writeToFile((LPSTR)("Receiving 1:\r\n"));
         }
     }
 }
@@ -397,3 +407,4 @@ void disconnectSocketServer(LPSOCKET_INFORMATION siServer) {
     closesocket(siServer->Socket);
     GlobalFree(siServer);
 }
+

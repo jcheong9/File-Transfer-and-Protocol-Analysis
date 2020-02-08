@@ -34,24 +34,25 @@ typedef struct _SOCKET_INFORMATION {
 
 typedef struct
 {
-	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int selectServerClient = 0; //0 is server, 1 is client
-	int uploaded = 0;
+
 
 } PORTPARMA;
 
 typedef struct
 {
+	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int connected = 1; //0 is disconnect, 1 is connect
 	int numPackets = 10;
+	int packSize;
+	float endTime;
+	int uploaded = 0;
+	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	TCHAR* ip = NULL;
 	clock_t beginTime = NULL;
-	float endTime;
-	int packSize;
 	LPCSTR data;
 	LPCSTR filePath;
-	struct sockaddr_in server;
 	SOCKET sdClient;
 	LPSOCKET_INFORMATION siServer;
 	DWORD numByteRead = 0;
