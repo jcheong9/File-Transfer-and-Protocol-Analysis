@@ -160,10 +160,16 @@ LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					else // No error so update the byte count
 					{
 						SocketInfo->BytesRECV = 0;
-						//processReceiveData(SocketInfo->DataBuf.buf);
-						pp->data = SocketInfo->DataBuf.buf;
-						//writeToFile(SocketInfo->DataBuf.buf);
+
+						if (strcmp(SocketInfo->DataBuf.buf, "end") != 0) {
+							processReceiveData(SocketInfo->DataBuf.buf);
+						}
+						else {
+							writeToFile();
+						}
+
 						pp->endTime = float(clock() - pp->beginTime);	 //mill sec
+						memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 					}
 				}
 
@@ -328,7 +334,16 @@ int writeToFile() {
 	}
 
 	// Write data to the file
-	std::string strText = pp->data; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+
+	std::string strText; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+	if (pp->data != NULL) {
+		strText = convert(pp->data);
+	}
+	else {
+		strText = "Failed to recieved";
+	}
+
+
 	DWORD bytesWritten;
 	WriteFile(
 		hFile,            // Handle to the file

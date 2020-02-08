@@ -56,35 +56,35 @@ void tcp_client(PVOID network) {
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+		_endthread();
 	}
-	for (int i = 0; i < 5; i++) {
-		if (send(networkStruct->sd, networkStruct->data, strlen(networkStruct->data), 0) == SOCKET_ERROR)
-		{
-			MessageBox(networkStruct->hwnd, "Socket error sent", TEXT(""), MB_OK);
+	LPSTR message = new TCHAR[1025];
+	memset(message, 'a', 1024);
+	//testt
+	
+	for (int i = 0; i < 10; i++) {
+		if (send(networkStruct->sd, message, strlen(message), 0)== SOCKET_ERROR) {
+			MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+			send(networkStruct->sd, "end", strlen("end"), 0);
+			_endthread();
 		}
 	}
+	
+	send(networkStruct->sd, "end", strlen("end"), 0);
 
-
-	closesocket(networkStruct->sd);
-	WSACleanup();
-	_endthread();
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
 	int n = send(*sd, fileData, strlen(fileData), 0);
 	return n;
 }
-/*
-int tcpSentMultiplePacket() {
-	tcpSentPacket(SOCKET * sd, LPCSTR fileData)
-}
 
-*/
 
 void disconnectSocket(SOCKET* sd) {
 	setsockopt(*sd, SOL_SOCKET, SO_LINGER, NULL, NULL);
 	closesocket(*sd);
-
+	WSACleanup();
+	_endthread();
 }
 
 
