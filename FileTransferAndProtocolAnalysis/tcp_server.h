@@ -7,10 +7,7 @@
 #define WM_SOCKET (WM_USER + 1)
 
 void serverMain(PVOID portParma);
-void CreateSocketInformation(SOCKET s);
-void FreeSocketInformation(SOCKET s);
-HWND MakeWorkerWindow(void);
-LRESULT CALLBACK tcpCallBack(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-int writeToFile();
+int writeToFile(LPSTR data);
 void processReceiveData(LPSTR data);
+string convert(LPCSTR str);
 

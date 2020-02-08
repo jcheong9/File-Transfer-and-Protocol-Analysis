@@ -2,6 +2,7 @@
 
 
 void tcp_client(PVOID network) {
+	SYSTEMTIME st;
 	NETWORK* networkStruct = (NETWORK*)network;
 	int port, err;
 	//SOCKET sd;
@@ -13,6 +14,8 @@ void tcp_client(PVOID network) {
 	//char* sbuf[BUFSIZE];
 	LPCSTR sbuf = "";
 	char buff[100];
+	GetSystemTime(&st);
+	float beginTime;
 	
 
 	host = networkStruct->ip;	// Host name local host
@@ -58,6 +61,14 @@ void tcp_client(PVOID network) {
 		MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 		_endthread();
 	}
+
+	beginTime = clock();
+	char buffer[64];
+	int ret = snprintf(buffer, sizeof buffer, "%f", beginTime);
+
+
+	send(networkStruct->sd, buffer, strlen(buffer), 0);
+	/*
 	LPSTR message = new TCHAR[1025];
 	memset(message, 'a', 1024);
 	//testt
@@ -71,7 +82,10 @@ void tcp_client(PVOID network) {
 	}
 	
 	send(networkStruct->sd, "end", strlen("end"), 0);
-
+	delete[] message;
+	
+	
+	*/
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {

@@ -22,6 +22,7 @@ typedef struct
 	int selectServerClient = 0; //0 is server, 1 is client
 	int uploaded = 0;
 	int connected = 1; //0 is disconnect, 1 is connect
+
 } PORTPARMA;
 
 typedef struct
@@ -36,5 +37,7 @@ typedef struct
 	LPCSTR filePath;
 	struct sockaddr_in server;
 	SOCKET sd;
+	int loadFile = 0; //0 no load file
+	DWORD numByteRead = 0;
 } NETWORK;
 

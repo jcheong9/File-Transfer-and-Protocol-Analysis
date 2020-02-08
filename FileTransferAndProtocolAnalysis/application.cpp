@@ -243,9 +243,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_SEND_BTN: //execute functions when button is clicked
-
 			_beginthread(sentFile, 1, &network);
-
 			break;
 
 		case ID_SERVER_BTN:
@@ -310,7 +308,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 int connect(HWND hwnd, LPCSTR fileData) {
 	int inputIPLength;
+	int inputPacketLength;
 	TCHAR inputIP[255];
+	TCHAR inputPacket[255];
 
 	if (portparma.selectServerClient) {
 		GetWindowText(hInput2, str, 255);
@@ -330,15 +330,27 @@ int connect(HWND hwnd, LPCSTR fileData) {
 				*/
 			}
 		}
+		else {
+			MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
+		}
 	}
 	else {
-		if (portparma.selectedProtocal) {
-			//udp server
+		GetWindowText(inputPacketSizeLabel, str, 255);
+		if (GetWindowTextLengthA(inputPacketSizeLabel) != 0) {
+			inputPacketLength = GetWindowTextLengthA(inputPacketSizeLabel);
+			GetWindowText(inputPacketSizeLabel, inputPacket, 255);
+			network.ip = inputPacket;
+			if (portparma.selectedProtocal) {
+				//udp server
+			}
+			else {
+				_beginthread(serverMain, 1, &network);
+			}
 		}
 		else {
-			_beginthread(serverMain, 1, &network);
-			
+			MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
 		}
+
 		return 1;
 	}
 	return 0;
@@ -403,7 +415,8 @@ void sentFile(PVOID network) {
 
 	}
 	else {
-		networkStruct->data = packetizeSize();
+		//networkStruct->data = packetizeSize();
+		/*
 		for (int i = 0; i < portparma.numPackets;i++) {
 			if (portparma.selectedProtocal) {
 				//udp
@@ -413,11 +426,11 @@ void sentFile(PVOID network) {
 			}
 		}
 		disconnectSocket(&(networkStruct->sd));
+		*/
 
 	}
 }
 
-*/
 
 void disconnect(HWND hwnd) {
 	if (portparma.selectServerClient) {
@@ -433,7 +446,12 @@ LPCSTR packetizeSize() {
 	TCHAR inputPacket[255];
 	GetWindowText(inputPacketSizeLabel, inputPacket, 255);
 	int packSize = atoi(inputPacket);
+	if (packSize == NULL) {
+		packSize = 1024;
+	}
 	LPSTR message = new TCHAR[0];
 	memset(message, 'a', packSize);
-	 return (LPCSTR)message;
+
+
+	return (LPCSTR)message;
 } 
