@@ -1,13 +1,6 @@
 #include "tcp_server.h"
 
-typedef struct _SOCKET_INFORMATION {
-    OVERLAPPED Overlapped;
-    SOCKET Socket;
-    CHAR Buffer[DATA_BUFSIZE];
-    WSABUF DataBuf;
-    DWORD BytesSEND;
-    DWORD BytesRECV;
-} SOCKET_INFORMATION, * LPSOCKET_INFORMATION;
+
 
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
@@ -15,11 +8,11 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 DWORD WINAPI WorkerThread(LPVOID lpParameter);
 
 SOCKET AcceptSocket;
-NETWORK* pp;
+NETWORK* networkStruct;
 
 void serverMain(PVOID network)
 {
-    pp = (NETWORK*)network;
+    networkStruct = (NETWORK*)network;
     WSADATA wsaData;
     SOCKET ListenSocket;
     SOCKADDR_IN InternetAddr;
@@ -31,18 +24,18 @@ void serverMain(PVOID network)
 
     if ((Ret = WSAStartup(0x0202, &wsaData)) != 0)
     {
-        printf("WSAStartup failed with error %d\n", Ret);
         sprintf_s(buff, "WSAStartup failed with error %d\n", Ret);
-        MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
         WSACleanup();
-        return;
+        _endthread();
     }
 
     if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0,
         WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
     {
-        printf("Failed to get a socket %d\n", WSAGetLastError());
-        return;
+        sprintf_s(buff, "Failed to get a socket %d\n", WSAGetLastError());
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        _endthread();
     }
 
     InternetAddr.sin_family = AF_INET;
@@ -52,29 +45,41 @@ void serverMain(PVOID network)
     if (bind(ListenSocket, (PSOCKADDR)&InternetAddr,
         sizeof(InternetAddr)) == SOCKET_ERROR)
     {
-        printf("bind() failed with error %d\n", WSAGetLastError());
-        return;
+        sprintf_s(buff, "bind() failed with error %d\n", WSAGetLastError());
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        _endthread();
     }
 
     if (listen(ListenSocket, 5))
     {
-        printf("listen() failed with error %d\n", WSAGetLastError());
-        return;
+        sprintf_s(buff, "listen() failed with error %d\n", WSAGetLastError());
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        _endthread();
     }
 
     if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
     {
-        printf("WSACreateEvent() failed with error %d\n", WSAGetLastError());
-        return;
+        sprintf_s(buff, "WSACreateEvent() failed with error %d\n", WSAGetLastError());
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        _endthread();
     }
 
     // Create a worker thread to service completed I/O requests. 
 
     if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL)
     {
-        printf("CreateThread failed with error %d\n", GetLastError());
-        return;
+        sprintf_s(buff, "CreateThread failed with error %d\n", GetLastError());
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        _endthread();
     }
+
+    //create path of the save file to be logged
+    if (!loadSaveFile((LPSTR)("Transmitting:\r\n"))) {
+        MessageBox(networkStruct->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
+        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+        _endthread();
+    }
+
 
     while (TRUE)
     {
@@ -141,6 +146,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
+        networkStruct->siServer = SocketInfo;
         memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
@@ -151,20 +157,29 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             {
                 //printf("WSARecv() failed with error %d\n", WSAGetLastError());
                 sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
+                MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
                 return FALSE;
             }
         }
         else {
             
             //printf("Socket %d connected\n", AcceptSocket);
-            pp->numByteRead = pp->numByteRead + RecvBytes;
+            networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
             //memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
-            pp->endTime = float(clock() - pp->beginTime);	 //mill sec
-            pp->data = SocketInfo->Buffer;
+            networkStruct->data = SocketInfo->Buffer;
+            networkStruct->beginTime = atof(networkStruct->data);
+            networkStruct->endTime = float(clock() - networkStruct->beginTime);	 //mill sec
+
+
+            char buffer[64];
+            int ret = snprintf(buffer, sizeof buffer, "%f", networkStruct->endTime);
+
+            string str = convert(buffer).c_str();
+            MessageBox(networkStruct->hwnd, networkStruct->data, TEXT("Server"), MB_OK);
+            writeToFile((LPSTR)str.c_str());
         }
         sprintf_s(buff, "Socket %d connected\n", AcceptSocket);
-        MessageBox(pp->hwnd, buff, TEXT(""), MB_OK);
+        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 
        
     }
@@ -177,6 +192,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 {
     DWORD SendBytes, RecvBytes;
     DWORD Flags;
+    char buff[100];
 
     // Reference the WSAOVERLAPPED structure as a SOCKET_INFORMATION structure
     LPSOCKET_INFORMATION SI = (LPSOCKET_INFORMATION)Overlapped;
@@ -184,11 +200,15 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     if (Error != 0)
     {
         printf("I/O operation failed with error %d\n", Error);
+        sprintf_s(buff, "I/O operation failed with error %d\n", Error);
+        MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (BytesTransferred == 0)
     {
-        printf("Closing socket %d\n", SI->Socket);
+        //printf("Closing socket %d\n", SI->Socket);
+        sprintf_s(buff, "Closing socket %d\n", SI->Socket);
+        MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
@@ -256,39 +276,37 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
-            pp->numByteRead = pp->numByteRead + RecvBytes;
-            pp->endTime = float(clock() - pp->beginTime);	 //mill sec
+            networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
+            networkStruct->endTime = float(clock() - networkStruct->beginTime);	 //mill sec
             //writeToFile(LPSTR(to_string(pp->numByteRead).c_str()));
-            string str = convert(pp->data).c_str();
+            string str = convert(networkStruct->data).c_str();
             writeToFile((LPSTR)str.c_str());
         }
     }
 }
 
-
-int writeToFile(LPSTR data) {
-    //string filepath = convert(uploadData->filePath); // convert LPCST to std::string
-
+int loadSaveFile(LPSTR data) {
     //open save dialog box only if the file is not loaded
-    if (!pp->loadFile) {
-        OPENFILENAME ofn;
-        char file_name[100];
-        ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hwndOwner = pp->hwnd;
-        ofn.lpstrFile = file_name;
-        ofn.lpstrFile[0] = '\0';
-        ofn.nMaxFile = 100;
-        ofn.lpstrFilter = "*.txt\0";
-        ofn.nFilterIndex = 1;
+    OPENFILENAME ofn;
+    char file_name[100];
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
-        GetSaveFileName(&ofn);
-        pp->filePath = ofn.lpstrFile;
-        pp->loadFile = 1;
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = networkStruct->hwnd;
+    ofn.lpstrFile = file_name;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = 100;
+    ofn.lpstrFilter = "*.txt\0";
+    ofn.nFilterIndex = 1;
+
+    GetSaveFileName(&ofn);
+    networkStruct->filePath = ofn.lpstrFile;
+    if (strcmp(networkStruct->filePath, "") == 0) {
+        return 0;
     }
-
-    HANDLE hFile = CreateFile(TEXT(pp->filePath),      // name of the write
+    //string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+    HANDLE hFile = CreateFile(TEXT(networkStruct->filePath),      // name of the write
         FILE_APPEND_DATA,       // open for appending
         0,                      // do not share
         NULL,                   // default security
@@ -321,16 +339,51 @@ int writeToFile(LPSTR data) {
 }
 
 
+int writeToFile(LPSTR data) {
+    //string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+    HANDLE hFile = CreateFile(TEXT(networkStruct->filePath),      // name of the write
+        FILE_APPEND_DATA,       // open for appending
+        0,                      // do not share
+        NULL,                   // default security
+        OPEN_ALWAYS,          // overwrite existing
+        FILE_ATTRIBUTE_NORMAL,  // normal file
+        NULL);                  // no attr. template
+
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        // Failed to open/create file
+        return 2;
+    }
+
+    // Write data to the file
+    std::string strText; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+
+    strText = convert(data);
+
+    DWORD bytesWritten;
+    WriteFile(
+        hFile,            // Handle to the file
+        strText.c_str(),  // Buffer to write
+        strText.size(),   // Buffer size
+        &bytesWritten,    // Bytes written
+        nullptr);         // Overlapped
+
+     // Close the handle once we don't need it.
+    CloseHandle(hFile);
+    return 1;
+}
+
+
 void processReceiveData(LPSTR data) {
     LPSTR str1 = new TCHAR[strlen(data) + 1];
     memset(str1, 0, strlen(data));
-    if (pp->data == NULL) {
+    if (networkStruct->data == NULL) {
         strcpy(str1, data);
-        pp->data = str1;
+        networkStruct->data = str1;
     }
     else {
-        std::string(pp->data).append(data);
-        pp->data = str1;
+        std::string(networkStruct->data).append(data);
+        networkStruct->data = str1;
 
     }
     //strcpy(pp.data,str1);
@@ -338,4 +391,9 @@ void processReceiveData(LPSTR data) {
 
 string convert(LPCSTR str) {
     return std::string(str);
+}
+
+void disconnectSocketServer(LPSOCKET_INFORMATION siServer) {
+    closesocket(siServer->Socket);
+    GlobalFree(siServer);
 }

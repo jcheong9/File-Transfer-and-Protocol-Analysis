@@ -58,6 +58,7 @@ NETWORK network;
 
 HDC hdc;
 HANDLE serverThread = NULL;
+HANDLE clientThread = NULL;
 
 static unsigned k = 0;
 static TCHAR Name[] = TEXT("Basic Window Socket");
@@ -219,8 +220,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		switch (LOWORD(wParam))
 		{
 		case ID_DISCONNECT:
-			if(portparma.connected)
+			if (network.connected) {
 				disconnect(hwnd);
+				network.connected = 0;
+			}
 			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 			EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
 			break;
@@ -229,6 +232,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			if (connect(hwnd, network.data)) {
 				EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_DISABLED | MF_GRAYED);
 				EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_ENABLED );
+				network.connected = 1;
 			}
 			break;
 		case ID_UPLOAD:
@@ -288,6 +292,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			
 		}
 		break;
+	case WM_FAILED_CONNECT:
+		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
+		EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
+		break;
 
 	case WM_CTLCOLORSTATIC:
 		hdc = (HDC)wParam;
@@ -307,51 +315,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 }
 
 int connect(HWND hwnd, LPCSTR fileData) {
-	int inputIPLength;
-	int inputPacketLength;
-	TCHAR inputIP[255];
-	TCHAR inputPacket[255];
 
-	if (portparma.selectServerClient) {
-		GetWindowText(hInput2, str, 255);
-		if (GetWindowTextLengthA(hInput2) != 0) {
-			inputIPLength = GetWindowTextLengthA(hInput2);
-			GetWindowText(hInput2, inputIP, 255);
-			network.ip = inputIP;
-			if (portparma.selectedProtocal) { // 0 is tcp, 1 is UDP
-				//udp client
+	if (checkPackInput()) {
+		if (portparma.selectServerClient) {
+			if (checkIpInput) {
+				if (portparma.selectedProtocal) { // 0 is tcp, 1 is UDP
+					//udp client
+				}
+				else {
+					clientThread = (HANDLE)_beginthread(tcp_client, 1, &network);
+						/*
+					if (tcp_client(portparma.hwnd, inputIP, fileData, &network)) {
+						return 1;
+					}
+					*/
+				}
+				return 1;
 			}
 			else {
-				_beginthread(tcp_client, 1, &network);
-					/*
-				if (tcp_client(portparma.hwnd, inputIP, fileData, &network)) {
-					return 1;
-				}
-				*/
+				MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
 			}
 		}
 		else {
-			MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
+			if (checkPackInput) {
+				if (portparma.selectedProtocal) {
+					//udp server
+				}
+				else {
+					serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
+				}
+			}
+
+			return 1;
 		}
 	}
 	else {
-		GetWindowText(inputPacketSizeLabel, str, 255);
-		if (GetWindowTextLengthA(inputPacketSizeLabel) != 0) {
-			inputPacketLength = GetWindowTextLengthA(inputPacketSizeLabel);
-			GetWindowText(inputPacketSizeLabel, inputPacket, 255);
-			network.ip = inputPacket;
-			if (portparma.selectedProtocal) {
-				//udp server
-			}
-			else {
-				_beginthread(serverMain, 1, &network);
-			}
-		}
-		else {
-			MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
-		}
-
-		return 1;
+		MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
 	}
 	return 0;
 }
@@ -401,57 +400,80 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 
 void sentFile(PVOID network) {
 	NETWORK* networkStruct = (NETWORK*)network;
+	LPSTR message = new TCHAR[networkStruct->packSize+1];
 
 	int n;
+	networkStruct->beginTime = clock();
+	char buffer[64];
+	sprintf_s(buffer, "Begining Time % f\n", clock());
+
+	send(networkStruct->sdClient, buffer, strlen(buffer), 0);
+
 	if (portparma.uploaded) {	
 		if (portparma.selectedProtocal) {
 			//udp
 		}
 		else {
-			n = tcpSentPacket(&(networkStruct->sd), networkStruct->data);
+			n = tcpSentPacket(&(networkStruct->sdClient), networkStruct->data);
 		}
-		disconnectSocket(&(networkStruct->sd));
+		//disconnectSocket(&(networkStruct->sdClient));
 
 
 	}
 	else {
-		//networkStruct->data = packetizeSize();
-		/*
-		for (int i = 0; i < portparma.numPackets;i++) {
-			if (portparma.selectedProtocal) {
-				//udp
-			}
-			else {
-				n = tcpSentPacket(&(networkStruct->sd), networkStruct->data);
+		memset(message, 0, networkStruct->packSize);
+		memset(message, 'a', networkStruct->packSize);
+		//testt
+
+		for (int i = 0; i < networkStruct->numPackets; i++) {
+			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
+				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+				send(networkStruct->sdClient, "end", strlen("end"), 0);
+				_endthread();
 			}
 		}
-		disconnectSocket(&(networkStruct->sd));
-		*/
+		send(networkStruct->sdClient, "end", strlen("end"), 0);
 
 	}
+	_endthread();
+	delete[] message;
 }
 
 
 void disconnect(HWND hwnd) {
 	if (portparma.selectServerClient) {
-		disconnectSocket(&network.sd);	//disconnect client
+		disconnectSocketClient(&network.sdClient);	//disconnect client
 	}
 	else {
-		SendMessage(hwnd, NULL, FD_CLOSE, NULL); //
+		disconnectSocketServer(network.siServer); //
 	}
 }
 
-LPCSTR packetizeSize() {
-	int count = 0;
+int checkPackInput() {
+	int inputPacketLength;
 	TCHAR inputPacket[255];
-	GetWindowText(inputPacketSizeLabel, inputPacket, 255);
-	int packSize = atoi(inputPacket);
-	if (packSize == NULL) {
-		packSize = 1024;
+	GetWindowText(inputPacketSizeLabel, str, 255);
+	if (GetWindowTextLengthA(inputPacketSizeLabel) != 0) {
+		inputPacketLength = GetWindowTextLengthA(inputPacketSizeLabel);
+		GetWindowText(inputPacketSizeLabel, inputPacket, 255);
+		network.packSize = atoi(inputPacket);
+		return 1;
 	}
-	LPSTR message = new TCHAR[0];
-	memset(message, 'a', packSize);
+	
+	return 0;
+}
 
-
-	return (LPCSTR)message;
-} 
+int checkIpInput() {
+	int inputIPLength;
+	TCHAR inputIP[255];
+	GetWindowText(hInput2, str, 255);
+	if (GetWindowTextLengthA(hInput2) != 0) {
+		inputIPLength = GetWindowTextLengthA(hInput2);
+		GetWindowText(hInput2, inputIP, 255);
+		network.ip = inputIP;
+		return 1;
+	}
+	else {
+	}
+		return 0;
+}
