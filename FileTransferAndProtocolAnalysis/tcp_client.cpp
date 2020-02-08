@@ -71,6 +71,7 @@ void tcp_client(PVOID network) {
 	}
 	
 	send(networkStruct->sd, "end", strlen("end"), 0);
+
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
@@ -85,4 +86,7 @@ void disconnectSocket(SOCKET* sd) {
 	WSACleanup();
 	_endthread();
 }
+
+
+
 

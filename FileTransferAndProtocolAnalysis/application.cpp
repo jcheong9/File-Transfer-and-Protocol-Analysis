@@ -243,7 +243,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case ID_SEND_BTN: //execute functions when button is clicked
+
 			_beginthread(sentFile, 1, &network);
+
 			break;
 
 		case ID_SERVER_BTN:
@@ -277,13 +279,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_PACKET_TEN_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_UNCHECKED, 0);
-			portparma.numPackets = 10;
+			network.numPackets = 10;
 			break;
 
 		case ID_PACKETS_HUNDRED_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
-			portparma.numPackets = 100;
+			network.numPackets = 100;
 			break;
 			
 		}
@@ -387,6 +389,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 
 void sentFile(PVOID network) {
 	NETWORK* networkStruct = (NETWORK*)network;
+
 	int n;
 	if (portparma.uploaded) {	
 		if (portparma.selectedProtocal) {
@@ -413,6 +416,8 @@ void sentFile(PVOID network) {
 
 	}
 }
+
+*/
 
 void disconnect(HWND hwnd) {
 	if (portparma.selectServerClient) {
