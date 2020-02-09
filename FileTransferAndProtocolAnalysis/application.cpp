@@ -304,7 +304,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
 			network.numPackets = 100;
 			break;
-			
+
+		case ID_PACKETS_TRUE:
+			network.packetMessage = 1;
+			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(radioBtnPacketTrue, BM_SETCHECK, BST_CHECKED, 0);
+			break;
+
+		case ID_PACKETS_FALSE:
+			network.packetMessage = 0;
+			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
+			SendMessage(radioBtnPacketTrue, BM_SETCHECK, BST_UNCHECKED, 0);
+			break;
 		}
 		break;
 	case WM_FAILED_CONNECT:
