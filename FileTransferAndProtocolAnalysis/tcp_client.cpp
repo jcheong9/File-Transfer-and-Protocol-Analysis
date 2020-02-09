@@ -63,6 +63,7 @@ void tcp_client(PVOID network) {
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 		_endthread();
 	}
+	//trnasmit messages
 	long num = (networkStruct->packSize) + 1;
 	LPSTR message = new TCHAR[num];
 
@@ -96,7 +97,6 @@ void tcp_client(PVOID network) {
 	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	closesocket(networkStruct->sdClient);
 	WSACleanup();
-	_endthread();
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {

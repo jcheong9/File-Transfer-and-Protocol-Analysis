@@ -128,16 +128,23 @@ void serverMainUDP(PVOID network)
     wprintf(L"Listening for incoming datagrams on port=%d\n", SERVER_PORT);
 
 
-    rc = WSARecvFrom(RecvSocket,
-        &DataBuf,
-        1,
-        &BytesRecv,
-        &Flags,
-        (SOCKADDR*)&SenderAddr,
-        &SenderAddrSize, &SocketInfo->Overlapped, NULL);
 
     while (networkStructUDP->connected)
     {
+        //ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+        SocketInfo->BytesSEND = 0;
+        SocketInfo->BytesRECV = 0;
+        SocketInfo->DataBuf.len = DATA_BUFSIZE;
+        SocketInfo->DataBuf.buf = SocketInfo->Buffer;
+        networkStructUDP->siServerUDP = SocketInfo;
+
+        rc = WSARecvFrom(SocketInfo->Socket, 
+            &(SocketInfo->DataBuf),
+            1,
+            &BytesRecv,
+            &Flags,
+            (SOCKADDR*)&SenderAddr,
+            &SenderAddrSize, &SocketInfo->Overlapped, WorkerRoutineUDP);
         if (rc != 0) {
             err = WSAGetLastError();
             if (err != WSA_IO_PENDING) {
@@ -304,7 +311,15 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
                 return;
             }
         }
-        //empty
+        else {
+            networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
+            writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStructUDP);
+            writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
+            //empty
+            sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());
+            LPSTR messageHeader2 = buff;
+            writeToFile(messageHeader2, networkStructUDP);
+        }
     }
 }
 

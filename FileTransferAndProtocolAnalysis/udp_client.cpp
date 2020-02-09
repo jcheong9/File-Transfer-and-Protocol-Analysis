@@ -92,12 +92,6 @@ void udp_client(PVOID network)
 			exit(1);
 		}
 		char buffer[64];
-		// data	is a, b, c, ..., z, a, b,...
-		for (i = 0; i < data_size; i++)
-		{
-			j = (i < 26) ? i : i % 26;
-			sbuf[i] = 'a' + j;
-		}
 
 		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
 		LPSTR messageHeader = buffer;
@@ -107,22 +101,46 @@ void udp_client(PVOID network)
 
 		// transmit data
 		server_len = sizeof(server);
-		if (sendto(sd, buffer, strlen(buffer), 0, (struct sockaddr*) & server, server_len) == -1)
+
+
+		long num = (networkStruct->packSize) + 1;
+		LPSTR message = new TCHAR[num];
+
+		memset(buffer, 0, 64);
+		if (networkStruct->uploaded) {
+			send(networkStruct->sdClient, "`", strlen("`"), 0);
+		}
+
+		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
+		messageHeader = buffer;
+		if (sendto(sd, messageHeader, strlen(messageHeader), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 		{
 			perror("sendto failure");
-			//exit(1);
+			_endthread();
 		}
-		/*
-		// receive data
-		if (recvfrom(sd, rbuf, MAXLEN, 0, (struct sockaddr*) & server, &server_len) < 0)
-		{
-			perror(" recvfrom error");
-			MessageBox(networkStruct->hwnd, "recvfrom error\n", TEXT("Client"), MB_OK);
-			PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
-			//exit(1);
+
+		//sent packets
+		memset(message, 0, networkStruct->packSize);
+		memset(message, 'a', networkStruct->packSize);
+		if (networkStruct->uploaded) {
+			if (sendto(sd, networkStruct->data, strlen(networkStruct->data), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
+			{
+				perror("sendto failure");
+				_endthread();
+			}
 		}
-		
-		*/
+		else {
+			for (int i = 0; i < networkStruct->numPackets; i++) {
+				if (sendto(sd, message, strlen(message), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
+				{
+					MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+					_endthread();
+				}
+			}
+		}
+
+		MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
+		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 
 		//Get the end time and calculate the delay measure
 		GetSystemTime(&stEndTime);
