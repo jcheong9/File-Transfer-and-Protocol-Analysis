@@ -53,6 +53,7 @@ typedef struct NETWORK{
 	int connected = 1;			//0 is disconnect, 1 is connect
 	int numPackets = 10;
 	int packSize;
+	int numPackRecv = 0;
 	int uploaded = 0;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;

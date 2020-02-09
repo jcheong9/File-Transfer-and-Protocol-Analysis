@@ -193,7 +193,7 @@ void serverMainUDP(PVOID network)
                         writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
                     }
 
-                    writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"), networkStructUDP);
+                    writeToFile((LPSTR)("\r\nReceived Bytes:\r\n"), networkStructUDP);
                     writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
 
                     memset(buffer, 0, 64);
@@ -220,13 +220,16 @@ void serverMainUDP(PVOID network)
     //---------------------------------------------
     // Clean up and quit.
     WSACleanup();
-    return ;
+    _endthread();
 }
 
 
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {
+    LPSTR messageHeader;
+    string str;
+    int n;
     DWORD SendBytes, RecvBytes;
     DWORD Flags;
     char buff[100];
@@ -312,10 +315,11 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
+            //print
+            networkStructUDP->numPackRecv++;
             networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
             writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStructUDP);
             writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
-            //empty
             sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());
             LPSTR messageHeader2 = buff;
             writeToFile(messageHeader2, networkStructUDP);
@@ -323,111 +327,3 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     }
 }
 
-
-DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
-{
-    DWORD Flags = 0;
-    WSAEVENT EventArray[1];
-    int Index;
-    DWORD RecvBytes;
-    char buff[100];
-    string str;
-    int n;
-    LPSTR messageHeader;
-    char RecvBuf[1025];
-    int BufLen = 1025;
-
-    // Save the accept event in the event array.
-
-    while (TRUE)
-    {
-
-        // Fill in the details of our accepted socket.
-
-        //ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
-        SocketInfo->Overlapped.hEvent = (WSAEVENT)lpParameter;
-        SocketInfo->BytesSEND = 0;
-        SocketInfo->BytesRECV = 0;
-        SocketInfo->DataBuf.len = DATA_BUFSIZE;
-        SocketInfo->DataBuf.buf = SocketInfo->Buffer;
-        networkStructUDP->siServerUDP = SocketInfo;
-       // memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
-
-        Flags = 0;
-        if (WSARecvFrom(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
-             (SOCKADDR*)&SenderAddr, &SenderAddrSize, &(SocketInfo->Overlapped), NULL) == SOCKET_ERROR)
-        {
-            if (WSAGetLastError() != WSA_IO_PENDING)
-            {
-                //printf("WSARecv() failed with error %d\n", WSAGetLastError());
-                sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
-                return FALSE;
-            }
-            else {
-                Index = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
-                if (Index == WSA_WAIT_FAILED) {
-                    wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
-                    sprintf_s(buff, "WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
-                    MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
-                }
-
-                Index = WSAGetOverlappedResult(SocketInfo->Socket, &SocketInfo->Overlapped, &SocketInfo->BytesRECV,
-                    FALSE, &Flags);
-                if (Index == FALSE) {
-                    wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
-                    sprintf_s(buff, "WSArecvFrom failed with error: %d\n", WSAGetLastError());
-                    MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
-                }
-                else {
-                    // MessageBox(networkStructUDP->hwnd, TEXT("WORKED"), TEXT("Server"), MB_OK);
-                }
-            }
-        }
-        else {
-            MessageBox(networkStructUDP->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
-            /*
-            sprintf_s(buff, "Socket %u connected\n", SocketInfo->Socket);
-            MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
-            str = SocketInfo->DataBuf.buf;
-            n = str.find("~");
-            networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
-            char buffer[64];
-            memset(buffer, 0, 64);
-            sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
-            messageHeader = buffer;
-            writeToFile(messageHeader, networkStructUDP);
-            writeToFile((LPSTR)("\r\nReceived Data from:\r\n"), networkStructUDP);
-            if (str.find("`") != -1) {
-                writeToFile(SocketInfo->DataBuf.buf, networkStructUDP);
-                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
-            }
-            else {
-
-                str = str.substr(0, n);
-                memset(buffer, 0, 64);
-                strcpy(buffer, str.c_str());
-                messageHeader = buffer;
-                writeToFile(messageHeader, networkStructUDP);
-                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
-            }
-
-            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"), networkStructUDP);
-            writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
-
-            memset(buffer, 0, 64);
-            sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
-            LPSTR messageHeader2 = buffer;
-            writeToFile(messageHeader2, networkStructUDP);
-            
-            */
-
-            //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
-        }
-
-
-
-    }
-
-    return TRUE;
-}

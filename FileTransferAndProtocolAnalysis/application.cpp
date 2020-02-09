@@ -235,6 +235,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_DISCONNECT:
 			if (network.connected) {
 				disconnect(hwnd);
+				processEndData();
 				network.connected = 0;
 			}
 			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
@@ -455,4 +456,15 @@ int checkIpInput() {
 	else {
 	}
 	return 0;
+}
+
+void processEndData() {
+	char buff[100];
+
+	writeToFile((LPSTR)("\r\n Number of Received Packets:\r\n"), &network);
+	writeToFile(LPSTR(to_string(network.numPackRecv).c_str()), &network);
+	sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());
+	LPSTR messageHeader2 = buff;
+	writeToFile(messageHeader2, &network);
+	//writeToFile(,network);
 }

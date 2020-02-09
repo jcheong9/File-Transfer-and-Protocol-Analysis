@@ -49,6 +49,7 @@ int upload_file(HWND hwnd, NETWORK* data);
 void disconnect(HWND hwnd);
 int checkIpInput();
 int checkPackInput();
+void processEndData();
 
 
 
