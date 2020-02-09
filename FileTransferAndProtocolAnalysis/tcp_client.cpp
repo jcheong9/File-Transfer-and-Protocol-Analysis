@@ -17,7 +17,7 @@ void tcp_client(PVOID network) {
 	
 
 	host = networkStruct->ip;	// Host name local host
-	port = SERVER_TCP_PORT;
+	port = SERVER_PORT;
 
 
 	wVersionRequested = MAKEWORD(2, 2);
@@ -91,48 +91,12 @@ void tcp_client(PVOID network) {
 			}
 		}
 	}
-	//---------------------
-	/*
-	if (networkStruct->uploaded) {
-		if (networkStruct->selectedProtocal) {
-			//udp
-		}
-		else {
-			n = tcpSentPacket(&(networkStruct->sdClient), networkStruct->data);
-		}
-		//disconnectSocket(&(networkStruct->sdClient));
-
-
-	}
-	else {
-		//send(networkStruct->sdClient, buffer, strlen(buffer), 0);
-		memset(message, 0, networkStruct->packSize);
-		memset(message, 'a', networkStruct->packSize);
-		//testt
-		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
-
-		for (int i = 0; i < networkStruct->numPackets; i++) {
-			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
-				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
-				send(networkStruct->sdClient, "end", strlen("end"), 0);
-				_endthread();
-			}
-		}
-		send(networkStruct->sdClient, "end", strlen("end"), 0);
-
-	}
-	
-	memset(message, 0, networkStruct->packSize);
-	delete[] message;
-	
-	*/
 
 	MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
 	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	closesocket(networkStruct->sdClient);
 	WSACleanup();
 	_endthread();
-
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
@@ -146,7 +110,3 @@ void disconnectSocketClient(SOCKET* sd) {
 	closesocket(*sd);
 	WSACleanup();
 }
-
-
-
-

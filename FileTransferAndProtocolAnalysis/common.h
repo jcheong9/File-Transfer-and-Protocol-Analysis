@@ -17,7 +17,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define WM_FAILED_CONNECT        101
-#define SERVER_TCP_PORT			5150	// Default port
+#define SERVER_PORT			5150	// Default port
 #define BUFSIZE					1024	
 #define DATA_BUFSIZE			8192
 

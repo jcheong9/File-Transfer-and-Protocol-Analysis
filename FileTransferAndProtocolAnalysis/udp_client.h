@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include "common.h"
 
 void tcp_client(PVOID network);

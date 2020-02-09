@@ -22,12 +22,16 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="tcp_client.cpp" />
     <ClCompile Include="tcp_server.cpp" />
+    <ClCompile Include="udp_client.cpp" />
+    <ClCompile Include="udp_server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="tcp_client.h" />
     <ClInclude Include="tcp_server.h" />
+    <ClInclude Include="udp_client.h" />
+    <ClInclude Include="udp_server.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
