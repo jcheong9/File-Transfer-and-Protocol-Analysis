@@ -2,7 +2,6 @@
 #include "common.h"
 
 
-#define SERVER_UDP_PORT		8000	// Default port
 #define MAXLEN				65000   // Maximum Buffer length
 #define DEFLEN				64		// Default Length
 

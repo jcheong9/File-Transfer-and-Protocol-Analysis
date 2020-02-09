@@ -444,6 +444,7 @@ int checkPackInput() {
 int checkIpInput() {
 	int inputIPLength;
 	TCHAR inputIP[255];
+	memset(inputIP, 0, 100);
 	GetWindowText(hInput2, str, 255);
 	if (GetWindowTextLengthA(hInput2) != 0) {
 		inputIPLength = GetWindowTextLengthA(hInput2);

@@ -2,6 +2,6 @@
 #include "common.h"
 
 //8192
-#define WM_SOCKET (WM_USER + 1)
+#define WIN32_LEAN_AND_MEAN
 
 void serverMainUDP(PVOID network);

@@ -27,10 +27,10 @@
     <ClCompile Include="udp_client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="udp_server.cpp">
+    <ClCompile Include="common.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="common.cpp">
+    <ClCompile Include="udp_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
