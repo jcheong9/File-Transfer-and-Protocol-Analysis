@@ -1,5 +1,5 @@
 
-#include "tcp_server.h"
+#include "udp_server.h"
 
 
 
@@ -11,6 +11,8 @@ int firstMessageUDP = 1;
 
 SOCKET AcceptSocketUDP;
 NETWORK* networkStructUDP;
+
+struct	sockaddr_in  server_UDP, client_UDP;
 
 void serverMainUDP(PVOID network)
 {
@@ -44,7 +46,7 @@ void serverMainUDP(PVOID network)
 
     InternetAddr.sin_family = AF_INET;
     InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    InternetAddr.sin_port = htons(PORT);
+    InternetAddr.sin_port = htons(SERVER_PORT);
 
     if (bind(ListenSocket, (PSOCKADDR)&InternetAddr,
         sizeof(InternetAddr)) == SOCKET_ERROR)
@@ -54,7 +56,7 @@ void serverMainUDP(PVOID network)
         PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
-
+    /*
     if (listen(ListenSocket, 5))
     {
         sprintf_s(buff, "listen() failed with error %d\n", WSAGetLastError());
@@ -62,6 +64,7 @@ void serverMainUDP(PVOID network)
         PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
+    */
 
     if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
     {
@@ -112,6 +115,8 @@ DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
     string str;
     int n;
     LPSTR messageHeader;
+    int clientAddrSize = sizeof(client_UDP);
+
 
     // Save the accept event in the event array.
 
@@ -161,8 +166,8 @@ DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
         memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
-        if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
-            &(SocketInfo->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
+        if (WSARecvFrom(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
+            (SOCKADDR*)&client_UDP, &clientAddrSize , &(SocketInfo->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {

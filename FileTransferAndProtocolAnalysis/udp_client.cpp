@@ -21,7 +21,7 @@
 ---------------------------------------------------------------------------------------*/
 #include "udp_client.h"
 
-
+struct	sockaddr_in  serverStrucUDP, clientStrucUDP;
 void udp_client(PVOID network)
 {
 	NETWORK* networkStruct = (NETWORK*)network;
@@ -30,7 +30,7 @@ void udp_client(PVOID network)
 	SOCKET sd;
 	char* host, sbuf[MAXLEN];
 	struct	hostent* hp;
-	struct	sockaddr_in server, client;
+
 	SYSTEMTIME stStartTime;
 	WSADATA stWSAData;
 	WORD wVersionRequested = MAKEWORD(2, 2);
@@ -49,9 +49,9 @@ void udp_client(PVOID network)
 	}
 
 	// Store server's information
-	memset((char*)&server, 0, sizeof(server));
-	server.sin_family = AF_INET;
-	server.sin_port = htons(port);
+	memset((char*)&serverStrucUDP, 0, sizeof(serverStrucUDP));
+	serverStrucUDP.sin_family = AF_INET;
+	serverStrucUDP.sin_port = htons(port);
 
 	if ((hp = gethostbyname(host)) == NULL)
 	{
@@ -61,27 +61,27 @@ void udp_client(PVOID network)
 		_endthread();
 	}
 	//strcpy((char *)&server.sin_addr, hp->h_addr);
-	memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
+	memcpy((char*)&serverStrucUDP.sin_addr, hp->h_addr, hp->h_length);
 
 	// Bind local address to the socket
-	memset((char*)&client, 0, sizeof(client));
-	client.sin_family = AF_INET;
-	client.sin_port = htons(0);  // bind to any available port
-	client.sin_addr.s_addr = htonl(INADDR_ANY);
+	memset((char*)&clientStrucUDP, 0, sizeof(clientStrucUDP));
+	clientStrucUDP.sin_family = AF_INET;
+	clientStrucUDP.sin_port = htons(0);  // bind to any available port
+	clientStrucUDP.sin_addr.s_addr = htonl(INADDR_ANY);
 
-	if (bind(sd, (struct sockaddr*) & client, sizeof(client)) == -1)
+	if (bind(sd, (struct sockaddr*) & clientStrucUDP, sizeof(clientStrucUDP)) == -1)
 	{
 		perror("Can't bind name to socket");
 		_endthread();
 	}
 	// Find out what port was assigned and print it
-	client_len = sizeof(client);
-	if (getsockname(sd, (struct sockaddr*) & client, &client_len) < 0)
+	client_len = sizeof(clientStrucUDP);
+	if (getsockname(sd, (struct sockaddr*) & clientStrucUDP, &client_len) < 0)
 	{
 		perror("getsockname: \n");
 		_endthread();
 	}
-	sprintf_s(buff, "Port aasigned is %d\n", ntohs(client.sin_port));
+	sprintf_s(buff, "Port aasigned is %d\n", ntohs(clientStrucUDP.sin_port));
 
 	if (data_size > MAXLEN)
 	{
@@ -93,9 +93,9 @@ void udp_client(PVOID network)
 	GetSystemTime(&stStartTime);
 
 	// transmit data
-	server_len = sizeof(server);
+	server_len = sizeof(serverStrucUDP);
 	memset(message, 'a', 25);
-	if (sendto(sd, message, 25, 0, (struct sockaddr*) & server, server_len) == -1)
+	if (sendto(sd, message, 25, 0, (struct sockaddr*) & serverStrucUDP, server_len) == -1)
 	{
 		perror("sendto failure");
 		_endthread();
@@ -104,6 +104,6 @@ void udp_client(PVOID network)
 
 	closesocket(sd);
 	WSACleanup();
-	exit(0);
+	_endthread();
 }
 

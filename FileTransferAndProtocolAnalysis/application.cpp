@@ -353,16 +353,15 @@ int connect(HWND hwnd, LPCSTR fileData) {
 		}
 		else {
 			if (checkPackInput()) {
-				serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
-				/*
+
 				if (network.selectedProtocal) {
 					//udp server
+					serverThread = (HANDLE)_beginthread(serverMainUDP, 1, &network);
 				}
 				else {
 					serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
 				}
-				
-				*/
+
 			}
 
 			return 1;

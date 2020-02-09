@@ -43,7 +43,7 @@ void serverMain(PVOID network)
 
     InternetAddr.sin_family = AF_INET;
     InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    InternetAddr.sin_port = htons(PORT);
+    InternetAddr.sin_port = htons(SERVER_PORT);
 
     if (bind(ListenSocket, (PSOCKADDR)&InternetAddr,
         sizeof(InternetAddr)) == SOCKET_ERROR)
