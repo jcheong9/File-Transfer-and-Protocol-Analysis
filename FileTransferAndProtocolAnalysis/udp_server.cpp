@@ -30,9 +30,11 @@ void serverMainUDP(PVOID network)
     char RecvBuf[1024];
     int BufLen = 1024;
     DWORD BytesRecv = 0;
-    DWORD Flags = 0;
     char buff[100];
-
+    DWORD Flags = 0;
+    LPSTR messageHeader;
+    string str;
+    int n;
 
     int err = 0;
     int rc;
@@ -93,8 +95,20 @@ void serverMainUDP(PVOID network)
         return ;
     }
 
+    //assigning RecvSocket to struct
+    SocketInfo->Socket = RecvSocket;
+
+    //create path of the save file to be logged
+    if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStructUDP)) {
+        MessageBox(networkStructUDP->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
+        _endthread();
+    }
+
+
     // Create a worker thread to service completed I/O requests. 
 
+       /*
     if ((ThreadHandle = CreateThread(NULL, 0, WorkerThreadUDP, (LPVOID)SocketInfo->Overlapped.hEvent, 0, &ThreadId)) == NULL)
     {
         sprintf_s(buff, "CreateThread failed with error %d\n", GetLastError());
@@ -102,64 +116,92 @@ void serverMainUDP(PVOID network)
         PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
+    
+ */
 
     //-----------------------------------------------
     // Call the recvfrom function to receive datagrams
     // on the bound socket.
-    /*
+
     DataBuf.len = BufLen;
     DataBuf.buf = RecvBuf;
     wprintf(L"Listening for incoming datagrams on port=%d\n", SERVER_PORT);
+
+
     rc = WSARecvFrom(RecvSocket,
         &DataBuf,
         1,
         &BytesRecv,
         &Flags,
         (SOCKADDR*)&SenderAddr,
-        &SenderAddrSize, &SocketInfo->Overlapped, WorkerRoutineUDP);
+        &SenderAddrSize, &SocketInfo->Overlapped, NULL);
 
-    if (rc != 0) {
-        err = WSAGetLastError();
-        if (err != WSA_IO_PENDING) {
-            wprintf(L"WSARecvFrom failed with error: %ld\n", err);
-            WSACloseEvent(SocketInfo->Overlapped.hEvent);
-            closesocket(RecvSocket);
-            WSACleanup();
-            return ;
-        }
-        else {
-            rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
-            if (rc == WSA_WAIT_FAILED) {
-                wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
-                retval = 1;
-            }
-
-            rc = WSAGetOverlappedResult(RecvSocket, &SocketInfo->Overlapped, &BytesRecv,
-                FALSE, &Flags);
-            if (rc == FALSE) {
-                wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
-                retval = 1;
-            }
-            else
-                wprintf(L"Number of received bytes = %d\n", BytesRecv);
-
-            wprintf(L"Finished receiving. Closing socket.\n");
-        }
-
-    }
-    
-    */
-    //while loop goes through the accpet socket
     while (networkStructUDP->connected)
     {
-        //Overlapped.hEvent = accept(ListenSocket, NULL, NULL);
+        if (rc != 0) {
+            err = WSAGetLastError();
+            if (err != WSA_IO_PENDING) {
+                wprintf(L"WSARecvFrom failed with error: %ld\n", err);
+                WSACloseEvent(SocketInfo->Overlapped.hEvent);
+                closesocket(RecvSocket);
+                WSACleanup();
+                return;
+            }
+            else {
+                rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
+                if (rc == WSA_WAIT_FAILED) {
+                    wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
+                    retval = 1;
+                }
 
-        if (WSASetEvent(SocketInfo->Overlapped.hEvent) == FALSE)
-        {
-            printf("WSASetEvent failed with error %d\n", WSAGetLastError());
-            return;
+                rc = WSAGetOverlappedResult(RecvSocket, &SocketInfo->Overlapped, &BytesRecv,
+                    FALSE, &Flags);
+                if (rc == FALSE) {
+                    wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
+                    retval = 1;
+                }
+                else {
+                    sprintf_s(buff, "Socket %u connected\n", RecvSocket);
+                    MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
+                    str = SocketInfo->DataBuf.buf;
+                    n = str.find("~");
+                    networkStructUDP->numByteRead = networkStructUDP->numByteRead + BytesRecv;
+                    char buffer[64];
+                    memset(buffer, 0, 64);
+                    sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
+                    messageHeader = buffer;
+                    writeToFile(messageHeader, networkStructUDP);
+                    writeToFile((LPSTR)("\r\nReceived Data from:\r\n"), networkStructUDP);
+                    if (str.find("`") != -1) {
+                        writeToFile(SocketInfo->DataBuf.buf, networkStructUDP);
+                        writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
+                    }
+                    else {
+
+                        str = str.substr(0, n);
+                        memset(buffer, 0, 64);
+                        strcpy(buffer, str.c_str());
+                        messageHeader = buffer;
+                        writeToFile(messageHeader, networkStructUDP);
+                        writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
+                    }
+
+                    writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"), networkStructUDP);
+                    writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
+
+                    memset(buffer, 0, 64);
+                    sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
+                    LPSTR messageHeader2 = buffer;
+                    writeToFile(messageHeader2, networkStructUDP);
+
+                }
+
+               // wprintf(L"Finished receiving. Closing socket.\n");
+            }
+
         }
     }
+    MessageBox(networkStructUDP->hwnd, TEXT("Finished receiving. Closing socket.\n"), TEXT("Server"), MB_OK);
 
     //---------------------------------------------
     // When the application is finished receiving, close the socket.
@@ -269,57 +311,36 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 
 DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
 {
-    DWORD Flags;
+    DWORD Flags = 0;
     WSAEVENT EventArray[1];
-    DWORD Index;
+    int Index;
     DWORD RecvBytes;
     char buff[100];
     string str;
     int n;
     LPSTR messageHeader;
+    char RecvBuf[1025];
+    int BufLen = 1025;
 
     // Save the accept event in the event array.
 
-    EventArray[0] = (WSAEVENT)lpParameter;
-
     while (TRUE)
     {
-        // Wait for accept() to signal an event and also process WorkerRoutine() returns.
-
-        while (TRUE)
-        {
-            Index = WSAWaitForMultipleEvents(1, EventArray, FALSE, WSA_INFINITE, TRUE);
-
-            if (Index == WSA_WAIT_FAILED)
-            {
-                printf("WSAWaitForMultipleEvents failed with error %d\n", WSAGetLastError());
-                return FALSE;
-            }
-
-            if (Index != WAIT_IO_COMPLETION)
-            {
-                // An accept() call event is ready - break the wait loop
-                break;
-            }
-        }
-
-        WSAResetEvent(EventArray[Index - WSA_WAIT_EVENT_0]);
-
 
         // Fill in the details of our accepted socket.
 
-        //SocketInfo->Socket = AcceptSocket;
-        ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+        //ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+        SocketInfo->Overlapped.hEvent = (WSAEVENT)lpParameter;
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
         networkStructUDP->siServerUDP = SocketInfo;
-        memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
+       // memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
-        if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
-            &(SocketInfo->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
+        if (WSARecvFrom(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
+             (SOCKADDR*)&SenderAddr, &SenderAddrSize, &(SocketInfo->Overlapped), NULL) == SOCKET_ERROR)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
@@ -328,8 +349,29 @@ DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
                 MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
                 return FALSE;
             }
+            else {
+                Index = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
+                if (Index == WSA_WAIT_FAILED) {
+                    wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
+                    sprintf_s(buff, "WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
+                    MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
+                }
+
+                Index = WSAGetOverlappedResult(SocketInfo->Socket, &SocketInfo->Overlapped, &SocketInfo->BytesRECV,
+                    FALSE, &Flags);
+                if (Index == FALSE) {
+                    wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
+                    sprintf_s(buff, "WSArecvFrom failed with error: %d\n", WSAGetLastError());
+                    MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
+                }
+                else {
+                    // MessageBox(networkStructUDP->hwnd, TEXT("WORKED"), TEXT("Server"), MB_OK);
+                }
+            }
         }
         else {
+            MessageBox(networkStructUDP->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
+            /*
             sprintf_s(buff, "Socket %u connected\n", SocketInfo->Socket);
             MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
             str = SocketInfo->DataBuf.buf;
@@ -362,6 +404,8 @@ DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
             sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
             LPSTR messageHeader2 = buffer;
             writeToFile(messageHeader2, networkStructUDP);
+            
+            */
 
             //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }

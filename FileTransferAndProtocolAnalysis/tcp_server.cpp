@@ -157,7 +157,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
         networkStruct->siServer = SocketInfo;
-        memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
+        //memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
         if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
@@ -304,7 +304,13 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
+            networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
+            writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStruct);
+            writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()), networkStruct);
             //empty
+            sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());
+            LPSTR messageHeader2 = buff;
+            writeToFile(messageHeader2, networkStruct);
         }
     }
 }

@@ -91,7 +91,7 @@ void udp_client(PVOID network)
 			fprintf(stderr, "Data is too big\n");
 			exit(1);
 		}
-
+		char buffer[64];
 		// data	is a, b, c, ..., z, a, b,...
 		for (i = 0; i < data_size; i++)
 		{
@@ -99,17 +99,20 @@ void udp_client(PVOID network)
 			sbuf[i] = 'a' + j;
 		}
 
+		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
+		LPSTR messageHeader = buffer;
+
 		// Get the start time
 		GetSystemTime(&stStartTime);
 
 		// transmit data
 		server_len = sizeof(server);
-		if (sendto(sd, sbuf, data_size, 0, (struct sockaddr*) & server, server_len) == -1)
+		if (sendto(sd, buffer, strlen(buffer), 0, (struct sockaddr*) & server, server_len) == -1)
 		{
 			perror("sendto failure");
 			//exit(1);
 		}
-
+		/*
 		// receive data
 		if (recvfrom(sd, rbuf, MAXLEN, 0, (struct sockaddr*) & server, &server_len) < 0)
 		{
@@ -118,6 +121,8 @@ void udp_client(PVOID network)
 			PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 			//exit(1);
 		}
+		
+		*/
 
 		//Get the end time and calculate the delay measure
 		GetSystemTime(&stEndTime);
