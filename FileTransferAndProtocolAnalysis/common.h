@@ -41,16 +41,15 @@ typedef struct
 
 typedef struct
 {
+	int packetMessage = 0;		//0 no packet message
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
-	int connected = 1; //0 is disconnect, 1 is connect
+	int connected = 1;			//0 is disconnect, 1 is connect
 	int numPackets = 10;
 	int packSize;
-	float endTime;
 	int uploaded = 0;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	TCHAR* ip = NULL;
-	clock_t beginTime = NULL;
 	LPCSTR data;
 	LPCSTR filePath;
 	SOCKET sdClient;

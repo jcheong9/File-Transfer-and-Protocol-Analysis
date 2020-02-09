@@ -35,6 +35,9 @@
 #define ID_UDP_BTN						110
 #define ID_PACKET_TEN_TIMES_BTN			111
 #define ID_PACKETS_HUNDRED_TIMES_BTN	112
+#define ID_PACKETS_TRUE					113
+#define ID_PACKETS_FALSE				114
+
 
 
 //Declaration Functions application

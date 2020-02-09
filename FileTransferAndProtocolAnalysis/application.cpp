@@ -192,10 +192,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			30, 105, 150, 20, hwnd, NULL, NULL, NULL);
 
 		radioBtnPacketFalse = CreateWindow(TEXT("BUTTON"), TEXT("False"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			245, 105, 60, 20, hwnd, (HMENU)ID_PACKET_TEN_TIMES_BTN, NULL, NULL);
+			245, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_FALSE, NULL, NULL);
 
 		radioBtnPacketTrue = CreateWindow(TEXT("BUTTON"), TEXT("True"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			350, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
+			350, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_TRUE, NULL, NULL);
 
 		CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 135, 150, 20, hwnd, NULL, NULL, NULL);
@@ -203,7 +203,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		inputPacketSizeLabel = CreateWindow("edit", "1024", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 			205, 135, 250, 20, hwnd, NULL, NULL, NULL);
 		
-		CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 165, 100, 20, hwnd, NULL, NULL, NULL);
 
 		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
@@ -418,7 +418,7 @@ void sentFile(PVOID network) {
 	LPSTR message = new TCHAR[networkStruct->packSize+1];
 
 	int n;
-	networkStruct->beginTime = clock();
+
 	char buffer[64];
 	sprintf_s(buffer, "\r\nBegining Time %d\r\n", clock());
 	LPSTR messageHeader = buffer;
