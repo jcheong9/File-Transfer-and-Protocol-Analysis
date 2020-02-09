@@ -1,12 +1,7 @@
 #include "udp_server.h"
 
-DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter);
-
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
-
-
-
 
 WSAOVERLAPPED Overlapped;
 NETWORK* networkStructUDP;
@@ -102,26 +97,8 @@ void serverMainUDP(PVOID network)
     if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStructUDP)) {
         MessageBox(networkStructUDP->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
         PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
-        _endthread();
+        return;
     }
-
-
-    // Create a worker thread to service completed I/O requests. 
-
-       /*
-    if ((ThreadHandle = CreateThread(NULL, 0, WorkerThreadUDP, (LPVOID)SocketInfo->Overlapped.hEvent, 0, &ThreadId)) == NULL)
-    {
-        sprintf_s(buff, "CreateThread failed with error %d\n", GetLastError());
-        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
-        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
-        _endthread();
-    }
-    
- */
-
-    //-----------------------------------------------
-    // Call the recvfrom function to receive datagrams
-    // on the bound socket.
 
     DataBuf.len = BufLen;
     DataBuf.buf = RecvBuf;
@@ -203,7 +180,6 @@ void serverMainUDP(PVOID network)
 
                 }
 
-               // wprintf(L"Finished receiving. Closing socket.\n");
             }
 
         }
@@ -315,12 +291,14 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
-            //print
-            networkStructUDP->numPackRecv++;
+            SYSTEMTIME stStartTime;
+            GetSystemTime(&stStartTime);
+            ++networkStructUDP->numPackRecv;
             networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
+
             writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStructUDP);
             writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
-            sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());
+            sprintf_s(buff, "\r\nEnding Time from server %d\r\n", getTimeConvertToMil(stStartTime));
             LPSTR messageHeader2 = buff;
             writeToFile(messageHeader2, networkStructUDP);
         }

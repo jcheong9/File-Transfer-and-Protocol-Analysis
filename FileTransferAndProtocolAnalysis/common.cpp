@@ -96,3 +96,13 @@ void disconnectSocketServer(LPSOCKET_INFORMATION siServer) {
     closesocket(siServer->Socket);
     GlobalFree(siServer);
 }
+
+long getTimeConvertToMil(SYSTEMTIME t1) {
+    long d;
+
+    d = t1.wSecond * 1000;
+    d += t1.wMinute * 60 * 1000;
+    d += t1.wMilliseconds;
+
+    return d;
+}

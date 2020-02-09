@@ -130,7 +130,7 @@ void udp_client(PVOID network)
 			}
 		}
 		else {
-			for (int i = 0; i < networkStruct->numPackets; i++) {
+			for (int i = 0; i < networkStruct->timesPacketsSelection; i++) {
 				if (sendto(sd, message, strlen(message), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 				{
 					MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
@@ -162,3 +162,5 @@ void udp_client(PVOID network)
 		d += (t2.wMilliseconds - t1.wMilliseconds);
 		return(d);
 	}
+
+

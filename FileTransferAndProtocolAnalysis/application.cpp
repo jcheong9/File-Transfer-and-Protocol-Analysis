@@ -236,6 +236,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			if (network.connected) {
 				disconnect(hwnd);
 				processEndData();
+				network.numPackRecv = 0;
 				network.connected = 0;
 			}
 			EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
@@ -291,13 +292,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case ID_PACKET_TEN_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_UNCHECKED, 0);
-			network.numPackets = 10;
+			network.timesPacketsSelection = 10;
 			break;
 
 		case ID_PACKETS_HUNDRED_TIMES_BTN:
 			SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
-			network.numPackets = 100;
+			network.timesPacketsSelection = 100;
 			break;
 
 		case ID_PACKETS_TRUE:
@@ -460,7 +461,7 @@ int checkIpInput() {
 
 void processEndData() {
 	char buff[100];
-
+	writeToFile((LPSTR)("\r\n----------------\r\n"), &network);
 	writeToFile((LPSTR)("\r\n Number of Received Packets:\r\n"), &network);
 	writeToFile(LPSTR(to_string(network.numPackRecv).c_str()), &network);
 	sprintf_s(buff, "\r\nEnding Time from server %d\r\n", clock());

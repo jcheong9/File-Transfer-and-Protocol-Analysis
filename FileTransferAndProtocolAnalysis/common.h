@@ -51,7 +51,7 @@ typedef struct NETWORK{
 	int packetMessage = 0;		//0 no packet message
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int connected = 1;			//0 is disconnect, 1 is connect
-	int numPackets = 10;
+	int timesPacketsSelection = 10;
 	int packSize;
 	int numPackRecv = 0;
 	int uploaded = 0;
@@ -70,4 +70,4 @@ typedef struct NETWORK{
 int writeToFile(LPSTR data, NETWORK_STRUC networkStruct);
 string convert(LPCSTR str);
 int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct);
-
+long getTimeConvertToMil(SYSTEMTIME s1);

@@ -304,6 +304,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
             }
         }
         else {
+            ++networkStruct->numPackRecv;
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
             writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStruct);
             writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()), networkStruct);

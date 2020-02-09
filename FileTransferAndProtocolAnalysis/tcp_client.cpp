@@ -84,7 +84,7 @@ void tcp_client(PVOID network) {
 		send(networkStruct->sdClient, networkStruct->data, strlen(networkStruct->data), 0);
 	}
 	else {
-		for (int i = 0; i < networkStruct->numPackets; i++) {
+		for (int i = 0; i < networkStruct->timesPacketsSelection; i++) {
 			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
 				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
 				
