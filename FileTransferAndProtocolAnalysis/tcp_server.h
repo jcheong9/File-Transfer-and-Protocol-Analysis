@@ -7,9 +7,9 @@
 #define WM_SOCKET (WM_USER + 1)
 
 void serverMain(PVOID portParma);
-int writeToFile(LPSTR data);
-void processReceiveData(LPSTR data);
-string convert(LPCSTR str);
-int loadSaveFile(LPSTR data);
+//int writeToFile(LPSTR data);
+//void processReceiveData(LPSTR data);
+//string convert(LPCSTR str);
+//int loadSaveFile(LPSTR data);
 //void disconnectSocketServer(LPSOCKET_INFORMATION siServer);
 

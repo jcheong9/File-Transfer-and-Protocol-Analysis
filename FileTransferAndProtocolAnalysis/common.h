@@ -38,8 +38,7 @@ typedef struct
 
 } PORTPARMA;
 
-typedef struct
-{
+typedef struct NETWORK{
 	int packetMessage = 0;		//0 no packet message
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int connected = 1;			//0 is disconnect, 1 is connect
@@ -50,9 +49,14 @@ typedef struct
 	HWND hwnd = NULL;
 	TCHAR* ip = NULL;
 	LPCSTR data;
-	LPCSTR filePath;
+	TCHAR filePath[100];
 	SOCKET sdClient;
 	LPSOCKET_INFORMATION siServer;
 	DWORD numByteRead = 0;
-} NETWORK;
+} NETWORK, * NETWORK_STRUC;
+
+//Funtion Prototype
+int writeToFile(LPSTR data, NETWORK_STRUC networkStruct);
+string convert(LPCSTR str);
+int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct);
 

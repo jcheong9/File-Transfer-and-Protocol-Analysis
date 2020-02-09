@@ -1,19 +1,20 @@
+
 #include "tcp_server.h"
 
 
 
-void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
-DWORD WINAPI WorkerThread(LPVOID lpParameter);
-int firstMessage = 1;
+DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter);
+int firstMessageUDP = 1;
 
-SOCKET AcceptSocket;
-NETWORK* networkStruct;
+SOCKET AcceptSocketUDP;
+NETWORK* networkStructUDP;
 
-void serverMain(PVOID network)
+void serverMainUDP(PVOID network)
 {
-    networkStruct = (NETWORK*)network;
+    networkStructUDP = (NETWORK*)network;
     WSADATA wsaData;
     SOCKET ListenSocket;
     SOCKADDR_IN InternetAddr;
@@ -26,17 +27,17 @@ void serverMain(PVOID network)
     if ((Ret = WSAStartup(0x0202, &wsaData)) != 0)
     {
         sprintf_s(buff, "WSAStartup failed with error %d\n", Ret);
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
         WSACleanup();
         _endthread();
     }
 
 
-    if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0,
+    if ((ListenSocket = WSASocket(AF_INET, SOCK_DGRAM, 0, NULL, 0,
         WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
     {
-        sprintf_s(buff, "Failed to get a TCP socket %d\n", WSAGetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        sprintf_s(buff, "Failed to get a UDP socket %d\n", WSAGetLastError());
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
         _endthread();
     }
 
@@ -49,48 +50,48 @@ void serverMain(PVOID network)
         sizeof(InternetAddr)) == SOCKET_ERROR)
     {
         sprintf_s(buff, "bind() failed with error %d\n", WSAGetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
-        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
 
     if (listen(ListenSocket, 5))
     {
         sprintf_s(buff, "listen() failed with error %d\n", WSAGetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
-        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
 
     if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
     {
         sprintf_s(buff, "WSACreateEvent() failed with error %d\n", WSAGetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
-        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
 
     // Create a worker thread to service completed I/O requests. 
 
-    if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL)
+    if ((ThreadHandle = CreateThread(NULL, 0, WorkerThreadUDP, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL)
     {
         sprintf_s(buff, "CreateThread failed with error %d\n", GetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
-        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
 
     //create path of the save file to be logged
-    if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStruct)) {
-        MessageBox(networkStruct->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
-        PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+    if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStructUDP)) {
+        MessageBox(networkStructUDP->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         _endthread();
     }
 
 
-    while (networkStruct->connected)
+    while (networkStructUDP->connected)
     {
-        AcceptSocket = accept(ListenSocket, NULL, NULL);
+        AcceptSocketUDP = accept(ListenSocket, NULL, NULL);
 
         if (WSASetEvent(AcceptEvent) == FALSE)
         {
@@ -100,7 +101,7 @@ void serverMain(PVOID network)
     }
 }
 
-DWORD WINAPI WorkerThread(LPVOID lpParameter)
+DWORD WINAPI WorkerThreadUDP(LPVOID lpParameter)
 {
     DWORD Flags;
     LPSOCKET_INFORMATION SocketInfo;
@@ -150,42 +151,42 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
         // Fill in the details of our accepted socket.
 
-        SocketInfo->Socket = AcceptSocket;
+        SocketInfo->Socket = AcceptSocketUDP;
         ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
-        networkStruct->siServer = SocketInfo;
+        networkStructUDP->siServer = SocketInfo;
         memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
         if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
-            &(SocketInfo->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+            &(SocketInfo->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
                 //printf("WSARecv() failed with error %d\n", WSAGetLastError());
                 sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+                MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
                 return FALSE;
             }
         }
         else {
-            sprintf_s(buff, "Socket %u connected\n", AcceptSocket);
-            MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+            sprintf_s(buff, "Socket %u connected\n", AcceptSocketUDP);
+            MessageBox(networkStructUDP->hwnd, buff, TEXT(""), MB_OK);
             str = SocketInfo->DataBuf.buf;
             n = str.find("~");
-            networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
+            networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
             char buffer[64];
             memset(buffer, 0, 64);
             sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
             messageHeader = buffer;
-            writeToFile(messageHeader, networkStruct);
-               writeToFile((LPSTR)("\r\nReceived Data from:\r\n"), networkStruct);
+            writeToFile(messageHeader, networkStructUDP);
+            writeToFile((LPSTR)("\r\nReceived Data from:\r\n"), networkStructUDP);
             if (str.find("`") != -1) {
-                writeToFile(SocketInfo->DataBuf.buf, networkStruct);
-                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStruct);
+                writeToFile(SocketInfo->DataBuf.buf, networkStructUDP);
+                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
             }
             else {
 
@@ -193,29 +194,29 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
                 memset(buffer, 0, 64);
                 strcpy(buffer, str.c_str());
                 messageHeader = buffer;
-                writeToFile(messageHeader, networkStruct);
-                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStruct);
+                writeToFile(messageHeader, networkStructUDP);
+                writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
             }
 
-            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"), networkStruct);
-            writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()), networkStruct);
+            writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"), networkStructUDP);
+            writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);
 
             memset(buffer, 0, 64);
             sprintf_s(buffer, "\r\nEnding Time from server %d\r\n", clock());
             LPSTR messageHeader2 = buffer;
-            writeToFile(messageHeader2, networkStruct);
+            writeToFile(messageHeader2, networkStructUDP);
 
             //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }
 
 
-       
+
     }
 
     return TRUE;
 }
 
-void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {
     DWORD SendBytes, RecvBytes;
@@ -229,14 +230,14 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     {
         printf("I/O operation failed with error %d\n", Error);
         sprintf_s(buff, "I/O operation failed with error %d\n", Error);
-        MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (BytesTransferred == 0)
     {
         //printf("Closing socket %d\n", SI->Socket);
         sprintf_s(buff, "Closing socket %u\n", SI->Socket);
-        MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+        MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
@@ -273,7 +274,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
         SI->DataBuf.len = SI->BytesRECV - SI->BytesSEND;
 
         if (WSASend(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0,
-            &(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+            &(SI->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
@@ -295,7 +296,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
         SI->DataBuf.buf = SI->Buffer;
 
         if (WSARecv(SI->Socket, &(SI->DataBuf), 1, &RecvBytes, &Flags,
-            &(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+            &(SI->Overlapped), WorkerRoutineUDP) == SOCKET_ERROR)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
@@ -309,5 +310,55 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     }
 }
 
+int loadSaveFile(LPSTR data) {
+    //open save dialog box only if the file is not loaded
 
+    OPENFILENAME ofn;
+    char file_name[100];
+    ZeroMemory(&ofn, sizeof(OPENFILENAME));
 
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = networkStructUDP->hwnd;
+    ofn.lpstrFile = file_name;
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = 100;
+    ofn.lpstrFilter = "*.txt\0";
+    ofn.nFilterIndex = 1;
+
+    GetSaveFileName(&ofn);
+    strncpy(networkStructUDP->filePath, ofn.lpstrFile, 100);
+    if (strcmp(networkStructUDP->filePath, "") == 0) {
+        return 0;
+    }
+    //string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+    HANDLE hFile = CreateFile(TEXT(networkStructUDP->filePath),      // name of the write
+        FILE_APPEND_DATA,       // open for appending
+        0,                      // do not share
+        NULL,                   // default security
+        CREATE_ALWAYS,          // overwrite existing
+        FILE_ATTRIBUTE_NORMAL,  // normal file
+        NULL);                  // no attr. template
+
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        // Failed to open/create file
+        return 2;
+    }
+
+    // Write data to the file
+    std::string strText; // For C use LPSTR (char*) or LPWSTR (wchar_t*)
+
+    strText = convert(data);
+
+    DWORD bytesWritten;
+    WriteFile(
+        hFile,            // Handle to the file
+        strText.c_str(),  // Buffer to write
+        strText.size(),   // Buffer size
+        &bytesWritten,    // Bytes written
+        nullptr);         // Overlapped
+
+     // Close the handle once we don't need it.
+    CloseHandle(hFile);
+    return 1;
+}

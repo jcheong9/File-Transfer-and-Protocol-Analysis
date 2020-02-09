@@ -353,12 +353,16 @@ int connect(HWND hwnd, LPCSTR fileData) {
 		}
 		else {
 			if (checkPackInput()) {
+				serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
+				/*
 				if (network.selectedProtocal) {
 					//udp server
 				}
 				else {
 					serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
 				}
+				
+				*/
 			}
 
 			return 1;
@@ -385,7 +389,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	ofn.nFilterIndex = 1;
 
 	GetOpenFileNameA(&ofn);
-	uploadData->filePath = ofn.lpstrFile;
+	strcmp(uploadData->filePath, ofn.lpstrFile);
 
 	MessageBox(NULL, uploadData->filePath, "", MB_OK);
 	ifstream infile(ofn.lpstrFile);
@@ -402,7 +406,8 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 
 	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	DWORD fileSize = GetFileSize(file, NULL);
-	LPSTR buffer = (LPSTR)GlobalAlloc(GPTR, fileSize + 1);
+	long num = fileSize + 1;
+	LPSTR buffer = (LPSTR)GlobalAlloc(GPTR, num);
 	DWORD read;
 	if (!ReadFile(file, buffer, fileSize, &read, NULL)) {
 		MessageBox(NULL, TEXT("Failed to read the file"), "", MB_OK);

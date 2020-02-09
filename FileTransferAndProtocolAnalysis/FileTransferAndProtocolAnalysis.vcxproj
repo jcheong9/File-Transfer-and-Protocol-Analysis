@@ -20,9 +20,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="application.cpp" />
+    <ClCompile Include="common.cpp" />
     <ClCompile Include="tcp_client.cpp" />
     <ClCompile Include="tcp_server.cpp" />
     <ClCompile Include="udp_client.cpp" />
+    <ClCompile Include="udp_server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
