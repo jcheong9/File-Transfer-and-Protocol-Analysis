@@ -250,19 +250,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		case ID_UPLOAD:
 			network.uploaded = upload_file(hwnd, &network);
-			//writeToFile(&network);
+
 			break;
 
 		case ID_EXIT:
 			SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 			disconnect(hwnd);
 			PostQuitMessage(0); //terminates the program
-			break;
-
-		case ID_SEND_BTN: //execute functions when button is clicked
-			if (network.connected) {
-				_beginthread(sentFile, 1, &network);
-			}
 			break;
 
 		case ID_SERVER_BTN:
@@ -344,17 +338,12 @@ int connect(HWND hwnd, LPCSTR fileData) {
 
 	if (checkPackInput()) {
 		if (portparma.selectServerClient) {
-			if (checkIpInput) {
+			if (checkIpInput()) {
 				if (network.selectedProtocal) { // 0 is tcp, 1 is UDP
-					//udp client
+					clientThread = (HANDLE)_beginthread(udp_client, 1, &network);
 				}
 				else {
 					clientThread = (HANDLE)_beginthread(tcp_client, 1, &network);
-						/*
-					if (tcp_client(portparma.hwnd, inputIP, fileData, &network)) {
-						return 1;
-					}
-					*/
 				}
 				return 1;
 			}
@@ -363,7 +352,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 			}
 		}
 		else {
-			if (checkPackInput) {
+			if (checkPackInput()) {
 				if (network.selectedProtocal) {
 					//udp server
 				}
@@ -424,52 +413,6 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 
 	return 1;
 }
-//delete
-void sentFile(PVOID network) {
-	NETWORK* networkStruct = (NETWORK*)network;
-	LPSTR message = new TCHAR[networkStruct->packSize+1];
-
-	int n;
-
-	char buffer[64];
-	sprintf_s(buffer, "\r\nBegining Time %d\r\n", clock());
-	LPSTR messageHeader = buffer;
-
-	
-
-	if (networkStruct->uploaded) {
-		if (networkStruct->selectedProtocal) {
-			//udp
-		}
-		else {
-			n = tcpSentPacket(&(networkStruct->sdClient), networkStruct->data);
-		}
-		//disconnectSocket(&(networkStruct->sdClient));
-
-
-	}
-	else {
-		//send(networkStruct->sdClient, buffer, strlen(buffer), 0);
-		memset(message, 0, networkStruct->packSize);
-		memset(message, 'a', networkStruct->packSize);
-		//testt
-		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
-
-		for (int i = 0; i < networkStruct->numPackets; i++) {
-			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
-				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
-				send(networkStruct->sdClient, "end", strlen("end"), 0);
-				_endthread();
-			}
-		}
-		send(networkStruct->sdClient, "end", strlen("end"), 0);
-
-	}
-	memset(message, 0, networkStruct->packSize);
-	delete[] message;
-	_endthread();
-}
-
 
 void disconnect(HWND hwnd) {
 	if (portparma.selectServerClient) {
@@ -506,5 +449,5 @@ int checkIpInput() {
 	}
 	else {
 	}
-		return 0;
+	return 0;
 }

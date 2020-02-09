@@ -64,7 +64,7 @@ void tcp_client(PVOID network) {
 		_endthread();
 	}
 
-	LPSTR message = new TCHAR[networkStruct->packSize + 1];
+	LPSTR message = new TCHAR[(networkStruct->packSize) + 1];
 
 	char buffer[64];
 	memset(buffer, 0, 64);

@@ -17,7 +17,7 @@
 #pragma comment(lib, "Ws2_32.lib")
 
 #define WM_FAILED_CONNECT        101
-#define SERVER_PORT			5150	// Default port
+#define SERVER_PORT				5150	// Default port
 #define BUFSIZE					1024	
 #define DATA_BUFSIZE			8192
 
@@ -35,7 +35,6 @@ typedef struct _SOCKET_INFORMATION {
 typedef struct
 {
 	int selectServerClient = 0; //0 is server, 1 is client
-
 
 } PORTPARMA;
 

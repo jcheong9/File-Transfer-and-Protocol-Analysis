@@ -30,13 +30,25 @@ void serverMain(PVOID network)
         WSACleanup();
         _endthread();
     }
+    if (networkStruct->selectedProtocal) {
+        if ((ListenSocket = WSASocket(AF_INET, SOCK_DGRAM, 0, NULL, 0,
+            WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
+        {
+            sprintf_s(buff, "Failed to get a TCP socket %d\n", WSAGetLastError());
+            MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+            _endthread();
+        }
 
-    if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0,
-        WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
-    {
-        sprintf_s(buff, "Failed to get a socket %d\n", WSAGetLastError());
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
-        _endthread();
+    }
+    else {
+        if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0,
+            WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
+        {
+            sprintf_s(buff, "Failed to get a UDP socket %d\n", WSAGetLastError());
+            MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+            _endthread();
+        }
+
     }
 
     InternetAddr.sin_family = AF_INET;

@@ -20,6 +20,7 @@
 ----------------------------------------------------------------------------------------------------------------------*/
 #pragma once
 #include "tcp_client.h"
+#include "udp_client.h"
 #include "tcp_server.h"
 #include "common.h"
 
@@ -28,7 +29,7 @@
 #define ID_CONNECT						103
 #define ID_UPLOAD						104
 #define ID_EXIT							105
-#define ID_SEND_BTN						106
+#define ID_SEND_BTN						106		//obsolete
 #define ID_SERVER_BTN					107
 #define ID_CLIENT_BTN					108
 #define ID_TCP_BTN						109
@@ -44,7 +45,6 @@
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 int connect(HWND hwnd, LPCSTR fileData);
 int upload_file(HWND hwnd, NETWORK* data);
-void sentFile(PVOID network);
 void disconnect(HWND hwnd);
 int checkIpInput();
 int checkPackInput();
