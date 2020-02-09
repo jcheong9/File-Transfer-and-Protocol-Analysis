@@ -163,16 +163,30 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             }
         }
         else {
+            sprintf_s(buff, "Socket %d connected\n", AcceptSocket);
+            MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+            string str = SocketInfo->DataBuf.buf;
+            int n = str.find("~");
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
-
             char buffer[64];
             memset(buffer, 0, 64);
             sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
             LPSTR messageHeader = buffer;
             writeToFile(messageHeader);
-            writeToFile((LPSTR)("\r\nReceived Data from:\r\n"));
-            writeToFile(SocketInfo->DataBuf.buf);
-            writeToFile((LPSTR)("\r\n----------------\r\n"));
+               writeToFile((LPSTR)("\r\nReceived Data from:\r\n"));
+            if (str.find("`") != -1) {
+                writeToFile(SocketInfo->DataBuf.buf);
+                writeToFile((LPSTR)("\r\n----------------\r\n"));
+            }
+            else {
+
+                str = str.substr(0, n);
+                memset(buffer, 0, 64);
+                strcpy(buffer, str.c_str());
+                messageHeader = buffer;
+                writeToFile(messageHeader);
+                writeToFile((LPSTR)("\r\n----------------\r\n"));
+            }
 
             writeToFile((LPSTR)("\r\nReceiving Bytes:\r\n"));
             writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()));
@@ -184,8 +198,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
             //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }
-        sprintf_s(buff, "Socket %d connected\n", AcceptSocket);
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+
 
        
     }

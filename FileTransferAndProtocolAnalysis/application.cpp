@@ -417,6 +417,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	DWORD read;
 	if (!ReadFile(file, buffer, fileSize, &read, NULL)) {
 		MessageBox(NULL, TEXT("Failed to read the file"), "", MB_OK);
+		return 0;
 	}
 	uploadData->data = (LPCSTR)buffer;
 	MessageBox(NULL, TEXT(buffer), "", MB_OK);

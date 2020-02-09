@@ -68,7 +68,11 @@ void tcp_client(PVOID network) {
 
 	char buffer[64];
 	memset(buffer, 0, 64);
-	sprintf_s(buffer, "\r\nBegining Time From Client %d\r\n", clock());
+	if (networkStruct->uploaded) {
+		send(networkStruct->sdClient, "`", strlen("`"), 0);
+	}
+
+	sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
 	LPSTR messageHeader = buffer;
 	send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
 
@@ -82,7 +86,7 @@ void tcp_client(PVOID network) {
 		for (int i = 0; i < 5; i++) {
 			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
 				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
-				send(networkStruct->sdClient, "end", strlen("end"), 0);
+				
 				_endthread();
 			}
 		}
