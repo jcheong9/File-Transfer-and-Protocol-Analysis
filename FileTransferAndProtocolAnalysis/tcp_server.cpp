@@ -10,7 +10,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter);
 SOCKET AcceptSocket;
 NETWORK* networkStruct;
 
-void serverMain(PVOID network)
+void serverMainTCP(PVOID network)
 {
     networkStruct = (NETWORK*)network;
     WSADATA wsaData;
@@ -159,7 +159,6 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
-        networkStruct->siServer = SocketInfo;
         //memset(SocketInfo->DataBuf.buf, 0, DATA_BUFSIZE);
 
         Flags = 0;
@@ -308,7 +307,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
         else {
             ++networkStruct->numPackRecv;
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
-            writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStruct);
+            writeToFile((LPSTR)("\r\nReceived Bytes Callback:\r\n"), networkStruct);
             writeToFile(LPSTR(to_string(networkStruct->numByteRead).c_str()), networkStruct);
 
             GetSystemTime(&stStartTime);
@@ -322,6 +321,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 
 
 
-void disconnectSocketServer(SOCKET si) {
+void disconnectSocketServerTCP(SOCKET si) {
     closesocket(si);
+    WSACleanup();
 }

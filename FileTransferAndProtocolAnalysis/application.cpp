@@ -45,8 +45,8 @@ HWND radioBtnTCP;
 HWND radioBtnUDP;
 HWND radioBtnTenTimes;
 HWND radioBtnHundredTimes;
-HWND radioBtnPacketTrue;
-HWND radioBtnPacketFalse;
+//HWND radioBtnPacketTrue;
+//HWND radioBtnPacketFalse;
 
 
 HWND textHwndLabel4;
@@ -187,7 +187,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 		radioBtnHundredTimes = CreateWindow(TEXT("BUTTON"), TEXT("100"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 85, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
-
+		/*
+		
 		CreateWindow("STATIC", "Packetize Message: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 105, 150, 20, hwnd, NULL, NULL, NULL);
 
@@ -196,6 +197,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 		radioBtnPacketTrue = CreateWindow(TEXT("BUTTON"), TEXT("True"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_TRUE, NULL, NULL);
+		
+		*/
 
 		CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 135, 150, 20, hwnd, NULL, NULL, NULL);
@@ -224,7 +227,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
 		SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
-		SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
+		//SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
 		ShowWindow(hInput2, SW_HIDE);
 		ShowWindow(textHwndLabel2, SW_HIDE);
 		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
@@ -300,7 +303,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
 			network.timesPacketsSelection = 100;
 			break;
-
+			/*
 		case ID_PACKETS_TRUE:
 			network.packetMessage = 1;
 			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -312,6 +315,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
 			SendMessage(radioBtnPacketTrue, BM_SETCHECK, BST_UNCHECKED, 0);
 			break;
+			
+			*/
 		}
 		break;
 	case WM_FAILED_CONNECT:
@@ -361,7 +366,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 					serverThread = (HANDLE)_beginthread(serverMainUDP, 1, &network);
 				}
 				else {
-					serverThread = (HANDLE)_beginthread(serverMain, 1, &network);
+					serverThread = (HANDLE)_beginthread(serverMainTCP, 1, &network);
 				}
 
 			}
@@ -425,7 +430,7 @@ void disconnect(HWND hwnd) {
 		disconnectSocketClient(&network.sdClient);	//disconnect client
 	}
 	else {
-		disconnectSocketServer(network.sdServer); //disconnect server
+		disconnectSocketServerTCP(network.sdServer); //disconnect server
 	}
 }
 
@@ -445,13 +450,14 @@ int checkPackInput() {
 
 int checkIpInput() {
 	int inputIPLength;
-	TCHAR inputIP[255];
-	memset(inputIP, 0, 100);
-	GetWindowText(hInput2, str, 255);
+	TCHAR inputIP[64];
+	memset(inputIP, 0, 64);
+	GetWindowText(hInput2, str, 64);
 	if (GetWindowTextLengthA(hInput2) != 0) {
 		inputIPLength = GetWindowTextLengthA(hInput2);
-		GetWindowText(hInput2, inputIP, 255);
-		network.ip = inputIP;
+		GetWindowText(hInput2, inputIP, 64);
+		strcpy(network.ip, inputIP);
+		//network.ip = inputIP;
 		return 1;
 	}
 	else {

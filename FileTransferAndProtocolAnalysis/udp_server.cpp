@@ -4,12 +4,12 @@
 
 
 NETWORK* networkStructUDP;
-LPSOCKET_INFORMATIONUDP SocketInfo;
-struct sockaddr_in SenderAddr;
-int SenderAddrSize = sizeof(SenderAddr);
 int firstPacket = 1;
 void serverMainUDP(PVOID network)
 {
+    struct sockaddr_in SenderAddr;
+    int SenderAddrSize = sizeof(SenderAddr);
+    LPSOCKET_INFORMATIONUDP SocketInfo;
     networkStructUDP = (NETWORK*)network;
     WSADATA wsaData;
     WSABUF DataBuf;
@@ -88,7 +88,7 @@ void serverMainUDP(PVOID network)
 
     //assigning RecvSocket to struct
     SocketInfo->Socket = RecvSocket;
-
+    networkStructUDP->sdServer = RecvSocket;
     //create path of the save file to be logged
     if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStructUDP)) {
         MessageBox(networkStructUDP->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
@@ -106,7 +106,6 @@ void serverMainUDP(PVOID network)
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
-        networkStructUDP->siServerUDP = SocketInfo;
 
         rc = WSARecvFrom(SocketInfo->Socket, 
             &(SocketInfo->DataBuf),
@@ -160,6 +159,8 @@ void serverMainUDP(PVOID network)
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {
+    struct sockaddr_in SenderAddr;
+    int SenderAddrSize = sizeof(SenderAddr);
     SYSTEMTIME stStartTime;
     LPSTR messageHeader;
     string str;
@@ -233,7 +234,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     {
         SI->BytesRECV = 0;
         if (firstPacket) {
-            str = SocketInfo->DataBuf.buf;
+            str = SI->DataBuf.buf;
             n = str.find("~");
 
             memset(buff, 0, 64);
@@ -242,11 +243,11 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 
             //process the header sent from client
             if (str.find("`") != -1) {
-                str = SocketInfo->DataBuf.buf;
+                str = SI->DataBuf.buf;
                 int indexStr = n - 1;
                 beginTimeFromClient = str.substr(1, indexStr);
-                str = str.substr(1, SocketInfo->DataBuf.len - 1);
-                writeToFile(SocketInfo->DataBuf.buf, networkStructUDP);
+                str = str.substr(1, SI->DataBuf.len - 1);
+                writeToFile(SI->DataBuf.buf, networkStructUDP);
                 writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
             }
             else {

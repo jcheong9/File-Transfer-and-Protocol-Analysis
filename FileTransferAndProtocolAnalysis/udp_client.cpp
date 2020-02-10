@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------------------
---	SOURCE FILE:	udp_clnt.c - A simple UDP client program.
+--	SOURCE FILE:	udp_client.c - A simple UDP client program.
 --
 --	PROGRAM:		uclnt.exe
 --
@@ -29,17 +29,17 @@ void udp_client(PVOID network)
 		int	data_size = DEFLEN, port = SERVER_PORT;
 		int	i, j, server_len, client_len;
 		SOCKET sd;
-		char* pname, * host, rbuf[MAXLEN], sbuf[MAXLEN];
+		char* host;
 		struct	hostent* hp;
 		struct	sockaddr_in server, client;
 		SYSTEMTIME stStartTime;
 		WSADATA stWSAData;
 		WORD wVersionRequested = MAKEWORD(2, 2);
-		char buff[100];
+		char buffer[64];
 
 
 		host = networkStruct->ip;
-		host = (LPSTR)"127.0.0.1";
+
 		// Initialize the DLL with version Winsock 2.2
 		WSAStartup(wVersionRequested, &stWSAData);
 
@@ -83,15 +83,15 @@ void udp_client(PVOID network)
 		}
 
 		printf("Port aasigned is %d\n", ntohs(client.sin_port));
-		sprintf_s(buff, "Port aasigned is %d\n", ntohs(client.sin_port));
-		MessageBox(networkStruct->hwnd, buff, TEXT("Client"), MB_OK);
+		sprintf_s(buffer, "Port aasigned is %d\n", ntohs(client.sin_port));
+		MessageBox(networkStruct->hwnd, buffer, TEXT("Client"), MB_OK);
 
 		if (data_size > MAXLEN)
 		{
 			fprintf(stderr, "Data is too big\n");
 			exit(1);
 		}
-		char buffer[64];
+
 
 		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
 		LPSTR messageHeader = buffer;

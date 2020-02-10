@@ -59,13 +59,11 @@ typedef struct NETWORK{
 	long endTime;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
-	LPSTR ip;
+	TCHAR ip[64];
 	LPCSTR data;
 	TCHAR filePath[100];
 	SOCKET sdClient;
 	SOCKET sdServer;
-	LPSOCKET_INFORMATION siServer;
-	LPSOCKET_INFORMATIONUDP siServerUDP;
 	DWORD numByteRead = 0;
 } NETWORK, * NETWORK_STRUC;
 
