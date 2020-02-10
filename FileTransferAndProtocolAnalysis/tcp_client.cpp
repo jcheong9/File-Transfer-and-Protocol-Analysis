@@ -12,9 +12,11 @@ void tcp_client(PVOID network) {
 	WORD wVersionRequested;
 	LPCSTR sbuf = "";
 	char buff[100];
-	GetSystemTime(&st);
-	float beginTime;
 	
+	float beginTime;
+	long num = (networkStruct->packSize) + 1;
+	LPSTR message = new TCHAR[num];
+	char buffer[64];
 
 	host = networkStruct->ip;	// Host name local host
 	port = SERVER_PORT;
@@ -64,10 +66,7 @@ void tcp_client(PVOID network) {
 		_endthread();
 	}
 	//trnasmit messages
-	long num = (networkStruct->packSize) + 1;
-	LPSTR message = new TCHAR[num];
 
-	char buffer[64];
 	memset(buffer, 0, 64);
 	GetSystemTime(&st);
 	if (networkStruct->uploaded) {

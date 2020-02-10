@@ -32,10 +32,11 @@ void udp_client(PVOID network)
 		char* pname, * host, rbuf[MAXLEN], sbuf[MAXLEN];
 		struct	hostent* hp;
 		struct	sockaddr_in server, client;
-		SYSTEMTIME stStartTime, stEndTime;
+		SYSTEMTIME stStartTime;
 		WSADATA stWSAData;
 		WORD wVersionRequested = MAKEWORD(2, 2);
 		char buff[100];
+
 
 		host = networkStruct->ip;
 		host = (LPSTR)"127.0.0.1";
@@ -112,14 +113,23 @@ void udp_client(PVOID network)
 		// Get the start time
 		GetSystemTime(&stStartTime);
 
-		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", getTimeConvertToMil(stStartTime));
+		//sent packets
+		memset(buffer, 0, 64);
+		GetSystemTime(&stStartTime);
+		if (networkStruct->uploaded) {
+			sprintf_s(buffer, "`%d~\r\n", getTimeConvertToMil(stStartTime));
+		}
+		else {
+			sprintf_s(buffer, "%d~\r\n", getTimeConvertToMil(stStartTime));
+		}
+
 		messageHeader = buffer;
+		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
 		if (sendto(sd, messageHeader, strlen(messageHeader), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 		{
 			perror("sendto failure");
 			_endthread();
 		}
-
 		//sent packets
 		memset(message, 0, networkStruct->packSize);
 		memset(message, 'a', networkStruct->packSize);
@@ -134,7 +144,8 @@ void udp_client(PVOID network)
 			for (int i = 0; i < networkStruct->timesPacketsSelection; i++) {
 				if (sendto(sd, message, strlen(message), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 				{
-					MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
+					perror("sendto failure");
+					MessageBox(networkStruct->hwnd, "sendto failure", TEXT(""), MB_OK);
 					_endthread();
 				}
 			}
@@ -142,12 +153,6 @@ void udp_client(PVOID network)
 
 		MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
-
-		//Get the end time and calculate the delay measure
-		GetSystemTime(&stEndTime);
-
-		if (strncmp(sbuf, rbuf, data_size) != 0)
-			printf("Data is corrupted\n");
 
 		closesocket(sd);
 		WSACleanup();

@@ -6,7 +6,6 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
 DWORD WINAPI WorkerThread(LPVOID lpParameter);
-int firstMessage = 1;
 
 SOCKET AcceptSocket;
 NETWORK* networkStruct;
@@ -111,6 +110,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
     DWORD RecvBytes;
     char buff[100];
     string str;
+    string beginTimeFromClient;
     int n;
     LPSTR messageHeader;
 
@@ -179,8 +179,6 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             n = str.find("~");
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
             char buffer[64];
-            memset(buffer, 0, 64);
-            sprintf_s(buffer, "\r\Server Recieved Time for first message: %d\r\n", clock());
             messageHeader = buffer;
             writeToFile(messageHeader, networkStruct);
             memset(buffer, 0, 64);
@@ -189,11 +187,15 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
             //process the header sent from client
             if (str.find("`") != -1) {
+                str = SocketInfo->DataBuf.buf;
+                int indexStr = n - 1;
+                beginTimeFromClient = str.substr(1, indexStr);
+                str = str.substr(1, SocketInfo->DataBuf.len-1);
                 writeToFile(SocketInfo->DataBuf.buf, networkStruct);
                 writeToFile((LPSTR)("\r\n----------------\r\n"), networkStruct);
             }
             else {
-
+                beginTimeFromClient = str.substr(0, n);
                 str = str.substr(0, n);
                 memset(buffer, 0, 64);
                 strcpy(buffer, str.c_str());
@@ -201,11 +203,11 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
                 writeToFile(messageHeader, networkStruct);
                 writeToFile((LPSTR)("\r\n----------------\r\n"), networkStruct);
             }
+            networkStruct->startTime = stol(beginTimeFromClient);
 
-            //MessageBox(networkStruct->hwnd, TEXT("NO Error"), TEXT("Server"), MB_OK);
         }
 
-        sprintf_s(buff, "Socket %u connected\n", AcceptSocket);
+        sprintf_s(buff, "Socket %d connected\n", (int)AcceptSocket);
         MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
 
        
@@ -311,7 +313,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 
             GetSystemTime(&stStartTime);
             networkStruct->endTime = getTimeConvertToMil(stStartTime);
-            sprintf_s(buff, "\r\nEnding Time from server %d\r\n", networkStruct->endTime);
+            sprintf_s(buff, "\r\nEnding Time from server %dms\r\n", networkStruct->endTime);
             LPSTR messageHeader2 = buff;
             writeToFile(messageHeader2, networkStruct);
         }

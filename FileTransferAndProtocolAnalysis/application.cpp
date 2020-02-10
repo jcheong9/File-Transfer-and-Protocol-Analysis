@@ -462,11 +462,14 @@ int checkIpInput() {
 void processEndData() {
 	char buff[100];
 	SYSTEMTIME stStartTime;
+	long duration;
+
 	writeToFile((LPSTR)("\r\n----------------\r\n"), &network);
 	writeToFile((LPSTR)("\r\n Number of Received Packets:\r\n"), &network);
 	writeToFile(LPSTR(to_string(network.numPackRecv).c_str()), &network);
-	GetSystemTime(&stStartTime);
-	sprintf_s(buff, "\r\nEnding Time from server %d\r\n", getTimeConvertToMil(stStartTime));
+
+	duration = network.endTime - network.startTime;
+	sprintf_s(buff, "\r\nTransfer time from client to last message received from server: %dms\r\n", duration);
 	LPSTR messageHeader2 = buff;
 	writeToFile(messageHeader2, &network);
 	//writeToFile(,network);

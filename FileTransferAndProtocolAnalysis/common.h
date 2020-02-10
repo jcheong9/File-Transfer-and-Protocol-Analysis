@@ -55,8 +55,8 @@ typedef struct NETWORK{
 	int packSize;
 	int numPackRecv = 0;
 	int uploaded = 0;
-	long startTime = 0;
-	long endTime = 0;
+	long startTime;
+	long endTime;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	LPSTR ip;
