@@ -41,7 +41,11 @@ void udp_client(PVOID network)
 		host = networkStruct->ip;
 
 		// Initialize the DLL with version Winsock 2.2
-		WSAStartup(wVersionRequested, &stWSAData);
+		if (WSAStartup(wVersionRequested, &stWSAData) != 0) {
+			MessageBox(networkStruct->hwnd, "DLL not found!\n", TEXT("Client"), MB_OK);
+			PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
+			_endthread();
+		}
 
 		// Create a datagram socket
 		if ((sd = socket(PF_INET, SOCK_DGRAM, 0)) == -1)

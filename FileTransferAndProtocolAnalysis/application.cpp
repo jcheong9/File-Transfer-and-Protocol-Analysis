@@ -360,7 +360,6 @@ int connect(HWND hwnd, LPCSTR fileData) {
 		}
 		else {
 			if (checkPackInput()) {
-
 				if (network.selectedProtocal) {
 					//udp server
 					serverThread = (HANDLE)_beginthread(serverMainUDP, 1, &network);
@@ -368,9 +367,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 				else {
 					serverThread = (HANDLE)_beginthread(serverMainTCP, 1, &network);
 				}
-
 			}
-
 			return 1;
 		}
 	}
@@ -395,7 +392,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	ofn.nFilterIndex = 1;
 
 	GetOpenFileNameA(&ofn);
-	strcmp(uploadData->filePath, ofn.lpstrFile);
+	int n = strcmp(uploadData->filePath, ofn.lpstrFile);
 
 	MessageBox(NULL, uploadData->filePath, "", MB_OK);
 	ifstream infile(ofn.lpstrFile);
@@ -421,16 +418,22 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	}
 	uploadData->data = (LPCSTR)buffer;
 	MessageBox(NULL, TEXT(buffer), "", MB_OK);
-
+	GlobalFree(buffer);
 	return 1;
 }
 
 void disconnect(HWND hwnd) {
+	network.numByteRead = 0;
 	if (portparma.selectServerClient) {
 		disconnectSocketClient(&network.sdClient);	//disconnect client
 	}
 	else {
-		disconnectSocketServerTCP(network.sdServer); //disconnect server
+		if (network.selectedProtocal) {
+			disconnectSocketServerUDP(network.sdServer);
+		}
+		else {
+			disconnectSocketServerTCP(network.sdServer); //disconnect server
+		}
 	}
 }
 
@@ -467,16 +470,13 @@ int checkIpInput() {
 
 void processEndData() {
 	char buff[100];
-	SYSTEMTIME stStartTime;
-	long duration;
+	long duration = network.endTime - network.startTime;
 
 	writeToFile((LPSTR)("\r\n----------------\r\n"), &network);
 	writeToFile((LPSTR)("\r\n Number of Received Packets:\r\n"), &network);
 	writeToFile(LPSTR(to_string(network.numPackRecv).c_str()), &network);
 
-	duration = network.endTime - network.startTime;
 	sprintf_s(buff, "\r\nTransfer time from client to last message received from server: %dms\r\n", duration);
 	LPSTR messageHeader2 = buff;
 	writeToFile(messageHeader2, &network);
-	//writeToFile(,network);
 }

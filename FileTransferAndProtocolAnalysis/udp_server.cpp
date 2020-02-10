@@ -96,8 +96,6 @@ void serverMainUDP(PVOID network)
         return;
     }
 
-    wprintf(L"Listening for incoming datagrams on port=%d\n", SERVER_PORT);
-
 
 
     while (networkStructUDP->connected)
@@ -147,7 +145,9 @@ void serverMainUDP(PVOID network)
 
     WSACloseEvent(SocketInfo->Overlapped.hEvent);
     closesocket(RecvSocket);
-
+    if (SocketInfo != NULL) {
+        GlobalFree(SocketInfo);
+    }
 
     //---------------------------------------------
     // Clean up and quit.
@@ -182,15 +182,15 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 
     if (BytesTransferred == 0)
     {
-        //printf("Closing socket %d\n", SI->Socket);
-        sprintf_s(buff, "Closing socket %u\n", SI->Socket);
+        int n = SI->Socket;
+        sprintf_s(buff, "Closing socket %u\n", n);
         MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
     {
         closesocket(SI->Socket);
-        GlobalFree(SI);
+        //GlobalFree(SI);
         return;
     }
 
@@ -296,3 +296,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     }
 }
 
+void disconnectSocketServerUDP(SOCKET si) {
+    closesocket(si);
+    WSACleanup();
+}

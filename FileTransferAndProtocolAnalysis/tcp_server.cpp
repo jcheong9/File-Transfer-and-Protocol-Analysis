@@ -104,7 +104,7 @@ void serverMainTCP(PVOID network)
 DWORD WINAPI WorkerThread(LPVOID lpParameter)
 {
     DWORD Flags;
-    LPSOCKET_INFORMATION SocketInfo;
+    LPSOCKET_INFORMATION SocketInfo = NULL;
     WSAEVENT EventArray[1];
     DWORD Index;
     DWORD RecvBytes;
@@ -118,7 +118,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
     EventArray[0] = (WSAEVENT)lpParameter;
 
-    while (TRUE)
+    while (networkStruct->connected)
     {
         // Wait for accept() to signal an event and also process WorkerRoutine() returns.
 
@@ -169,7 +169,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             {
                 //printf("WSARecv() failed with error %d\n", WSAGetLastError());
                 sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+                //MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
                 return FALSE;
             }
         }
@@ -211,7 +211,9 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
        
     }
-
+    if (SocketInfo != NULL) {
+        GlobalFree(SocketInfo);
+    }
     return TRUE;
 }
 
@@ -236,14 +238,15 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     if (BytesTransferred == 0)
     {
         //printf("Closing socket %d\n", SI->Socket);
-        sprintf_s(buff, "Closing socket %u\n", SI->Socket);
+        int num = SI->Socket;
+        sprintf_s(buff, "Closing socket %d\n", num);
         MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
     {
         closesocket(SI->Socket);
-        GlobalFree(SI);
+        //GlobalFree(SI);
         return;
     }
 
