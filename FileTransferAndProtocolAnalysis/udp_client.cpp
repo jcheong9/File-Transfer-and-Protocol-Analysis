@@ -20,8 +20,7 @@
 --  response (echo) is also time stamped and the delay is displayed.
 ---------------------------------------------------------------------------------------*/
 #include "udp_client.h"
-	/*----------- Function Prototypes ------------------------*/
-	long delay(SYSTEMTIME t1, SYSTEMTIME t2);
+
 
 struct	sockaddr_in  serverStrucUDP, clientStrucUDP;
 void udp_client(PVOID network)
@@ -96,8 +95,7 @@ void udp_client(PVOID network)
 		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
 		LPSTR messageHeader = buffer;
 
-		// Get the start time
-		GetSystemTime(&stStartTime);
+
 
 		// transmit data
 		server_len = sizeof(server);
@@ -111,7 +109,10 @@ void udp_client(PVOID network)
 			send(networkStruct->sdClient, "`", strlen("`"), 0);
 		}
 
-		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
+		// Get the start time
+		GetSystemTime(&stStartTime);
+
+		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", getTimeConvertToMil(stStartTime));
 		messageHeader = buffer;
 		if (sendto(sd, messageHeader, strlen(messageHeader), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 		{
@@ -144,7 +145,6 @@ void udp_client(PVOID network)
 
 		//Get the end time and calculate the delay measure
 		GetSystemTime(&stEndTime);
-		printf("Round-trip delay = %ld ms.\n", delay(stStartTime, stEndTime));
 
 		if (strncmp(sbuf, rbuf, data_size) != 0)
 			printf("Data is corrupted\n");
@@ -152,15 +152,4 @@ void udp_client(PVOID network)
 		closesocket(sd);
 		WSACleanup();
 	}
-
-	// Compute the delay between tl and t2 in milliseconds
-	long delay(SYSTEMTIME t1, SYSTEMTIME t2)
-	{
-		long d;
-
-		d = (t2.wSecond - t1.wSecond) * 1000;
-		d += (t2.wMilliseconds - t1.wMilliseconds);
-		return(d);
-	}
-
 

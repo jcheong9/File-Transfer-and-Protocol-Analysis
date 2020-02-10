@@ -92,11 +92,6 @@ string convert(LPCSTR str) {
     return std::string(str);
 }
 
-void disconnectSocketServer(LPSOCKET_INFORMATION siServer) {
-    closesocket(siServer->Socket);
-    GlobalFree(siServer);
-}
-
 long getTimeConvertToMil(SYSTEMTIME t1) {
     long d;
 

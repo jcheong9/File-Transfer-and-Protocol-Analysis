@@ -10,5 +10,5 @@ void serverMain(PVOID portParma);
 //void processReceiveData(LPSTR data);
 //string convert(LPCSTR str);
 //int loadSaveFile(LPSTR data);
-//void disconnectSocketServer(LPSOCKET_INFORMATION siServer);
+void disconnectSocketServer(SOCKET siServer);
 

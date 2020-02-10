@@ -69,11 +69,14 @@ void tcp_client(PVOID network) {
 
 	char buffer[64];
 	memset(buffer, 0, 64);
+	GetSystemTime(&st);
 	if (networkStruct->uploaded) {
-		send(networkStruct->sdClient, "`", strlen("`"), 0);
+		sprintf_s(buffer, "`%d~\r\n", getTimeConvertToMil(st));
+	}
+	else {
+		sprintf_s(buffer, "%d~\r\n", getTimeConvertToMil(st));
 	}
 
-	sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
 	LPSTR messageHeader = buffer;
 	send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
 

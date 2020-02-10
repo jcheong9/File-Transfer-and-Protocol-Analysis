@@ -55,12 +55,15 @@ typedef struct NETWORK{
 	int packSize;
 	int numPackRecv = 0;
 	int uploaded = 0;
+	long startTime = 0;
+	long endTime = 0;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	LPSTR ip;
 	LPCSTR data;
 	TCHAR filePath[100];
 	SOCKET sdClient;
+	SOCKET sdServer;
 	LPSOCKET_INFORMATION siServer;
 	LPSOCKET_INFORMATIONUDP siServerUDP;
 	DWORD numByteRead = 0;
