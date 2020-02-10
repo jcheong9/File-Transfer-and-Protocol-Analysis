@@ -96,8 +96,6 @@ void serverMainUDP(PVOID network)
         return;
     }
 
-
-
     while (networkStructUDP->connected)
     {
         SocketInfo->BytesSEND = 0;
@@ -138,8 +136,8 @@ void serverMainUDP(PVOID network)
 
         }
     }
-    MessageBox(networkStructUDP->hwnd, TEXT("Finished receiving. Closing socket.\n"), TEXT("Server"), MB_OK);
-
+    MessageBox(networkStructUDP->hwnd, TEXT("Finished received. Closing socket.\n"), TEXT("Server"), MB_OK);
+	PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
     //---------------------------------------------
     // When the application is finished receiving, close the socket.
 
@@ -177,14 +175,14 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     {
         printf("I/O operation failed with error %d\n", Error);
         sprintf_s(buff, "I/O operation failed with error %d\n", Error);
-        MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
+        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (BytesTransferred == 0)
     {
         int n = SI->Socket;
         sprintf_s(buff, "Closing socket %u\n", n);
-        MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
+        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)

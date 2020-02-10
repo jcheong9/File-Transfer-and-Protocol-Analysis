@@ -36,7 +36,7 @@ void udp_client(PVOID network)
 		WSADATA stWSAData;
 		WORD wVersionRequested = MAKEWORD(2, 2);
 		char buffer[64];
-
+		LPSTR messageHeader;
 
 		host = networkStruct->ip;
 
@@ -86,7 +86,6 @@ void udp_client(PVOID network)
 			exit(1);
 		}
 
-		printf("Port aasigned is %d\n", ntohs(client.sin_port));
 		sprintf_s(buffer, "Port aasigned is %d\n", ntohs(client.sin_port));
 		MessageBox(networkStruct->hwnd, buffer, TEXT("Client"), MB_OK);
 
@@ -96,31 +95,17 @@ void udp_client(PVOID network)
 			exit(1);
 		}
 
-
-		sprintf_s(buffer, "\r\nBegining Time From Client %d~\r\n", clock());
-		LPSTR messageHeader = buffer;
-
-
-
-		// transmit data
 		server_len = sizeof(server);
-
-
 		long num = (networkStruct->packSize) + 1;
 		LPSTR message = new TCHAR[num];
-
-		memset(buffer, 0, 64);
-		if (networkStruct->uploaded) {
-			send(networkStruct->sdClient, "`", strlen("`"), 0);
-		}
 
 		// Get the start time
 		GetSystemTime(&stStartTime);
 
-		//sent packets
+		//sent header packets of the time
 		memset(buffer, 0, 64);
 		GetSystemTime(&stStartTime);
-		if (networkStruct->uploaded) {
+		if (networkStruct->uploaded) { // check if the file is uploaded
 			sprintf_s(buffer, "`%d~\r\n", getTimeConvertToMil(stStartTime));
 		}
 		else {
@@ -128,13 +113,13 @@ void udp_client(PVOID network)
 		}
 
 		messageHeader = buffer;
-		send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
+
 		if (sendto(sd, messageHeader, strlen(messageHeader), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 		{
 			perror("sendto failure");
 			_endthread();
 		}
-		//sent packets
+		//sent packets size
 		memset(message, 0, networkStruct->packSize);
 		memset(message, 'a', networkStruct->packSize);
 		if (networkStruct->uploaded) {
@@ -155,7 +140,7 @@ void udp_client(PVOID network)
 			}
 		}
 
-		MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
+		MessageBox(networkStruct->hwnd, "Transmition Completed, Closing socket.", TEXT("Client"), MB_OK);
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 
 		closesocket(sd);
