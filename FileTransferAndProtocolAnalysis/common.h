@@ -41,29 +41,23 @@ typedef struct _SOCKET_INFORMATIONUDP {
 	DWORD BytesRECV;
 } SOCKET_INFORMATIONUDP, * LPSOCKET_INFORMATIONUDP;
 
-typedef struct
-{
-	int selectServerClient = 0; //0 is server, 1 is client
-
-} PORTPARMA;
-
 typedef struct NETWORK{
+	int selectServerClient = 0;
 	int packetMessage = 0;		//0 no packet message
 	int selectedProtocal = 0;   //0 is tcp, 1 is udp
 	int connected = 1;			//0 is disconnect, 1 is connect
 	int timesPacketsSelection = 10;
-	int packSize;
+	int packSize = NULL;
 	int numPackRecv = 0;
-	int uploaded = 0;
-	long startTime;
-	long endTime;
+	int uploaded = 0;			//0 not upload file
+	long startTime = 0;
+	long endTime = 0;
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	TCHAR ip[64];
 	LPCSTR data;
 	TCHAR filePath[100];
-	SOCKET sdClient;
-	SOCKET sdServer;
+	SOCKET sdServer = NULL;
 	DWORD numByteRead = 0;
 } NETWORK, * NETWORK_STRUC;
 

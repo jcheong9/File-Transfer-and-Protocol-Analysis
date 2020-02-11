@@ -39,18 +39,10 @@ HWND radioBtnTCP;
 HWND radioBtnUDP;
 HWND radioBtnTenTimes;
 HWND radioBtnHundredTimes;
-
 HWND textHwndLabel2;
-
-
-PORTPARMA portparma;
 NETWORK network;
-
 HDC hdc;
-HANDLE serverThread = NULL;
-HANDLE clientThread = NULL;
 
-static unsigned k = 0;
 static TCHAR Name[] = TEXT("Basic Window Socket");
 static HBRUSH startBackGroundColor = CreateSolidBrush(RGB(255, 255, 255));
 
@@ -149,6 +141,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 		205, 165, 250, 20, network.hwnd, NULL, NULL, NULL);
 
+	SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
+	SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
+	SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
+	ShowWindow(hInput2, SW_HIDE);
+	ShowWindow(textHwndLabel2, SW_HIDE);
+	EnableMenuItem(GetMenu(network.hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
+
 	ShowWindow(network.hwnd, nCmdShow);
 	UpdateWindow(network.hwnd);
 	//void WINAPI ThreadFuc(HWND hwnd, LPVOID n); //second thread
@@ -191,14 +190,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	case WM_CREATE: //creates the labels, text fields and buttons
 
 
-		
-		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
-		SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
-		SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
-		ShowWindow(hInput2, SW_HIDE);
-		ShowWindow(textHwndLabel2, SW_HIDE);
-		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
-		
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
@@ -222,7 +213,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		case ID_UPLOAD:
 			network.uploaded = upload_file(hwnd, &network);
-
 			break;
 
 		case ID_EXIT:
@@ -236,7 +226,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
 			ShowWindow(hInput2, SW_HIDE);
 			ShowWindow(textHwndLabel2, SW_HIDE);
-			portparma.selectServerClient = 0;
+			network.selectServerClient = 0;
 			break;
 
 		case ID_CLIENT_BTN:
@@ -244,7 +234,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
 			ShowWindow(textHwndLabel2, SW_RESTORE);
 			ShowWindow(hInput2, SW_RESTORE);
-			portparma.selectServerClient = 1;
+			network.selectServerClient = 1;
 			break;
 
 		case ID_TCP_BTN:
@@ -273,6 +263,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		}
 		break;
 	case WM_FAILED_CONNECT:
+		if (network.connected) {
+			disconnect(hwnd);
+			processEndData();
+			network.numPackRecv = 0;
+			network.connected = 0;
+		}
 		EnableMenuItem(GetMenu(hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 		EnableMenuItem(GetMenu(hwnd), ID_CONNECT, MF_ENABLED);
 		break;
@@ -296,13 +292,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 int connect(HWND hwnd, LPCSTR fileData) {
 	if (checkPackInput()) {
-		if (portparma.selectServerClient) {
+		if (network.selectServerClient) {
 			if (checkIpInput()) {
 				if (network.selectedProtocal) { // 0 is tcp, 1 is UDP
-					clientThread = (HANDLE)_beginthread(udp_client, 1, &network);
+					_beginthread(udp_client, 1, &network);
 				}
 				else {
-					clientThread = (HANDLE)_beginthread(tcp_client, 1, &network);
+					_beginthread(tcp_client, 1, &network);
 				}
 				return 1;
 			}
@@ -314,10 +310,10 @@ int connect(HWND hwnd, LPCSTR fileData) {
 			if (checkPackInput()) {
 				if (network.selectedProtocal) {
 					//udp server
-					serverThread = (HANDLE)_beginthread(serverMainUDP, 1, &network);
+					_beginthread(serverMainUDP, 1, &network);
 				}
 				else {
-					serverThread = (HANDLE)_beginthread(serverMainTCP, 1, &network);
+					_beginthread(serverMainTCP, 1, &network);
 				}
 			}
 			return 1;
@@ -346,7 +342,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	GetOpenFileNameA(&ofn);
 	int n = strcmp(uploadData->filePath, ofn.lpstrFile);
 
-	MessageBox(NULL, uploadData->filePath, "", MB_OK);
+	//MessageBox(NULL, uploadData->filePath, "", MB_OK);
 	ifstream infile(ofn.lpstrFile);
 	string line;
 	stringstream stream;
@@ -369,17 +365,18 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 		return 0;
 	}
 	uploadData->data = (LPCSTR)buffer;
-	MessageBox(NULL, TEXT(buffer), "", MB_OK);
+	//MessageBox(NULL, TEXT(buffer), "", MB_OK);
+	MessageBox(NULL, "Uploaded", "", MB_OK);
 	GlobalFree(buffer);
 	return 1;
 }
 
 void disconnect(HWND hwnd) {
-	network.numByteRead = 0;
-	if (portparma.selectServerClient) {
-		disconnectSocketClient(&network.sdClient);	//disconnect client
+	if (!network.connected) {
+		network.data = NULL;
 	}
-	else {
+	network.numByteRead = 0;
+	if (network.selectServerClient) {
 		if (network.selectedProtocal) {
 			disconnectSocketServerUDP(network.sdServer);
 		}
@@ -391,11 +388,11 @@ void disconnect(HWND hwnd) {
 
 int checkPackInput() {
 	int inputPacketLength;
-	TCHAR inputPacket[255];
-	GetWindowText(inputPacketSizeLabel, str, 255);
+	TCHAR inputPacket[64];
+	GetWindowText(inputPacketSizeLabel, str, 64);
 	if (GetWindowTextLengthA(inputPacketSizeLabel) != 0) {
 		inputPacketLength = GetWindowTextLengthA(inputPacketSizeLabel);
-		GetWindowText(inputPacketSizeLabel, inputPacket, 255);
+		GetWindowText(inputPacketSizeLabel, inputPacket, 64);
 		network.packSize = atoi(inputPacket);
 		return 1;
 	}

@@ -30,7 +30,6 @@ void serverMainTCP(PVOID network)
         _endthread();
     }
 
-
     if ((ListenSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0,
         WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET)
     {
@@ -38,7 +37,6 @@ void serverMainTCP(PVOID network)
         MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
         _endthread();
     }
-
 
     InternetAddr.sin_family = AF_INET;
     InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -99,6 +97,8 @@ void serverMainTCP(PVOID network)
             return;
         }
     }
+    closesocket(ListenSocket);
+    WSACleanup();
 }
 
 DWORD WINAPI WorkerThread(LPVOID lpParameter)
@@ -169,7 +169,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             {
                 //printf("WSARecv() failed with error %d\n", WSAGetLastError());
                 sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                //MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+                MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
                 return FALSE;
             }
         }

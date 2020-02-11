@@ -109,8 +109,3 @@ int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
 }
 
 
-void disconnectSocketClient(SOCKET* sd) {
-	setsockopt(*sd, SOL_SOCKET, SO_LINGER, NULL, NULL);
-	closesocket(*sd);
-	WSACleanup();
-}
