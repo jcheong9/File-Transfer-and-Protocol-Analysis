@@ -244,9 +244,10 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
                 str = SI->DataBuf.buf;
                 int indexStr = n - 1;
                 beginTimeFromClient = str.substr(1, indexStr);
-                str = str.substr(1, SI->DataBuf.len - 1);
                 networkStructUDP->uploaded = 1;
-                writeToFile(SI->DataBuf.buf, networkStructUDP);
+                memset(buff, 0, 64);
+                strcpy(buff, beginTimeFromClient.c_str());
+                writeToFile(buff, networkStructUDP);
                 writeToFile((LPSTR)("\r\n----------------\r\n"), networkStructUDP);
             }
             else {
@@ -261,9 +262,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             networkStructUDP->startTime = stol(beginTimeFromClient);
             firstPacket = 0;
         }
-        else if (networkStructUDP->uploaded) {
-            writeToFile(SI->DataBuf.buf, networkStructUDP);
-        }
+   
 
         // Now that there are no more bytes to send post another WSARecv() request.
 
@@ -284,7 +283,10 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
         else {
             ++networkStructUDP->numPackRecv;
             networkStructUDP->numByteRead = networkStructUDP->numByteRead + RecvBytes;
-
+            if (networkStructUDP->uploaded) {
+                writeToFile((LPSTR)("\r\nReceived Data:\r\n"), networkStructUDP);
+                writeToFile(SI->DataBuf.buf, networkStructUDP);
+            }
 
             writeToFile((LPSTR)("\r\nReceiving Bytes Callback:\r\n"), networkStructUDP);
             writeToFile(LPSTR(to_string(networkStructUDP->numByteRead).c_str()), networkStructUDP);

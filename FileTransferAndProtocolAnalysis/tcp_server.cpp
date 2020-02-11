@@ -97,8 +97,10 @@ void serverMainTCP(PVOID network)
             return;
         }
     }
+    closesocket(AcceptSocket);
     closesocket(ListenSocket);
     WSACleanup();
+    _endthread();
 }
 
 DWORD WINAPI WorkerThread(LPVOID lpParameter)
@@ -108,7 +110,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
     WSAEVENT EventArray[1];
     DWORD Index;
     DWORD RecvBytes;
-    char buff[100];
+    char buffer[64];
     string str;
     string beginTimeFromClient;
     int n;
@@ -121,7 +123,6 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
     while (networkStruct->connected)
     {
         // Wait for accept() to signal an event and also process WorkerRoutine() returns.
-
         while (TRUE)
         {
             Index = WSAWaitForMultipleEvents(1, EventArray, FALSE, WSA_INFINITE, TRUE);
@@ -168,8 +169,8 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
                 //printf("WSARecv() failed with error %d\n", WSAGetLastError());
-                sprintf_s(buff, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(networkStruct->hwnd, buff, TEXT("Server"), MB_OK);
+                sprintf_s(buffer, "WSARecv() failed with error %d\n", WSAGetLastError());
+                MessageBox(networkStruct->hwnd, buffer, TEXT("Server"), MB_OK);
                 return FALSE;
             }
         }
@@ -177,9 +178,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             str = SocketInfo->DataBuf.buf;
             n = str.find("~");
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
-            char buffer[64];
-            messageHeader = buffer;
-            writeToFile(messageHeader, networkStruct);
+
             memset(buffer, 0, 64);
             sprintf_s(buffer, "\r\Begining Time From Client:\r\n");
             writeToFile(buffer, networkStruct);
@@ -192,6 +191,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
                 str = str.substr(1, SocketInfo->DataBuf.len-1);
                 writeToFile(SocketInfo->DataBuf.buf, networkStruct);
                 writeToFile((LPSTR)("\r\n----------------\r\n"), networkStruct);
+
             }
             else {
                 beginTimeFromClient = str.substr(0, n);
@@ -206,8 +206,8 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 
         }
 
-        sprintf_s(buff, "Socket %d connected\n", (int)AcceptSocket);
-        MessageBox(networkStruct->hwnd, buff, TEXT(""), MB_OK);
+        sprintf_s(buffer, "Socket %d connected\n", (int)AcceptSocket);
+        MessageBox(networkStruct->hwnd, buffer, TEXT(""), MB_OK);
 
        
     }

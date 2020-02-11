@@ -12,8 +12,6 @@ void tcp_client(PVOID network) {
 	SOCKET sdClient;
 	WORD wVersionRequested;
 	LPCSTR sbuf = "";
-	char buff[100];
-	
 	float beginTime;
 	long num = (networkStruct->packSize) + 1;
 	LPSTR message = new TCHAR[num];
@@ -61,8 +59,8 @@ void tcp_client(PVOID network) {
 	// Connecting to the server
 	if (connect(sdClient, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
-		sprintf_s(buff, "Can't connect to server\n");
-		MessageBox(networkStruct->hwnd, buff, TEXT("Client"), MB_OK);
+		sprintf_s(buffer, "Can't connect to server\n");
+		MessageBox(networkStruct->hwnd, buffer, TEXT("Client"), MB_OK);
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 		_endthread();
 	}
@@ -95,7 +93,7 @@ void tcp_client(PVOID network) {
 			}
 		}
 	}
-
+	delete[] message;
 	closesocket(sdClient);
 	WSACleanup();
 	MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);

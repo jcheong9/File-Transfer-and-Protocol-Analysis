@@ -42,7 +42,7 @@ HWND radioBtnHundredTimes;
 HWND textHwndLabel2;
 NETWORK network;
 HDC hdc;
-
+LPSTR bufferGlobalAlloc;
 static TCHAR Name[] = TEXT("Basic Window Socket");
 static HBRUSH startBackGroundColor = CreateSolidBrush(RGB(255, 255, 255));
 
@@ -280,6 +280,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 	case WM_DESTROY:		// message to terminate the program
 		disconnect(hwnd);
+		processEndData();
 		SendMessage(hwnd, NULL, FD_CLOSE, NULL);
 		PostQuitMessage(0);
 		break;
@@ -342,7 +343,6 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	GetOpenFileNameA(&ofn);
 	int n = strcmp(uploadData->filePath, ofn.lpstrFile);
 
-	//MessageBox(NULL, uploadData->filePath, "", MB_OK);
 	ifstream infile(ofn.lpstrFile);
 	string line;
 	stringstream stream;
@@ -358,22 +358,28 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	HANDLE file = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	DWORD fileSize = GetFileSize(file, NULL);
 	long num = fileSize + 1;
-	LPSTR buffer = (LPSTR)GlobalAlloc(GPTR, num);
+	if (bufferGlobalAlloc == NULL) {
+		bufferGlobalAlloc = (LPSTR)GlobalAlloc(GPTR, num);
+	}
+	else {
+		GlobalFree(bufferGlobalAlloc);
+		bufferGlobalAlloc = (LPSTR)GlobalAlloc(GPTR, num);
+	}
 	DWORD read;
-	if (!ReadFile(file, buffer, fileSize, &read, NULL)) {
+	if (!ReadFile(file, bufferGlobalAlloc, fileSize, &read, NULL)) {
 		MessageBox(NULL, TEXT("Failed to read the file"), "", MB_OK);
 		return 0;
 	}
-	uploadData->data = (LPCSTR)buffer;
+	uploadData->data = (LPCSTR)bufferGlobalAlloc;
 	//MessageBox(NULL, TEXT(buffer), "", MB_OK);
 	MessageBox(NULL, "Uploaded", "", MB_OK);
-	GlobalFree(buffer);
+	//GlobalFree(buffer);
 	return 1;
 }
 
 void disconnect(HWND hwnd) {
 	if (!network.connected) {
-		network.data = NULL;
+		delete network.data;
 	}
 	network.numByteRead = 0;
 	if (network.selectServerClient) {

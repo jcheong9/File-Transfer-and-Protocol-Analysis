@@ -36,8 +36,12 @@ void udp_client(PVOID network)
 		WORD wVersionRequested = MAKEWORD(2, 2);
 		char buffer[64];
 		LPSTR messageHeader;
+		long num = (networkStruct->packSize) + 1;
+		int numFile;
+		LPSTR message = new TCHAR[num];
 
 		host = networkStruct->ip;
+
 
 		// Initialize the DLL with version Winsock 2.2
 		if (WSAStartup(wVersionRequested, &stWSAData) != 0) {
@@ -95,8 +99,6 @@ void udp_client(PVOID network)
 		}
 
 		server_len = sizeof(server);
-		long num = (networkStruct->packSize) + 1;
-		LPSTR message = new TCHAR[num];
 
 		// Get the start time
 		GetSystemTime(&stStartTime);
@@ -119,14 +121,21 @@ void udp_client(PVOID network)
 			_endthread();
 		}
 		//sent packets size
-		memset(message, 0, networkStruct->packSize);
-		memset(message, 'a', networkStruct->packSize);
+		memset(message, 0, num);
+		memset(message, 'a', num);	
+
 		if (networkStruct->uploaded) {
-			if (sendto(sd, networkStruct->data, strlen(networkStruct->data), 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
+			string strFile = convert(networkStruct->data);
+			numFile = strFile.length() + 1;
+			LPSTR uploadMessage = new TCHAR[numFile];
+			memset(uploadMessage, 0, numFile);
+			strncpy(uploadMessage, strFile.c_str(),numFile);
+			if (sendto(sd, uploadMessage, numFile, 0, (struct sockaddr*) & server, server_len) == SOCKET_ERROR)
 			{
 				perror("sendto failure");
 				_endthread();
 			}
+			delete[] uploadMessage;
 		}
 		else {
 			for (int i = 0; i < networkStruct->timesPacketsSelection; i++) {
@@ -141,7 +150,8 @@ void udp_client(PVOID network)
 
 		MessageBox(networkStruct->hwnd, "Transmition Completed, Closing socket.", TEXT("Client"), MB_OK);
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
-
+		
+		delete[] message;
 		closesocket(sd);
 		WSACleanup();
 		_endthread();

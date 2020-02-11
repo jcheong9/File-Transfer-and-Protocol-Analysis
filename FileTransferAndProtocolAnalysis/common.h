@@ -58,6 +58,7 @@ typedef struct NETWORK{
 	LPCSTR data;
 	TCHAR filePath[100];
 	SOCKET sdServer = NULL;
+	SOCKET AcceptSocket = NULL;
 	DWORD numByteRead = 0;
 } NETWORK, * NETWORK_STRUC;
 
