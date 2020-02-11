@@ -9,6 +9,7 @@ void tcp_client(PVOID network) {
 	struct sockaddr_in server;
 	char* host;
 	WSADATA WSAData;
+	SOCKET sdClient;
 	WORD wVersionRequested;
 	LPCSTR sbuf = "";
 	char buff[100];
@@ -33,7 +34,7 @@ void tcp_client(PVOID network) {
 	}
 
 	// Create the socket
-	if ((networkStruct->sdClient = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((sdClient = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("Cannot create socket");
 		MessageBox(networkStruct->hwnd, "Cannot create socket\n", TEXT("Client"), MB_OK);
@@ -58,7 +59,7 @@ void tcp_client(PVOID network) {
 		memcpy((char*)&server.sin_addr, hp->h_addr, hp->h_length);
 	}
 	// Connecting to the server
-	if (connect(networkStruct->sdClient, (struct sockaddr*) & server, sizeof(server)) == -1)
+	if (connect(sdClient, (struct sockaddr*) & server, sizeof(server)) == -1)
 	{
 		sprintf_s(buff, "Can't connect to server\n");
 		MessageBox(networkStruct->hwnd, buff, TEXT("Client"), MB_OK);
@@ -77,17 +78,17 @@ void tcp_client(PVOID network) {
 	}
 
 	LPSTR messageHeader = buffer;
-	send(networkStruct->sdClient, messageHeader, strlen(messageHeader), 0);
+	send(sdClient, messageHeader, strlen(messageHeader), 0);
 
 	//sent packets
 	memset(message, 0, networkStruct->packSize);
 	memset(message, 'a', networkStruct->packSize);
 	if (networkStruct->uploaded) {
-		send(networkStruct->sdClient, networkStruct->data, strlen(networkStruct->data), 0);
+		send(sdClient, networkStruct->data, strlen(networkStruct->data), 0);
 	}
 	else {
 		for (int i = 0; i < networkStruct->timesPacketsSelection; i++) {
-			if (send(networkStruct->sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
+			if (send(sdClient, message, strlen(message), 0) == SOCKET_ERROR) {
 				MessageBox(networkStruct->hwnd, "error with senting to socket", TEXT(""), MB_OK);
 				
 				_endthread();
@@ -95,10 +96,11 @@ void tcp_client(PVOID network) {
 		}
 	}
 
+	closesocket(sdClient);
+	WSACleanup();
 	MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
 	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
-	closesocket(networkStruct->sdClient);
-	WSACleanup();
+	_endthread();
 }
 
 int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {

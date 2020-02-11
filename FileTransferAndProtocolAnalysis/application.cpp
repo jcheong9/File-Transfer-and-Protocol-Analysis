@@ -29,13 +29,7 @@
 #include "application.h"
 using namespace std;
 
-//Textbox handlers for send and receive
-HWND textHwnd;
-HWND textHwndRx;
-
 //Handlers for the tables for send and receive
-HWND hWndListView;
-HWND hWndListViewRx;
 HWND hInput2;
 HWND inputPacketSizeLabel;
 HWND hwndButton;
@@ -45,12 +39,7 @@ HWND radioBtnTCP;
 HWND radioBtnUDP;
 HWND radioBtnTenTimes;
 HWND radioBtnHundredTimes;
-//HWND radioBtnPacketTrue;
-//HWND radioBtnPacketFalse;
 
-
-HWND textHwndLabel4;
-HWND textHwndLabel5;
 HWND textHwndLabel2;
 
 
@@ -187,18 +176,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 		radioBtnHundredTimes = CreateWindow(TEXT("BUTTON"), TEXT("100"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
 			350, 85, 60, 20, hwnd, (HMENU)ID_PACKETS_HUNDRED_TIMES_BTN, NULL, NULL);
-		/*
-		
-		CreateWindow("STATIC", "Packetize Message: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 105, 150, 20, hwnd, NULL, NULL, NULL);
-
-		radioBtnPacketFalse = CreateWindow(TEXT("BUTTON"), TEXT("False"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			245, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_FALSE, NULL, NULL);
-
-		radioBtnPacketTrue = CreateWindow(TEXT("BUTTON"), TEXT("True"), WS_CHILD | WS_VISIBLE | BS_RADIOBUTTON,
-			350, 105, 60, 20, hwnd, (HMENU)ID_PACKETS_TRUE, NULL, NULL);
-		
-		*/
 
 		CreateWindow("STATIC", "Enter the Packet Size: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 			30, 135, 150, 20, hwnd, NULL, NULL, NULL);
@@ -211,17 +188,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 
 		hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 			205, 165, 250, 20, hwnd, NULL, NULL, NULL);
-
-/*
-		textHwndLabel4 = CreateWindow("STATIC", "Status: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			30, 195, 100, 20, hwnd, NULL, NULL, NULL);
-
-		textHwndLabel5 = CreateWindow("STATIC", "Not Connected ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
-			205, 195, 100, 20, hwnd, NULL, NULL, NULL);
-		hwndButton = CreateWindow("BUTTON", "Send", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-			350, 215, 100, 20, hwnd, (HMENU)ID_SEND_BTN, NULL, NULL);
-
-*/
 
 		
 		SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
@@ -303,20 +269,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnHundredTimes, BM_SETCHECK, BST_CHECKED, 0);
 			network.timesPacketsSelection = 100;
 			break;
-			/*
-		case ID_PACKETS_TRUE:
-			network.packetMessage = 1;
-			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_UNCHECKED, 0);
-			SendMessage(radioBtnPacketTrue, BM_SETCHECK, BST_CHECKED, 0);
-			break;
-
-		case ID_PACKETS_FALSE:
-			network.packetMessage = 0;
-			SendMessage(radioBtnPacketFalse, BM_SETCHECK, BST_CHECKED, 0);
-			SendMessage(radioBtnPacketTrue, BM_SETCHECK, BST_UNCHECKED, 0);
-			break;
-			
-			*/
 		}
 		break;
 	case WM_FAILED_CONNECT:
@@ -342,7 +294,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 }
 
 int connect(HWND hwnd, LPCSTR fileData) {
-
 	if (checkPackInput()) {
 		if (portparma.selectServerClient) {
 			if (checkIpInput()) {

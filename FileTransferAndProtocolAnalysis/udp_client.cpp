@@ -22,12 +22,11 @@
 #include "udp_client.h"
 
 
-struct	sockaddr_in  serverStrucUDP, clientStrucUDP;
 void udp_client(PVOID network)
 {
 		NETWORK* networkStruct = (NETWORK*)network;
 		int	data_size = DEFLEN, port = SERVER_PORT;
-		int	i, j, server_len, client_len;
+		int	server_len, client_len;
 		SOCKET sd;
 		char* host;
 		struct	hostent* hp;
@@ -145,5 +144,6 @@ void udp_client(PVOID network)
 
 		closesocket(sd);
 		WSACleanup();
+		_endthread();
 	}
 
