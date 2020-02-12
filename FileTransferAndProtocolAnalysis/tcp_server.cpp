@@ -21,6 +21,7 @@ void serverMainTCP(PVOID network)
     DWORD ThreadId;
     WSAEVENT AcceptEvent;
     char buff[100];
+    int port = atoi(networkStruct->port);
     memset(buff, 0, 100);
     if ((Ret = WSAStartup(0x0202, &wsaData)) != 0)
     {
@@ -40,7 +41,7 @@ void serverMainTCP(PVOID network)
 
     InternetAddr.sin_family = AF_INET;
     InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    InternetAddr.sin_port = htons(SERVER_PORT);
+    InternetAddr.sin_port = htons(port);
 
     if (bind(ListenSocket, (PSOCKADDR)&InternetAddr,
         sizeof(InternetAddr)) == SOCKET_ERROR)

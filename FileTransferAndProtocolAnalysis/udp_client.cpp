@@ -25,7 +25,7 @@
 void udp_client(PVOID network)
 {
 		NETWORK* networkStruct = (NETWORK*)network;
-		int	data_size = DEFLEN, port = SERVER_PORT;
+		int	data_size = DEFLEN, port ;
 		int	server_len, client_len;
 		SOCKET sd;
 		char* host;
@@ -41,7 +41,7 @@ void udp_client(PVOID network)
 		LPSTR message = new TCHAR[num];
 
 		host = networkStruct->ip;
-
+		port = atoi(networkStruct->port);
 
 		// Initialize the DLL with version Winsock 2.2
 		if (WSAStartup(wVersionRequested, &stWSAData) != 0) {

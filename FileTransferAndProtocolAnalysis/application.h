@@ -50,6 +50,7 @@ void disconnect(HWND hwnd);
 int checkIpInput();
 int checkPackInput();
 void processEndData();
+int checkPortInput();
 
 
 

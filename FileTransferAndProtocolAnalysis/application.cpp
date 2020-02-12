@@ -137,16 +137,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	inputPacketSizeLabel = CreateWindow("edit", "1024", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 		205, 135, 250, 20, network.hwnd, NULL, NULL, NULL);
 
-	textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+	textHwndLabel3 = CreateWindow("STATIC", "Enter the Port: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 		30, 165, 100, 20, network.hwnd, NULL, NULL, NULL);
 
-	hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+	hInput3 = CreateWindow("edit", "5150", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 		205, 165, 250, 20, network.hwnd, NULL, NULL, NULL);
 
-	textHwndLabel3 = CreateWindow("STATIC", "Enter the Port: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+	textHwndLabel2 = CreateWindow("STATIC", "Enter the IP: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
 		30, 195, 100, 20, network.hwnd, NULL, NULL, NULL);
 
-	hInput3 = CreateWindow("edit", "5150", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+	hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 		205, 195, 250, 20, network.hwnd, NULL, NULL, NULL);
 
 	SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
@@ -154,8 +154,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 	ShowWindow(hInput2, SW_HIDE);
 	ShowWindow(textHwndLabel2, SW_HIDE);	
-	ShowWindow(hInput3, SW_HIDE);
-	ShowWindow(textHwndLabel3, SW_HIDE);
+
 	EnableMenuItem(GetMenu(network.hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 
 	ShowWindow(network.hwnd, nCmdShow);
@@ -236,8 +235,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
 			ShowWindow(hInput2, SW_HIDE);
 			ShowWindow(textHwndLabel2, SW_HIDE);
-			ShowWindow(textHwndLabel3, SW_RESTORE);
-			ShowWindow(hInput3, SW_RESTORE);
 			network.selectServerClient = 0;
 			break;
 
@@ -246,8 +243,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
 			ShowWindow(textHwndLabel2, SW_RESTORE);
 			ShowWindow(hInput2, SW_RESTORE);
-			ShowWindow(textHwndLabel3, SW_RESTORE);
-			ShowWindow(hInput3, SW_RESTORE);
+
 			network.selectServerClient = 1;
 			break;
 
@@ -308,7 +304,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 int connect(HWND hwnd, LPCSTR fileData) {
 	if (checkPackInput()) {
 		if (network.selectServerClient) {
-			if (checkIpInput()) {
+			if (checkIpInput() && checkPortInput()) {
 				if (network.selectedProtocal) { // 0 is tcp, 1 is UDP
 					_beginthread(udp_client, 1, &network);
 				}
@@ -322,7 +318,7 @@ int connect(HWND hwnd, LPCSTR fileData) {
 			}
 		}
 		else {
-			if (checkPackInput()) {
+			if (checkPackInput() && checkPortInput()) {
 				if (network.selectedProtocal) {
 					//udp server
 					_beginthread(serverMainUDP, 1, &network);

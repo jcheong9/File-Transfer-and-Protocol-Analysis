@@ -22,6 +22,7 @@ void serverMainUDP(PVOID network)
     DWORD Flags = 0;
     LPSTR messageHeader;
     string str;
+    int port = atoi(networkStructUDP->port);
 
     char buffer[64];
     int n;
@@ -72,13 +73,16 @@ void serverMainUDP(PVOID network)
     //-----------------------------------------------
     // Bind the socket to any address and the specified port.
     RecvAddr.sin_family = AF_INET;
-    RecvAddr.sin_port = htons(SERVER_PORT);
+    RecvAddr.sin_port = htons(port);
     RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     rc = bind(RecvSocket, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
     if (rc != 0) {
         /* Bind to the socket failed */
         wprintf(L"bind failed with error: %ld\n", WSAGetLastError());
+        sprintf_s(buffer, "bind() failed with error %d\n", WSAGetLastError());
+        MessageBox(networkStructUDP->hwnd, buffer, TEXT(""), MB_OK);
+        PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
         WSACloseEvent(SocketInfo->Overlapped.hEvent);
         closesocket(RecvSocket);
         WSACleanup();
