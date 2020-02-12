@@ -236,6 +236,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_UNCHECKED, 0);
 			ShowWindow(hInput2, SW_HIDE);
 			ShowWindow(textHwndLabel2, SW_HIDE);
+			ShowWindow(textHwndLabel3, SW_RESTORE);
+			ShowWindow(hInput3, SW_RESTORE);
 			network.selectServerClient = 0;
 			break;
 
@@ -244,6 +246,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			SendMessage(radioBtnClient, BM_SETCHECK, BST_CHECKED, 0);
 			ShowWindow(textHwndLabel2, SW_RESTORE);
 			ShowWindow(hInput2, SW_RESTORE);
+			ShowWindow(textHwndLabel3, SW_RESTORE);
+			ShowWindow(hInput3, SW_RESTORE);
 			network.selectServerClient = 1;
 			break;
 
