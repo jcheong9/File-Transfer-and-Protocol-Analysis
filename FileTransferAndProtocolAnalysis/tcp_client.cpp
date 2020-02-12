@@ -18,7 +18,7 @@ void tcp_client(PVOID network) {
 	char buffer[64];
 
 	host = networkStruct->ip;	// Host name local host
-	port = SERVER_PORT;
+	port = atoi(networkStruct->port);
 
 
 	wVersionRequested = MAKEWORD(2, 2);

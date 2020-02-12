@@ -31,6 +31,7 @@ using namespace std;
 
 //Handlers for the tables for send and receive
 HWND hInput2;
+HWND hInput3;
 HWND inputPacketSizeLabel;
 HWND hwndButton;
 HWND radioBtnClient;
@@ -40,6 +41,7 @@ HWND radioBtnUDP;
 HWND radioBtnTenTimes;
 HWND radioBtnHundredTimes;
 HWND textHwndLabel2;
+HWND textHwndLabel3;
 NETWORK network;
 HDC hdc;
 LPSTR bufferGlobalAlloc;
@@ -141,11 +143,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 	hInput2 = CreateWindow("edit", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
 		205, 165, 250, 20, network.hwnd, NULL, NULL, NULL);
 
+	textHwndLabel3 = CreateWindow("STATIC", "Enter the Port: ", WS_VISIBLE | WS_CHILD | SS_LEFT | ES_READONLY,
+		30, 195, 100, 20, network.hwnd, NULL, NULL, NULL);
+
+	hInput3 = CreateWindow("edit", "5150", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
+		205, 195, 250, 20, network.hwnd, NULL, NULL, NULL);
+
 	SendMessage(radioBtnServer, BM_SETCHECK, BST_CHECKED, 0);
 	SendMessage(radioBtnTCP, BM_SETCHECK, BST_CHECKED, 0);
 	SendMessage(radioBtnTenTimes, BM_SETCHECK, BST_CHECKED, 0);
 	ShowWindow(hInput2, SW_HIDE);
-	ShowWindow(textHwndLabel2, SW_HIDE);
+	ShowWindow(textHwndLabel2, SW_HIDE);	
+	ShowWindow(hInput3, SW_HIDE);
+	ShowWindow(textHwndLabel3, SW_HIDE);
 	EnableMenuItem(GetMenu(network.hwnd), ID_DISCONNECT, MF_DISABLED | MF_GRAYED);
 
 	ShowWindow(network.hwnd, nCmdShow);
@@ -415,6 +425,23 @@ int checkIpInput() {
 		inputIPLength = GetWindowTextLengthA(hInput2);
 		GetWindowText(hInput2, inputIP, 64);
 		strcpy(network.ip, inputIP);
+		//network.ip = inputIP;
+		return 1;
+	}
+	else {
+	}
+	return 0;
+}
+
+int checkPortInput() {
+	int inputIPLength;
+	TCHAR inputPort[64];
+	memset(inputPort, 0, 64);
+	GetWindowText(hInput3, str, 64);
+	if (GetWindowTextLengthA(hInput3) != 0) {
+		inputIPLength = GetWindowTextLengthA(hInput2);
+		GetWindowText(hInput3, inputPort, 64);
+		strcpy(network.port, inputPort);
 		//network.ip = inputIP;
 		return 1;
 	}

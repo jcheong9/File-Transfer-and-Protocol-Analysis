@@ -15,7 +15,6 @@ void serverMainUDP(PVOID network)
     WSABUF DataBuf;
     SOCKET RecvSocket = INVALID_SOCKET;
     struct sockaddr_in RecvAddr;
-
     //char RecvBuf[1024];
     //int BufLen = 1024;
     DWORD BytesRecv = 0;

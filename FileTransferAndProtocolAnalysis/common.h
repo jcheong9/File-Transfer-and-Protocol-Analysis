@@ -55,6 +55,7 @@ typedef struct NETWORK{
 	struct sockaddr_in server;
 	HWND hwnd = NULL;
 	TCHAR ip[64];
+	TCHAR port[64];
 	LPCSTR data;
 	TCHAR filePath[100];
 	SOCKET sdServer = NULL;
