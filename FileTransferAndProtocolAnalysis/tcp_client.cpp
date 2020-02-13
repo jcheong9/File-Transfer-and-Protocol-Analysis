@@ -1,6 +1,31 @@
 #include "tcp_client.h"
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: winmain.cpp -	An application that uses basic Winsock 2 API database
+--								lookup calls to get host or serivce information.
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- FUNCTIONS:
+--				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--						LPSTR lspszCmdParam, int nCmdShow)
+--				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
+--						WPARAM wParam, LPARAM lParam)
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This application provides three selections to perform WinSocket API database lookup.
+-- The three selections are name address, service port, and port service. Once these lookup are
+-- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+----------------------------------------------------------------------------------------------------------------------*/
 void tcp_client(PVOID network) {
 	SYSTEMTIME st;
 	NETWORK* networkStruct = (NETWORK*)network;
@@ -100,9 +125,5 @@ void tcp_client(PVOID network) {
 	_endthread();
 }
 
-int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
-	int n = send(*sd, fileData, strlen(fileData), 0);
-	return n;
-}
 
 

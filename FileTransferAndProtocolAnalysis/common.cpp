@@ -1,5 +1,50 @@
 #include "common.h"
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: common.cpp -	This holds the common functions used through out the application.
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- FUNCTIONS:
+--              int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct)
+--              int writeToFile(LPSTR data, NETWORK_STRUC networkStruct)
+--              string convert(LPCSTR str)
+--              long getTimeConvertToMil(SYSTEMTIME t1) 
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This file contains common wrapper functions that are intended to be easily portable
+-- between application.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 
+
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: loadSaveFile
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window for the user to save file.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct) {
     //open save dialog box only if the file is not loaded
 
@@ -53,9 +98,27 @@ int loadSaveFile(LPSTR data, NETWORK_STRUC networkStruct) {
     return 1;
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: writeToFile
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int writeToFile(LPSTR data, NETWORK_STRUC networkStruct)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function writes the passed in data into the specified path from the NETWORK_STRUC.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int writeToFile(LPSTR data, NETWORK_STRUC networkStruct) {
-    //string filepath = convert(uploadData->filePath); // convert LPCST to std::string
+
     HANDLE hFile = CreateFile(TEXT(networkStruct->filePath),      // name of the write
         FILE_APPEND_DATA,       // open for appending
         0,                      // do not share
@@ -88,10 +151,48 @@ int writeToFile(LPSTR data, NETWORK_STRUC networkStruct) {
     return 1;
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: convert
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: string convert(LPCSTR str)
+--
+-- RETURNS: string
+--
+-- NOTES:
+-- This function converts LCSTR to string.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 string convert(LPCSTR str) {
     return std::string(str);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: getTimeConvertToMil
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: long getTimeConvertToMil(SYSTEMTIME t1)
+--
+-- RETURNS: long
+--
+-- NOTES:
+-- This function convert SYSTEMTIME to milisecond and return it.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 long getTimeConvertToMil(SYSTEMTIME t1) {
     long d;
 

@@ -1,7 +1,29 @@
 #include "udp_server.h"
 
-
-
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: udp_server.cpp - 	UDP server uses Completion Routine Advanced I/O model.
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- FUNCTIONS:
+--				void serverMainUDP(PVOID network)
+--				void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
+--              LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+--              void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent)
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This file contains the UDP server using the Completion Routine Advanced I/O model. This allows the
+-- server to asynchronously receives messages from client. 
+----------------------------------------------------------------------------------------------------------------------*/
 
 NETWORK* networkStructUDP;
 int firstPacket = 1;
@@ -12,27 +34,26 @@ void serverMainUDP(PVOID network)
     LPSOCKET_INFORMATIONUDP SocketInfo;
     networkStructUDP = (NETWORK*)network;
     WSADATA wsaData;
+    WSABUF DataBuf;
     SOCKET RecvSocket = INVALID_SOCKET;
     struct sockaddr_in RecvAddr;
-    //char RecvBuf[1024];
-    //int BufLen = 1024;
     DWORD BytesRecv = 0;
-    //char buff[100];
     DWORD Flags = 0;
+    LPSTR messageHeader;
     string str;
     int port = atoi(networkStructUDP->port);
 
     char buffer[64];
-
+    int n;
+    int           ret;
+    BOOL          bOpt;
     int err = 0;
     int rc;
     int retval = 0;
 
-    //-----------------------------------------------
-    // Initialize Winsock
+    // Initialize Winsock 2
     rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (rc != 0) {
-        /* Could not find a usable Winsock DLL */
         wprintf(L"WSAStartup failed with error: %ld\n", rc);
         return ;
     }
@@ -44,8 +65,8 @@ void serverMainUDP(PVOID network)
         return ;
     }
 
-    // Make sure the Overlapped struct is zeroed out
-    SecureZeroMemory((PVOID)&SocketInfo->Overlapped, sizeof(WSAOVERLAPPED));
+    //Overlapped struct is zeroed out.
+    ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
 
     // Create an event handle and setup the overlapped structure.
     SocketInfo->Overlapped.hEvent = WSACreateEvent();
@@ -54,28 +75,28 @@ void serverMainUDP(PVOID network)
         WSACleanup();
         return ;
     }
-    //-----------------------------------------------
+
     // Create a receiver socket to receive datagrams
     RecvSocket = WSASocket(AF_INET,
         SOCK_DGRAM,
         IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (RecvSocket == INVALID_SOCKET) {
-        /* Could not open a socket */
         wprintf(L"WSASocket failed with error: %ld\n", WSAGetLastError());
         WSACloseEvent(SocketInfo->Overlapped.hEvent);
         WSACleanup();
         return ;
     }
-    //-----------------------------------------------
+
     // Bind the socket to any address and the specified port.
     RecvAddr.sin_family = AF_INET;
     RecvAddr.sin_port = htons(port);
     RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
+    bOpt = TRUE;
+    ret = setsockopt(RecvSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&bOpt,
+        sizeof(bOpt));
     rc = bind(RecvSocket, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
     if (rc != 0) {
-        /* Bind to the socket failed */
         wprintf(L"bind failed with error: %ld\n", WSAGetLastError());
         sprintf_s(buffer, "bind() failed with error %d\n", WSAGetLastError());
         MessageBox(networkStructUDP->hwnd, buffer, TEXT(""), MB_OK);
@@ -89,6 +110,7 @@ void serverMainUDP(PVOID network)
     //assigning RecvSocket to struct
     SocketInfo->Socket = RecvSocket;
     networkStructUDP->sdServer = RecvSocket;
+
     //create path of the save file to be logged
     if (!loadSaveFile((LPSTR)("Transmitting:\r\n"), networkStructUDP)) {
         MessageBox(networkStructUDP->hwnd, "Please load file or create new file to be logged.", TEXT(""), MB_OK);
@@ -96,26 +118,9 @@ void serverMainUDP(PVOID network)
         return;
     }
 
-    while (networkStructUDP->connected)
+    while (TRUE)
     {
-		if (!networkStructUDP->connected) {
-			MessageBox(networkStructUDP->hwnd, TEXT("Finished received. Closing socket.\n"), TEXT("Server"), MB_OK);
-			PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
-			//---------------------------------------------
-			// When the application is finished receiving, close the socket.
-
-			WSACloseEvent(SocketInfo->Overlapped.hEvent);
-			closesocket(RecvSocket);
-			if (SocketInfo != NULL) {
-				GlobalFree(SocketInfo);
-			}
-
-			//---------------------------------------------
-			// Clean up and quit.
-			WSACleanup();
-			_endthread();
-		}
-		
+        
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
@@ -131,13 +136,14 @@ void serverMainUDP(PVOID network)
         if (rc != 0) {
             err = WSAGetLastError();
             if (err != WSA_IO_PENDING) {
+                MessageBox(networkStructUDP->hwnd, TEXT("Closing socket.\n"), TEXT("Server"), MB_OK);
                 wprintf(L"WSARecvFrom failed with error: %ld\n", err);
-                WSACloseEvent(SocketInfo->Overlapped.hEvent);
-                closesocket(RecvSocket);
-                WSACleanup();
-                return;
+                ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+                disconnectSocketServerUDP(&networkStructUDP->sdServer, &networkStructUDP->udpEvent);
+                _endthread();
             }
             else {
+                networkStructUDP->udpEvent = SocketInfo->Overlapped.hEvent;
                 rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
                 if (rc == WSA_WAIT_FAILED) {
                     wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
@@ -149,6 +155,9 @@ void serverMainUDP(PVOID network)
                 if (rc == FALSE) {
                     wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
                     retval = 1;
+                    closesocket(RecvSocket);
+                    WSACleanup();
+                    return;
                 }
             }
 
@@ -157,7 +166,26 @@ void serverMainUDP(PVOID network)
 
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WorkerRoutineUDP
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
+--            LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function is a call-back that is called when the overlapped event occurs. The purpose of this call-back
+-- is to handle the message received from client and process the data.
+----------------------------------------------------------------------------------------------------------------------*/
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {
@@ -178,21 +206,16 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     if (Error != 0)
     {
         printf("I/O operation failed with error %d\n", Error);
-        sprintf_s(buff, "I/O operation failed with error %d\n", Error);
-        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (BytesTransferred == 0)
     {
         int n = SI->Socket;
-        sprintf_s(buff, "Closing socket %u\n", n);
-        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
     {
         closesocket(SI->Socket);
-        //GlobalFree(SI);
         return;
     }
 
@@ -240,7 +263,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             n = str.find("~");
 
             memset(buff, 0, 64);
-            sprintf_s(buff, "\n\r\Begining Time From Client:\r\n");
+            sprintf_s(buff, "\r\Begining Time From Client:\r\n");
             writeToFile(buff, networkStructUDP);
 
             //process the header sent from client
@@ -271,7 +294,8 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
         // Now that there are no more bytes to send post another WSARecv() request.
 
         Flags = 0;
-        ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
+        //ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
+        // Create an event handle and setup the overlapped structure.
 
         SI->DataBuf.len = DATA_BUFSIZE;
         SI->DataBuf.buf = SI->Buffer;
@@ -304,7 +328,27 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     }
 }
 
-void disconnectSocketServerUDP(SOCKET si) {
-    closesocket(si);
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: disconnectSocketServerUDP
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent)
+--
+-- RETURNS: void
+--
+-- NOTES:
+-- This function closes socket, event and terminates WSA in winsock 2 DLL.
+--
+----------------------------------------------------------------------------------------------------------------------*/
+void disconnectSocketServerUDP(SOCKET* si, WSAEVENT* udpEvent) {
+    WSACloseEvent(*udpEvent);
+    closesocket(*si);
     WSACleanup();
 }

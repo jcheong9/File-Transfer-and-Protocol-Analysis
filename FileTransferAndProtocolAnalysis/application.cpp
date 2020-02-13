@@ -3,7 +3,7 @@
 --								lookup calls to get host or serivce information.
 --
 --
--- PROGRAM: Basic Window Socket Application
+-- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- FUNCTIONS:
 --				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
@@ -11,7 +11,7 @@
 --				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 --						WPARAM wParam, LPARAM lParam)
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -55,7 +55,7 @@ int X = 0, Y = 0; // Current coordinates
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WinMain
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -172,7 +172,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WndProc
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -386,22 +386,57 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	//GlobalFree(buffer);
 	return 1;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void disconnect(HWND hwnd) {
-	if (!network.connected) {
-		delete network.data;
-	}
 	network.numByteRead = 0;
-	if (network.selectServerClient) {
+	if (!network.selectServerClient) {
 		if (network.selectedProtocal) {
-			disconnectSocketServerUDP(network.sdServer);
+			disconnectSocketServerUDP(&network.sdServer, &network.udpEvent);
 		}
 		else {
 			disconnectSocketServerTCP(network.sdServer); //disconnect server
 		}
 	}
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkPackInput() {
 	int inputPacketLength;
 	TCHAR inputPacket[64];
@@ -415,7 +450,26 @@ int checkPackInput() {
 	
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkIpInput() {
 	int inputIPLength;
 	TCHAR inputIP[64];
@@ -432,7 +486,26 @@ int checkIpInput() {
 	}
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkPortInput() {
 	int inputIPLength;
 	TCHAR inputPort[64];
@@ -449,7 +522,26 @@ int checkPortInput() {
 	}
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void processEndData() {
 	char buff[100];
 	long duration = network.endTime - network.startTime;

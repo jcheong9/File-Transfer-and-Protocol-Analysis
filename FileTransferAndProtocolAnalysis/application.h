@@ -1,13 +1,13 @@
 #pragma once
 /*------------------------------------------------------------------------------------------------------------------
 -- SOURCE FILE: application.h - contains the declaration functions
---								and libraries for this project
+--								and headers for this project
 --
 --
 --
--- PROGRAM: Basic Window Socket Application
+-- PROGRAM: File Transfer and Protocol Analysis Application
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS:
 --
@@ -16,7 +16,7 @@
 -- PROGRAMMER: Jameson Cheong
 --
 -- NOTES:
--- This is a header file contains declaration functions and libraries.
+-- This is a header file contains declaration functions, defined menu items and headers.
 ----------------------------------------------------------------------------------------------------------------------*/
 #pragma once
 #include "tcp_client.h"
