@@ -1,17 +1,18 @@
 #include "tcp_server.h"
 
 /*------------------------------------------------------------------------------------------------------------------
--- SOURCE FILE: tcp_server.cpp -	An application that uses basic Winsock 2 API database
---								lookup calls to get host or serivce information.
+-- SOURCE FILE: tcp_server.cpp - 	TCP server uses Completion Routine Advanced I/O model.
 --
 --
 -- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- FUNCTIONS:
---				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---						LPSTR lspszCmdParam, int nCmdShow)
---				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
---						WPARAM wParam, LPARAM lParam)
+--				void serverMainTCP(PVOID network)
+--				DWORD WINAPI WorkerThread(LPVOID lpParameter)
+--				void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+--				    LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+--				void disconnectSocketServerTCP(SOCKET si)
+--				
 --
 -- DATE: January 29, 2020
 --
@@ -22,11 +23,29 @@
 -- PROGRAMMER: Jameson Cheong
 --
 -- NOTES:
--- This application provides three selections to perform WinSocket API database lookup.
--- The three selections are name address, service port, and port service. Once these lookup are
--- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+-- This file contains the TCP server using the Completion Routine Advanced I/O model. This allows the
+-- server to asynchronously receives messages from client. 
 ----------------------------------------------------------------------------------------------------------------------*/
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: serverMainTCP
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: void serverMainTCP(PVOID network)
+--
+-- RETURNS: LRESULT
+--
+-- NOTES:
+-- This function initalized TCP server, prompted the user to save a file and wait for the overlapped accept event.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 SOCKET AcceptSocket;
 NETWORK* networkStruct;
 
@@ -128,7 +147,7 @@ void serverMainTCP(PVOID network)
     _endthread();
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: WorkerThread
 --
 -- DATE: January 29, 2020
 --
@@ -138,13 +157,13 @@ void serverMainTCP(PVOID network)
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: DWORD WINAPI WorkerThread(LPVOID lpParameter)
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function will monitor the reveive data and process the data. The received data will be save
+-- in the user specificed file.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI WorkerThread(LPVOID lpParameter)
@@ -222,7 +241,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
             networkStruct->numByteRead = networkStruct->numByteRead + RecvBytes;
 
             memset(buffer, 0, 64);
-            sprintf_s(buffer, "\r\Begining Time From Client:\r\n");
+            sprintf_s(buffer, "\n\rBegining Time From Client:\r\n");
             writeToFile(buffer, networkStruct);
 
             //process the header sent from client
@@ -251,7 +270,6 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
         sprintf_s(buffer, "Socket %d connected\n", (int)AcceptSocket);
         MessageBox(networkStruct->hwnd, buffer, TEXT(""), MB_OK);
 
-       
     }
     if (SocketInfo != NULL) {
         GlobalFree(SocketInfo);
@@ -259,7 +277,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
     return TRUE;
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: WorkerRoutine
 --
 -- DATE: January 29, 2020
 --
@@ -269,13 +287,13 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+--				    LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function initalized TCP server, prompted the user to save a file and wait for the overlapped event.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
@@ -384,7 +402,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 }
 
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: disconnectSocketServerTCP
 --
 -- DATE: January 29, 2020
 --
@@ -400,7 +418,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function closes socket and terminates WSA in winsock 2 DLL.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 

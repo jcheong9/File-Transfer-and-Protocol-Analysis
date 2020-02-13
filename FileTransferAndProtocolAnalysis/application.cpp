@@ -49,7 +49,6 @@ static TCHAR Name[] = TEXT("Basic Window Socket");
 static HBRUSH startBackGroundColor = CreateSolidBrush(RGB(255, 255, 255));
 
 char str[255];	//output buffer
-int X = 0, Y = 0; // Current coordinates
 
 
 /*------------------------------------------------------------------------------------------------------------------
@@ -336,7 +335,25 @@ int connect(HWND hwnd, LPCSTR fileData) {
 	return 0;
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: upload_file
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int upload_file(HWND hwnd, NETWORK* uploadData)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function process windows messages and define the behavior of this application.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int upload_file(HWND hwnd, NETWORK* uploadData) {
 	OPENFILENAME ofn;
 	char file_name[100];
@@ -381,9 +398,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 		return 0;
 	}
 	uploadData->data = (LPCSTR)bufferGlobalAlloc;
-	//MessageBox(NULL, TEXT(buffer), "", MB_OK);
 	MessageBox(NULL, "Uploaded", "", MB_OK);
-	//GlobalFree(buffer);
 	return 1;
 }
 /*------------------------------------------------------------------------------------------------------------------
@@ -397,13 +412,12 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: void disconnect(HWND hwnd)
 --
--- RETURNS: int
+-- RETURNS: void
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function disconnet the UDP or TCP server.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 void disconnect(HWND hwnd) {
@@ -418,7 +432,7 @@ void disconnect(HWND hwnd) {
 	}
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: checkPackInput
 --
 -- DATE: January 29, 2020
 --
@@ -428,13 +442,12 @@ void disconnect(HWND hwnd) {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: int checkPackInput() 
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function validated the packet input field.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 int checkPackInput() {
@@ -451,7 +464,7 @@ int checkPackInput() {
 	return 0;
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: checkIpInput
 --
 -- DATE: January 29, 2020
 --
@@ -461,13 +474,12 @@ int checkPackInput() {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: int checkIpInput()
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function validated the ip input field.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 int checkIpInput() {
@@ -487,7 +499,7 @@ int checkIpInput() {
 	return 0;
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: checkPortInput
 --
 -- DATE: January 29, 2020
 --
@@ -497,13 +509,12 @@ int checkIpInput() {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: int checkIpInput()
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function validated the port input field.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 int checkPortInput() {
@@ -523,7 +534,7 @@ int checkPortInput() {
 	return 0;
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: processEndData
 --
 -- DATE: January 29, 2020
 --
@@ -533,13 +544,12 @@ int checkPortInput() {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: void processEndData() 
 --
--- RETURNS: int
+-- RETURNS: void
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function writes the received packets and the duration of transfer.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 void processEndData() {

@@ -3,21 +3,22 @@
 --
 --	PROGRAM:		uclnt.exe
 --
---	FUNCTIONS:		Winsock 2 API
+--	FUNCTIONS:		void udp_client(PVOID network)
 --
---	DATE:			January 6, 2008
+--	DATE:			January 30, 2020
 --
 --	REVISIONS:		(Date and Description)
 --
---	DESIGNERS:
+--	DESIGNERS:		Jameson Cheong
 --
---	PROGRAMMERS:	Aman Abdulla
+--	PROGRAMMERS:	Jameson Cheong
 --
 --	NOTES:
 --	The program will send a UDP packet to a user specifed server.
 --  The server can be specified using a fully qualified domain name or and
---	IP address. The packet is time stamped and then sent to the server. The
---  response (echo) is also time stamped and the delay is displayed.
+--	IP address. The first packet will sent a time stamp. If user did not upload file, the 
+--  following packet is fill with 'a' with the specified packet size provide by the user. 
+--  If user specified a file, the file will be sent in a packet. 
 ---------------------------------------------------------------------------------------*/
 #include "udp_client.h"
 

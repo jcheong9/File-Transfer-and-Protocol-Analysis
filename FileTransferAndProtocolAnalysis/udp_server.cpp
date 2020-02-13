@@ -25,6 +25,26 @@
 -- server to asynchronously receives messages from client. 
 ----------------------------------------------------------------------------------------------------------------------*/
 
+
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: serverMainUDP
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: void serverMainUDP(PVOID network)
+--
+-- RETURNS: void
+--
+-- NOTES:
+-- This function initalized UDP server, prompted the user to save a file and wait for the overlapped event. 
+--
+----------------------------------------------------------------------------------------------------------------------*/
 NETWORK* networkStructUDP;
 int firstPacket = 1;
 void serverMainUDP(PVOID network)
@@ -34,17 +54,14 @@ void serverMainUDP(PVOID network)
     LPSOCKET_INFORMATIONUDP SocketInfo;
     networkStructUDP = (NETWORK*)network;
     WSADATA wsaData;
-    WSABUF DataBuf;
     SOCKET RecvSocket = INVALID_SOCKET;
     struct sockaddr_in RecvAddr;
     DWORD BytesRecv = 0;
     DWORD Flags = 0;
-    LPSTR messageHeader;
     string str;
     int port = atoi(networkStructUDP->port);
 
     char buffer[64];
-    int n;
     int           ret;
     BOOL          bOpt;
     int err = 0;
@@ -178,7 +195,7 @@ void serverMainUDP(PVOID network)
 -- PROGRAMMER: Jameson Cheong
 --
 -- INTERFACE: void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
---            LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+--					LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 --
 -- RETURNS: int
 --
@@ -263,7 +280,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             n = str.find("~");
 
             memset(buff, 0, 64);
-            sprintf_s(buff, "\r\Begining Time From Client:\r\n");
+            sprintf_s(buff, "\n\rBegining Time From Client:\r\n");
             writeToFile(buff, networkStructUDP);
 
             //process the header sent from client
