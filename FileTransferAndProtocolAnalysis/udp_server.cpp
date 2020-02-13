@@ -12,7 +12,6 @@ void serverMainUDP(PVOID network)
     LPSOCKET_INFORMATIONUDP SocketInfo;
     networkStructUDP = (NETWORK*)network;
     WSADATA wsaData;
-    WSABUF DataBuf;
     SOCKET RecvSocket = INVALID_SOCKET;
     struct sockaddr_in RecvAddr;
     //char RecvBuf[1024];
@@ -20,12 +19,10 @@ void serverMainUDP(PVOID network)
     DWORD BytesRecv = 0;
     //char buff[100];
     DWORD Flags = 0;
-    LPSTR messageHeader;
     string str;
     int port = atoi(networkStructUDP->port);
 
     char buffer[64];
-    int n;
 
     int err = 0;
     int rc;
@@ -101,6 +98,24 @@ void serverMainUDP(PVOID network)
 
     while (networkStructUDP->connected)
     {
+		if (!networkStructUDP->connected) {
+			MessageBox(networkStructUDP->hwnd, TEXT("Finished received. Closing socket.\n"), TEXT("Server"), MB_OK);
+			PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
+			//---------------------------------------------
+			// When the application is finished receiving, close the socket.
+
+			WSACloseEvent(SocketInfo->Overlapped.hEvent);
+			closesocket(RecvSocket);
+			if (SocketInfo != NULL) {
+				GlobalFree(SocketInfo);
+			}
+
+			//---------------------------------------------
+			// Clean up and quit.
+			WSACleanup();
+			_endthread();
+		}
+		
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
@@ -139,21 +154,7 @@ void serverMainUDP(PVOID network)
 
         }
     }
-    MessageBox(networkStructUDP->hwnd, TEXT("Finished received. Closing socket.\n"), TEXT("Server"), MB_OK);
-	PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
-    //---------------------------------------------
-    // When the application is finished receiving, close the socket.
 
-    WSACloseEvent(SocketInfo->Overlapped.hEvent);
-    closesocket(RecvSocket);
-    if (SocketInfo != NULL) {
-        GlobalFree(SocketInfo);
-    }
-
-    //---------------------------------------------
-    // Clean up and quit.
-    WSACleanup();
-    _endthread();
 }
 
 
@@ -239,7 +240,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             n = str.find("~");
 
             memset(buff, 0, 64);
-            sprintf_s(buff, "\r\Begining Time From Client:\r\n");
+            sprintf_s(buff, "\n\r\Begining Time From Client:\r\n");
             writeToFile(buff, networkStructUDP);
 
             //process the header sent from client

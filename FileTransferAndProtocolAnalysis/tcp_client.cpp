@@ -12,7 +12,6 @@ void tcp_client(PVOID network) {
 	SOCKET sdClient;
 	WORD wVersionRequested;
 	LPCSTR sbuf = "";
-	float beginTime;
 	long num = (networkStruct->packSize) + 1;
 	LPSTR message = new TCHAR[num];
 	char buffer[64];
