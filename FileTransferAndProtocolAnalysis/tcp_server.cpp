@@ -212,9 +212,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
         {
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
-                //printf("WSARecv() failed with error %d\n", WSAGetLastError());
-                sprintf_s(buffer, "WSARecv() failed with error %d\n", WSAGetLastError());
-                MessageBox(networkStruct->hwnd, buffer, TEXT("Server"), MB_OK);
+                printf("WSARecv() failed with error %d\n", WSAGetLastError());
                 return FALSE;
             }
         }

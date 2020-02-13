@@ -410,7 +410,7 @@ void disconnect(HWND hwnd) {
 	network.numByteRead = 0;
 	if (!network.selectServerClient) {
 		if (network.selectedProtocal) {
-			disconnectSocketServerUDP(network.sdServer, network.udpEvent);
+			disconnectSocketServerUDP(&network.sdServer, &network.udpEvent);
 		}
 		else {
 			disconnectSocketServerTCP(network.sdServer); //disconnect server
