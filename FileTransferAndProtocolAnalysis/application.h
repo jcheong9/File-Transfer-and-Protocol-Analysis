@@ -5,9 +5,9 @@
 --
 --
 --
--- PROGRAM: Basic Window Socket Application
+-- PROGRAM: File Transfer and Protocol Analysis Application
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS:
 --

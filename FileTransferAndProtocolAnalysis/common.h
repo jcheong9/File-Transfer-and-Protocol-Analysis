@@ -60,6 +60,7 @@ typedef struct NETWORK{
 	TCHAR filePath[100];
 	SOCKET sdServer = NULL;
 	SOCKET AcceptSocket = NULL;
+	WSAEVENT udpEvent = NULL;
 	DWORD numByteRead = 0;
 } NETWORK, * NETWORK_STRUC;
 

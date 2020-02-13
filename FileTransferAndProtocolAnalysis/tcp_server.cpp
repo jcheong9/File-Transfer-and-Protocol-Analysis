@@ -1,11 +1,31 @@
 #include "tcp_server.h"
 
-
-
-void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
-    LPWSAOVERLAPPED Overlapped, DWORD InFlags);
-
-DWORD WINAPI WorkerThread(LPVOID lpParameter);
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: tcp_server.cpp -	An application that uses basic Winsock 2 API database
+--								lookup calls to get host or serivce information.
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- FUNCTIONS:
+--				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--						LPSTR lspszCmdParam, int nCmdShow)
+--				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
+--						WPARAM wParam, LPARAM lParam)
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This application provides three selections to perform WinSocket API database lookup.
+-- The three selections are name address, service port, and port service. Once these lookup are
+-- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+----------------------------------------------------------------------------------------------------------------------*/
 
 SOCKET AcceptSocket;
 NETWORK* networkStruct;
@@ -22,6 +42,8 @@ void serverMainTCP(PVOID network)
     WSAEVENT AcceptEvent;
     char buff[100];
     int port = atoi(networkStruct->port);
+    int           ret;
+    BOOL          bOpt;
     memset(buff, 0, 100);
     if ((Ret = WSAStartup(0x0202, &wsaData)) != 0)
     {
@@ -42,7 +64,9 @@ void serverMainTCP(PVOID network)
     InternetAddr.sin_family = AF_INET;
     InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     InternetAddr.sin_port = htons(port);
-
+    bOpt = TRUE;
+    ret = setsockopt(ListenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&bOpt,
+        sizeof(bOpt));
     if (bind(ListenSocket, (PSOCKADDR)&InternetAddr,
         sizeof(InternetAddr)) == SOCKET_ERROR)
     {
@@ -217,7 +241,26 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
     }
     return TRUE;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {   
@@ -323,7 +366,26 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
     }
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 
 void disconnectSocketServerTCP(SOCKET si) {
     closesocket(si);

@@ -1,7 +1,31 @@
 #include "udp_server.h"
 
-
-
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: winmain.cpp -	An application that uses basic Winsock 2 API database
+--								lookup calls to get host or serivce information.
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- FUNCTIONS:
+--				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--						LPSTR lspszCmdParam, int nCmdShow)
+--				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
+--						WPARAM wParam, LPARAM lParam)
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This application provides three selections to perform WinSocket API database lookup.
+-- The three selections are name address, service port, and port service. Once these lookup are
+-- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+----------------------------------------------------------------------------------------------------------------------*/
 
 NETWORK* networkStructUDP;
 int firstPacket = 1;
@@ -26,7 +50,8 @@ void serverMainUDP(PVOID network)
 
     char buffer[64];
     int n;
-
+    int           ret;
+    BOOL          bOpt;
     int err = 0;
     int rc;
     int retval = 0;
@@ -75,7 +100,9 @@ void serverMainUDP(PVOID network)
     RecvAddr.sin_family = AF_INET;
     RecvAddr.sin_port = htons(port);
     RecvAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-
+    bOpt = TRUE;
+    ret = setsockopt(RecvSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&bOpt,
+        sizeof(bOpt));
     rc = bind(RecvSocket, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
     if (rc != 0) {
         /* Bind to the socket failed */
@@ -99,8 +126,9 @@ void serverMainUDP(PVOID network)
         return;
     }
 
-    while (networkStructUDP->connected)
+    while (TRUE)
     {
+        
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
         SocketInfo->DataBuf.len = DATA_BUFSIZE;
@@ -116,13 +144,16 @@ void serverMainUDP(PVOID network)
         if (rc != 0) {
             err = WSAGetLastError();
             if (err != WSA_IO_PENDING) {
+                MessageBox(networkStructUDP->hwnd, TEXT("Closing socket.\n"), TEXT("Server"), MB_OK);
                 wprintf(L"WSARecvFrom failed with error: %ld\n", err);
+                ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
                 WSACloseEvent(SocketInfo->Overlapped.hEvent);
                 closesocket(RecvSocket);
                 WSACleanup();
-                return;
+                _endthread();
             }
             else {
+                networkStructUDP->udpEvent = SocketInfo->Overlapped.hEvent;
                 rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
                 if (rc == WSA_WAIT_FAILED) {
                     wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
@@ -134,29 +165,35 @@ void serverMainUDP(PVOID network)
                 if (rc == FALSE) {
                     wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
                     retval = 1;
+                    return;
                 }
             }
 
         }
     }
-    MessageBox(networkStructUDP->hwnd, TEXT("Finished received. Closing socket.\n"), TEXT("Server"), MB_OK);
-	PostMessage(networkStructUDP->hwnd, WM_FAILED_CONNECT, 0, 0);
-    //---------------------------------------------
-    // When the application is finished receiving, close the socket.
 
-    WSACloseEvent(SocketInfo->Overlapped.hEvent);
-    closesocket(RecvSocket);
-    if (SocketInfo != NULL) {
-        GlobalFree(SocketInfo);
-    }
-
-    //---------------------------------------------
-    // Clean up and quit.
-    WSACleanup();
-    _endthread();
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 {
@@ -303,7 +340,28 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     }
 }
 
-void disconnectSocketServerUDP(SOCKET si) {
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
+void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent) {
+    WSACloseEvent(udpEvent);
     closesocket(si);
     WSACleanup();
 }

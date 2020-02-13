@@ -3,7 +3,7 @@
 --								lookup calls to get host or serivce information.
 --
 --
--- PROGRAM: Basic Window Socket Application
+-- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- FUNCTIONS:
 --				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
@@ -11,7 +11,7 @@
 --				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 --						WPARAM wParam, LPARAM lParam)
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -55,7 +55,7 @@ int X = 0, Y = 0; // Current coordinates
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WinMain
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -172,7 +172,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInst,_In_opt_ HINSTANCE hprevInstance,
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WndProc
 --
--- DATE: January 15, 2020
+-- DATE: January 29, 2020
 --
 -- REVISIONS: (Date and Description)
 --
@@ -388,13 +388,10 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 }
 
 void disconnect(HWND hwnd) {
-	if (!network.connected) {
-		delete network.data;
-	}
 	network.numByteRead = 0;
-	if (network.selectServerClient) {
+	if (!network.selectServerClient) {
 		if (network.selectedProtocal) {
-			disconnectSocketServerUDP(network.sdServer);
+			disconnectSocketServerUDP(network.sdServer, network.udpEvent);
 		}
 		else {
 			disconnectSocketServerTCP(network.sdServer); //disconnect server
