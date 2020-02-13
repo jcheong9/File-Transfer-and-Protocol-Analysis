@@ -1,7 +1,7 @@
 #pragma once
 /*------------------------------------------------------------------------------------------------------------------
 -- SOURCE FILE: application.h - contains the declaration functions
---								and libraries for this project
+--								and headers for this project
 --
 --
 --
@@ -16,7 +16,7 @@
 -- PROGRAMMER: Jameson Cheong
 --
 -- NOTES:
--- This is a header file contains declaration functions and libraries.
+-- This is a header file contains declaration functions, defined menu items and headers.
 ----------------------------------------------------------------------------------------------------------------------*/
 #pragma once
 #include "tcp_client.h"

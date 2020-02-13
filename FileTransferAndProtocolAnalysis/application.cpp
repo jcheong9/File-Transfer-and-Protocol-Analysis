@@ -386,7 +386,26 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	//GlobalFree(buffer);
 	return 1;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void disconnect(HWND hwnd) {
 	network.numByteRead = 0;
 	if (!network.selectServerClient) {
@@ -398,7 +417,26 @@ void disconnect(HWND hwnd) {
 		}
 	}
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkPackInput() {
 	int inputPacketLength;
 	TCHAR inputPacket[64];
@@ -412,7 +450,26 @@ int checkPackInput() {
 	
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkIpInput() {
 	int inputIPLength;
 	TCHAR inputIP[64];
@@ -429,7 +486,26 @@ int checkIpInput() {
 	}
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int checkPortInput() {
 	int inputIPLength;
 	TCHAR inputPort[64];
@@ -446,7 +522,26 @@ int checkPortInput() {
 	}
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 void processEndData() {
 	char buff[100];
 	long duration = network.endTime - network.startTime;

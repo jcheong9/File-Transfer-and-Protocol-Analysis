@@ -15,9 +15,26 @@
 #include <ctime>
 #include <process.h>
 #pragma comment(lib, "Ws2_32.lib")
-
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE: common.h - contains the declaration functions
+--								and libraries for this project
+--
+--
+--
+-- PROGRAM: File Transfer and Protocol Analysis Application
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS:
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- NOTES:
+-- This is a header file contains declaration functions, constants ,structs and libraries.
+----------------------------------------------------------------------------------------------------------------------*/
 #define WM_FAILED_CONNECT        101
-
 #define BUFSIZE					1024	
 #define DATA_BUFSIZE			8192
 

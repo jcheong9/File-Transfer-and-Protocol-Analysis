@@ -214,21 +214,16 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     if (Error != 0)
     {
         printf("I/O operation failed with error %d\n", Error);
-        sprintf_s(buff, "I/O operation failed with error %d\n", Error);
-        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (BytesTransferred == 0)
     {
         int n = SI->Socket;
-        sprintf_s(buff, "Closing socket %u\n", n);
-        //MessageBox(networkStructUDP->hwnd, buff, TEXT("Server"), MB_OK);
     }
 
     if (Error != 0 || BytesTransferred == 0)
     {
         closesocket(SI->Socket);
-        //GlobalFree(SI);
         return;
     }
 

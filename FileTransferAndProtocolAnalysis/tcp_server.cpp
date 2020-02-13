@@ -127,7 +127,26 @@ void serverMainTCP(PVOID network)
     WSACleanup();
     _endthread();
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: WinMain
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--					LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function creates window and the user interface.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI WorkerThread(LPVOID lpParameter)
 {
     DWORD Flags;

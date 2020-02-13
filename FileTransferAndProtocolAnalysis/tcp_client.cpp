@@ -126,9 +126,5 @@ void tcp_client(PVOID network) {
 	_endthread();
 }
 
-int tcpSentPacket(SOCKET* sd, LPCSTR fileData) {
-	int n = send(*sd, fileData, strlen(fileData), 0);
-	return n;
-}
 
 
