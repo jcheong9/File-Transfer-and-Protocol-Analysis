@@ -1,17 +1,16 @@
 #include "udp_server.h"
 
 /*------------------------------------------------------------------------------------------------------------------
--- SOURCE FILE: winmain.cpp -	An application that uses basic Winsock 2 API database
---								lookup calls to get host or serivce information.
+-- SOURCE FILE: udp_server.cpp - 	UDP server uses Completion Routine Advanced I/O model.
 --
 --
 -- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- FUNCTIONS:
---				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---						LPSTR lspszCmdParam, int nCmdShow)
---				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
---						WPARAM wParam, LPARAM lParam)
+--				void serverMainUDP(PVOID network)
+--				void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
+--              LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+--              void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent)
 --
 -- DATE: January 29, 2020
 --
@@ -22,9 +21,8 @@
 -- PROGRAMMER: Jameson Cheong
 --
 -- NOTES:
--- This application provides three selections to perform WinSocket API database lookup.
--- The three selections are name address, service port, and port service. Once these lookup are
--- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+-- This file contains the UDP server using the Completion Routine Advanced I/O model. This allows the
+-- server to asynchronously receives messages from client. 
 ----------------------------------------------------------------------------------------------------------------------*/
 
 NETWORK* networkStructUDP;
@@ -39,10 +37,7 @@ void serverMainUDP(PVOID network)
     WSABUF DataBuf;
     SOCKET RecvSocket = INVALID_SOCKET;
     struct sockaddr_in RecvAddr;
-    //char RecvBuf[1024];
-    //int BufLen = 1024;
     DWORD BytesRecv = 0;
-    //char buff[100];
     DWORD Flags = 0;
     LPSTR messageHeader;
     string str;
@@ -175,7 +170,7 @@ void serverMainUDP(PVOID network)
 }
 
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: WorkerRoutineUDP
 --
 -- DATE: January 29, 2020
 --
@@ -185,14 +180,14 @@ void serverMainUDP(PVOID network)
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
+--            LPWSAOVERLAPPED Overlapped, DWORD InFlags)
 --
 -- RETURNS: int
 --
 -- NOTES:
--- This function creates window and the user interface.
---
+-- This function is a call-back that is called when the overlapped event occurs. The purpose of this call-back
+-- is to handle the message received from client and process the data.
 ----------------------------------------------------------------------------------------------------------------------*/
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags)
@@ -336,7 +331,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 }
 
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: disconnectSocketServerUDP
 --
 -- DATE: January 29, 2020
 --
@@ -346,13 +341,12 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---					LPSTR lspszCmdParam, int nCmdShow)
+-- INTERFACE: void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent)
 --
--- RETURNS: int
+-- RETURNS: void
 --
 -- NOTES:
--- This function creates window and the user interface.
+-- This function closes socket, event and terminates WSA in winsock 2 DLL.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 void disconnectSocketServerUDP(SOCKET si, WSAEVENT udpEvent) {
