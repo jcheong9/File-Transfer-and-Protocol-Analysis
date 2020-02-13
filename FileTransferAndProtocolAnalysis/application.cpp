@@ -47,9 +47,7 @@ HDC hdc;
 LPSTR bufferGlobalAlloc;
 static TCHAR Name[] = TEXT("Basic Window Socket");
 static HBRUSH startBackGroundColor = CreateSolidBrush(RGB(255, 255, 255));
-
 char str[255];	//output buffer
-
 
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: WinMain
@@ -299,7 +297,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	}
 	return 0;
 }
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: connect
+--
+-- DATE: January 29, 2020
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Jameson Cheong
+--
+-- PROGRAMMER: Jameson Cheong
+--
+-- INTERFACE: int connect(HWND hwnd, LPCSTR fileData)
+--
+-- RETURNS: int
+--
+-- NOTES:
+-- This function starts a thread for client or server.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 int connect(HWND hwnd, LPCSTR fileData) {
 	if (checkPackInput()) {
 		if (network.selectServerClient) {
@@ -424,7 +440,7 @@ void disconnect(HWND hwnd) {
 	network.numByteRead = 0;
 	if (!network.selectServerClient) {
 		if (network.selectedProtocal) {
-			disconnectSocketServerUDP(&network.sdServer, &network.udpEvent);
+			disconnectSocketServerUDP(network.sdServer);
 		}
 		else {
 			disconnectSocketServerTCP(network.sdServer); //disconnect server

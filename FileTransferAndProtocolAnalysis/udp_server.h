@@ -25,4 +25,4 @@
 void serverMainUDP(PVOID network);
 void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
     LPWSAOVERLAPPED Overlapped, DWORD InFlags);
-void disconnectSocketServerUDP(SOCKET* si, WSAEVENT* udpEvent);
+void disconnectSocketServerUDP(SOCKET si);

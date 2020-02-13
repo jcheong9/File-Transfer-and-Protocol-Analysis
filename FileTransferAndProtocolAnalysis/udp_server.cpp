@@ -135,7 +135,7 @@ void serverMainUDP(PVOID network)
         return;
     }
 
-    while (TRUE)
+    while (networkStructUDP->connected)
     {
         
         SocketInfo->BytesSEND = 0;
@@ -156,11 +156,10 @@ void serverMainUDP(PVOID network)
                 MessageBox(networkStructUDP->hwnd, TEXT("Closing socket.\n"), TEXT("Server"), MB_OK);
                 wprintf(L"WSARecvFrom failed with error: %ld\n", err);
                 ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
-                disconnectSocketServerUDP(&networkStructUDP->sdServer, &networkStructUDP->udpEvent);
+                disconnectSocketServerUDP(networkStructUDP->sdServer);
                 _endthread();
             }
             else {
-                networkStructUDP->udpEvent = SocketInfo->Overlapped.hEvent;
                 rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
                 if (rc == WSA_WAIT_FAILED) {
                     wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
@@ -172,14 +171,14 @@ void serverMainUDP(PVOID network)
                 if (rc == FALSE) {
                     wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
                     retval = 1;
-                    closesocket(RecvSocket);
-                    WSACleanup();
-                    return;
                 }
             }
 
         }
     }
+	WSACloseEvent(SocketInfo->Overlapped.hEvent);
+	closesocket(networkStructUDP->sdServer);
+	WSACleanup();
 
 }
 
@@ -311,7 +310,6 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
         // Now that there are no more bytes to send post another WSARecv() request.
 
         Flags = 0;
-        //ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
         // Create an event handle and setup the overlapped structure.
 
         SI->DataBuf.len = DATA_BUFSIZE;
@@ -364,8 +362,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
 -- This function closes socket, event and terminates WSA in winsock 2 DLL.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
-void disconnectSocketServerUDP(SOCKET* si, WSAEVENT* udpEvent) {
-    WSACloseEvent(*udpEvent);
-    closesocket(*si);
+void disconnectSocketServerUDP(SOCKET si) {
+    closesocket(si);
     WSACleanup();
 }
