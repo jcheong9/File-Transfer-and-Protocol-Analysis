@@ -37,7 +37,7 @@ void udp_client(PVOID network)
 		WORD wVersionRequested = MAKEWORD(2, 2);
 		char buffer[64];
 		LPSTR messageHeader;
-		long num = (networkStruct->packSize) + 1;
+		long num = networkStruct->packSize;
 		int numFile;
 		LPSTR message = new TCHAR[num];
 

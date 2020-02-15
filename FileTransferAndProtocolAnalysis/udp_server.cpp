@@ -159,20 +159,18 @@ void serverMainUDP(PVOID network)
                 _endthread();
             }
             else {
-                rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, TRUE, INFINITE, TRUE);
+
+                rc = WSAWaitForMultipleEvents(1, &SocketInfo->Overlapped.hEvent, FALSE, WSA_INFINITE, TRUE);
                 if (rc == WSA_WAIT_FAILED) {
+                    MessageBox(networkStructUDP->hwnd, TEXT("Failed to wait.\n"), TEXT("Server"), MB_OK);
                     wprintf(L"WSAWaitForMultipleEvents failed with error: %d\n", WSAGetLastError());
+                    ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+                    disconnectSocketServerUDP(networkStructUDP->sdServer);
                     retval = 1;
+                    _endthread();
                 }
 
-                rc = WSAGetOverlappedResult(RecvSocket, &SocketInfo->Overlapped, &BytesRecv,
-                    FALSE, &Flags);
-                if (rc == FALSE) {
-                    wprintf(L"WSArecvFrom failed with error: %d\n", WSAGetLastError());
-                    retval = 1;
-                }
             }
-
         }
     }
 	WSACloseEvent(SocketInfo->Overlapped.hEvent);
@@ -316,6 +314,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
         if (WSARecvFrom(SI->Socket,  &(SI->DataBuf),  1, &RecvBytes, &Flags, (SOCKADDR*)&SenderAddr,
             &SenderAddrSize, &(SI->Overlapped), WorkerRoutineUDP))
         {
+            int lsterror = WSAGetLastError();
             if (WSAGetLastError() != WSA_IO_PENDING)
             {
                 printf("WSARecv() failed with error %d\n", WSAGetLastError());
@@ -339,7 +338,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             LPSTR messageHeader2 = buff;
             writeToFile(messageHeader2, networkStructUDP);
         }
-		memset(SI->Buffer, 0, DATA_BUFSIZEUDP);
+		memset(SI->DataBuf.buf, 0, DATA_BUFSIZEUDP);
     }
 }
 

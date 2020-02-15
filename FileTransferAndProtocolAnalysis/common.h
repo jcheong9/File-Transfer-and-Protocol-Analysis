@@ -37,7 +37,7 @@
 #define WM_FAILED_CONNECT        101
 #define BUFSIZE					1024	
 #define DATA_BUFSIZE			8192
-#define DATA_BUFSIZEUDP			200000
+#define DATA_BUFSIZEUDP			20000000
 
 using namespace std;
 
