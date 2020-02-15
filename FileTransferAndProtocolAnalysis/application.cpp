@@ -10,6 +10,13 @@
 --						LPSTR lspszCmdParam, int nCmdShow)
 --				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 --						WPARAM wParam, LPARAM lParam)
+--				int connect(HWND hwnd, LPCSTR fileData)
+--				int upload_file(HWND hwnd, NETWORK* uploadData)
+--				void disconnect(HWND hwnd)
+--				int checkPackInput()
+--				int checkIpInput()
+--				int checkPortInput()
+--				void processEndData()
 --
 -- DATE: January 29, 2020
 --
@@ -50,7 +57,7 @@ static HBRUSH startBackGroundColor = CreateSolidBrush(RGB(255, 255, 255));
 char str[255];	//output buffer
 
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: wWinMain
 --
 -- DATE: January 29, 2020
 --
@@ -329,11 +336,11 @@ int connect(HWND hwnd, LPCSTR fileData) {
 				return 1;
 			}
 			else {
-				MessageBox(NULL, TEXT("Please enter packet size"), "", MB_OK);
+				MessageBox(NULL, TEXT("Please enter ip and port size"), "", MB_OK);
 			}
 		}
 		else {
-			if (checkPackInput() && checkPortInput()) {
+			if (checkPortInput()) {
 				if (network.selectedProtocal) {
 					//udp server
 					_beginthread(serverMainUDP, 1, &network);
@@ -418,7 +425,7 @@ int upload_file(HWND hwnd, NETWORK* uploadData) {
 	return 1;
 }
 /*------------------------------------------------------------------------------------------------------------------
--- FUNCTION: WinMain
+-- FUNCTION: disconnect
 --
 -- DATE: January 29, 2020
 --
@@ -525,7 +532,7 @@ int checkIpInput() {
 --
 -- PROGRAMMER: Jameson Cheong
 --
--- INTERFACE: int checkIpInput()
+-- INTERFACE: int checkPortInput()
 --
 -- RETURNS: int
 --

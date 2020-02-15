@@ -149,7 +149,7 @@ void udp_client(PVOID network)
 			}
 		}
 
-		MessageBox(networkStruct->hwnd, "Transmition Completed, Closing socket.", TEXT("Client"), MB_OK);
+		MessageBox(networkStruct->hwnd, "Transmission Completed, Closing socket.", TEXT("Client"), MB_OK);
 		PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 		
 		delete[] message;

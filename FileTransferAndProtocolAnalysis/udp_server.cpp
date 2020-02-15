@@ -60,10 +60,9 @@ void serverMainUDP(PVOID network)
     DWORD Flags = 0;
     string str;
     int port = atoi(networkStructUDP->port);
-
     char buffer[64];
-    int           ret;
-    BOOL          bOpt;
+    int ret;
+    BOOL bOpt;
     int err = 0;
     int rc;
     int retval = 0;
@@ -140,7 +139,7 @@ void serverMainUDP(PVOID network)
         
         SocketInfo->BytesSEND = 0;
         SocketInfo->BytesRECV = 0;
-        SocketInfo->DataBuf.len = DATA_BUFSIZE;
+        SocketInfo->DataBuf.len = DATA_BUFSIZEUDP;
         SocketInfo->DataBuf.buf = SocketInfo->Buffer;
 
         rc = WSARecvFrom(SocketInfo->Socket, 
@@ -312,7 +311,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
         Flags = 0;
         // Create an event handle and setup the overlapped structure.
 
-        SI->DataBuf.len = DATA_BUFSIZE;
+        SI->DataBuf.len = DATA_BUFSIZEUDP;
         SI->DataBuf.buf = SI->Buffer;
         if (WSARecvFrom(SI->Socket,  &(SI->DataBuf),  1, &RecvBytes, &Flags, (SOCKADDR*)&SenderAddr,
             &SenderAddrSize, &(SI->Overlapped), WorkerRoutineUDP))
@@ -340,6 +339,7 @@ void CALLBACK WorkerRoutineUDP(DWORD Error, DWORD BytesTransferred,
             LPSTR messageHeader2 = buff;
             writeToFile(messageHeader2, networkStructUDP);
         }
+		memset(SI->Buffer, 0, DATA_BUFSIZEUDP);
     }
 }
 

@@ -1,17 +1,14 @@
 #include "tcp_client.h"
 
 /*------------------------------------------------------------------------------------------------------------------
--- SOURCE FILE: winmain.cpp -	An application that uses basic Winsock 2 API database
---								lookup calls to get host or serivce information.
+-- SOURCE FILE: tcp_client.cpp - A simple TCP client program.
 --
 --
 -- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- FUNCTIONS:
---				WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
---						LPSTR lspszCmdParam, int nCmdShow)
---				LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
---						WPARAM wParam, LPARAM lParam)
+--				void tcp_client(PVOID network)
+--				
 --
 -- DATE: January 29, 2020
 --
@@ -22,10 +19,13 @@
 -- PROGRAMMER: Jameson Cheong
 --
 -- NOTES:
--- This application provides three selections to perform WinSocket API database lookup.
--- The three selections are name address, service port, and port service. Once these lookup are
--- executed with the appropriate input(s), the host's information will be diaplayed on the screen.
+-- The program will send a UDP packet to a user specifed server. The server can be specified using a fully 
+-- qualified domain name or and IP address. The first packet will sent a time stamp. If user did not upload file, 
+-- the following packet is fill with 'a' with the specified packet size provide by the user. 
+-- If user specified a file, the file will be sent in a packet. 
 ----------------------------------------------------------------------------------------------------------------------*/
+
+
 void tcp_client(PVOID network) {
 	SYSTEMTIME st;
 	NETWORK* networkStruct = (NETWORK*)network;
@@ -118,10 +118,10 @@ void tcp_client(PVOID network) {
 		}
 	}
 	delete[] message;
+	MessageBox(networkStruct->hwnd, "Transmission  Ended. Closing socket.", TEXT("Client"), MB_OK);
+	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	closesocket(sdClient);
 	WSACleanup();
-	MessageBox(networkStruct->hwnd, "Transmition Ended. Closing socket.", TEXT("Client"), MB_OK);
-	PostMessage(networkStruct->hwnd, WM_FAILED_CONNECT, 0, 0);
 	_endthread();
 }
 

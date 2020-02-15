@@ -37,6 +37,7 @@
 #define WM_FAILED_CONNECT        101
 #define BUFSIZE					1024	
 #define DATA_BUFSIZE			8192
+#define DATA_BUFSIZEUDP			200000
 
 using namespace std;
 
@@ -52,7 +53,7 @@ typedef struct _SOCKET_INFORMATION {
 typedef struct _SOCKET_INFORMATIONUDP {
 	OVERLAPPED Overlapped;
 	SOCKET Socket;
-	CHAR Buffer[DATA_BUFSIZE];
+	CHAR Buffer[DATA_BUFSIZEUDP];
 	WSABUF DataBuf;
 	DWORD BytesSEND;
 	DWORD BytesRECV;

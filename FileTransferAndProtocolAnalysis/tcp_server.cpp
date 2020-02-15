@@ -26,6 +26,8 @@
 -- This file contains the TCP server using the Completion Routine Advanced I/O model. This allows the
 -- server to asynchronously receives messages from client. 
 ----------------------------------------------------------------------------------------------------------------------*/
+SOCKET AcceptSocket;
+NETWORK* networkStruct;
 
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: serverMainTCP
@@ -46,8 +48,6 @@
 -- This function initalized TCP server, prompted the user to save a file and wait for the overlapped accept event.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
-SOCKET AcceptSocket;
-NETWORK* networkStruct;
 
 void serverMainTCP(PVOID network)
 {

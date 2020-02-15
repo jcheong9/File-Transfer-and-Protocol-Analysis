@@ -4,8 +4,6 @@
 -- SOURCE FILE: udp_server.h - contains the declaration functions prototypes for UDP server
 --								
 --
---
---
 -- PROGRAM: File Transfer and Protocol Analysis Application
 --
 -- DATE: January 29, 2020
